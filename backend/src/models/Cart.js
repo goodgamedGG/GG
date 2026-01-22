@@ -1,0 +1,71 @@
+const mongoose = require('mongoose');
+
+const cartItemSchema = new mongoose.Schema({
+    product: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Product',
+        required: true
+    },
+    quantity: {
+        type: Number,
+        required: true,
+        min: [1, 'Quantity must be at least 1'],
+        default: 1
+    },
+    price: {
+        type: Number,
+        required: true,
+        min: [0, 'Price cannot be negative']
+    }
+});
+
+const cartSchema = new mongoose.Schema(
+    {
+        user: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'User',
+            required: true,
+            unique: true
+        },
+        items: [cartItemSchema],
+        subtotal: {
+            type: Number,
+            default: 0,
+            min: [0, 'Subtotal cannot be negative']
+        },
+        discount: {
+            type: Number,
+            default: 0,
+            min: [0, 'Discount cannot be negative']
+        },
+        total: {
+            type: Number,
+            default: 0,
+            min: [0, 'Total cannot be negative']
+        },
+        promoCode: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'PromoCode',
+            default: null
+        }
+    },
+    {
+        timestamps: true
+    }
+);
+
+// Calculate totals before saving
+cartSchema.methods.calculateTotals = function () {
+    // Calculate subtotal
+    this.subtotal = this.items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+
+    // Calculate total (subtotal - discount)
+    this.total = Math.max(0, this.subtotal - this.discount);
+
+    return this;
+};
+
+// Index for faster user lookups
+cartSchema.index({ user: 1 });
+
+module.exports = mongoose.model('Cart', cartSchema);

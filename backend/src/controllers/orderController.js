@@ -1,0 +1,267 @@
+const Order = require('../models/Order');
+const Cart = require('../models/Cart');
+const Product = require('../models/Product');
+const PromoCode = require('../models/PromoCode');
+const { AppError } = require('../middleware/errorMiddleware');
+const { HTTP_STATUS, ORDER_STATUS } = require('../utils/constants');
+const { validateStock } = require('../services/calculationService');
+const { sendOrderConfirmationEmail } = require('../services/emailService');
+const { getPagination, createPaginationMeta } = require('../utils/helpers');
+
+/**
+ * @desc    Create order from cart
+ * @route   POST /api/orders
+ * @access  Private
+ */
+const createOrder = async (req, res, next) => {
+    try {
+        const { phone, paymentMethod } = req.body;
+
+        // Get cart
+        const cart = await Cart.findOne({ user: req.user._id }).populate('items.product promoCode');
+        if (!cart || cart.items.length === 0) {
+            return next(new AppError('Cart is empty', HTTP_STATUS.BAD_REQUEST));
+        }
+
+        // Validate stock
+        const stockValidation = validateStock(cart.items);
+        if (!stockValidation.valid) {
+            return next(new AppError(stockValidation.errors.join(', '), HTTP_STATUS.BAD_REQUEST));
+        }
+
+        // Create order items snapshot
+        const orderItems = cart.items.map((item) => ({
+            product: item.product._id,
+            name: item.product.name,
+            price: item.price,
+            quantity: item.quantity
+        }));
+
+        // Create order
+        const order = await Order.create({
+            user: req.user._id,
+            items: orderItems,
+            subtotal: cart.subtotal,
+            discount: cart.discount,
+            total: cart.total,
+            customerInfo: {
+                name: req.user.name,
+                email: req.user.email,
+                phone
+            },
+            paymentMethod,
+            promoCode: cart.promoCode
+        });
+
+        // Update product stock
+        for (const item of cart.items) {
+            await Product.findByIdAndUpdate(item.product._id, {
+                $inc: { stock: -item.quantity }
+            });
+        }
+
+        // Update promo code usage
+        if (cart.promoCode) {
+            await PromoCode.findByIdAndUpdate(cart.promoCode._id, {
+                $inc: { usedCount: 1 }
+            });
+        }
+
+        // Clear cart
+        cart.items = [];
+        cart.subtotal = 0;
+        cart.discount = 0;
+        cart.total = 0;
+        cart.promoCode = null;
+        await cart.save();
+
+        // Send confirmation email
+        try {
+            await sendOrderConfirmationEmail(req.user.email, req.user.name, order);
+        } catch (emailError) {
+            console.error('Email sending failed:', emailError);
+        }
+
+        await order.populate('items.product');
+
+        res.status(HTTP_STATUS.CREATED).json({
+            success: true,
+            message: 'Order created successfully',
+            data: { order }
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+/**
+ * @desc    Get user's orders
+ * @route   GET /api/orders
+ * @access  Private
+ */
+const getOrders = async (req, res, next) => {
+    try {
+        const { page = 1, limit = 10 } = req.query;
+        const { skip, limit: limitNum, page: pageNum } = getPagination(page, limit);
+
+        const orders = await Order.find({ user: req.user._id })
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(limitNum)
+            .populate('items.product');
+
+        const total = await Order.countDocuments({ user: req.user._id });
+
+        res.status(HTTP_STATUS.OK).json({
+            success: true,
+            data: {
+                orders,
+                pagination: createPaginationMeta(total, pageNum, limitNum)
+            }
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+/**
+ * @desc    Get order by ID
+ * @route   GET /api/orders/:id
+ * @access  Private
+ */
+const getOrderById = async (req, res, next) => {
+    try {
+        const order = await Order.findById(req.params.id)
+            .populate('items.product')
+            .populate('payment');
+
+        if (!order) {
+            return next(new AppError('Order not found', HTTP_STATUS.NOT_FOUND));
+        }
+
+        // Ensure user owns the order (unless admin)
+        if (order.user.toString() !== req.user._id.toString() && req.user.role !== 'admin') {
+            return next(new AppError('Not authorized', HTTP_STATUS.FORBIDDEN));
+        }
+
+        res.status(HTTP_STATUS.OK).json({
+            success: true,
+            data: { order }
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+/**
+ * @desc    Get all orders (Admin)
+ * @route   GET /api/orders/all
+ * @access  Private/Admin
+ */
+const getAllOrders = async (req, res, next) => {
+    try {
+        const { page = 1, limit = 20, status, paymentStatus } = req.query;
+        const { skip, limit: limitNum, page: pageNum } = getPagination(page, limit);
+
+        const query = {};
+        if (status) query.orderStatus = status;
+        if (paymentStatus) query.paymentStatus = paymentStatus;
+
+        const orders = await Order.find(query)
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(limitNum)
+            .populate('user', 'name email')
+            .populate('items.product');
+
+        const total = await Order.countDocuments(query);
+
+        res.status(HTTP_STATUS.OK).json({
+            success: true,
+            data: {
+                orders,
+                pagination: createPaginationMeta(total, pageNum, limitNum)
+            }
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+/**
+ * @desc    Update order status (Admin)
+ * @route   PATCH /api/orders/:id/status
+ * @access  Private/Admin
+ */
+const updateOrderStatus = async (req, res, next) => {
+    try {
+        const { status } = req.body;
+
+        const order = await Order.findById(req.params.id);
+        if (!order) {
+            return next(new AppError('Order not found', HTTP_STATUS.NOT_FOUND));
+        }
+
+        order.orderStatus = status;
+        await order.save();
+
+        res.status(HTTP_STATUS.OK).json({
+            success: true,
+            message: 'Order status updated',
+            data: { order }
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+/**
+ * @desc    Cancel order
+ * @route   PATCH /api/orders/:id/cancel
+ * @access  Private
+ */
+const cancelOrder = async (req, res, next) => {
+    try {
+        const order = await Order.findById(req.params.id);
+        if (!order) {
+            return next(new AppError('Order not found', HTTP_STATUS.NOT_FOUND));
+        }
+
+        // Ensure user owns the order
+        if (order.user.toString() !== req.user._id.toString()) {
+            return next(new AppError('Not authorized', HTTP_STATUS.FORBIDDEN));
+        }
+
+        // Can only cancel pending orders
+        if (order.orderStatus !== ORDER_STATUS.NEW) {
+            return next(new AppError('Cannot cancel this order', HTTP_STATUS.BAD_REQUEST));
+        }
+
+        order.orderStatus = ORDER_STATUS.CANCELLED;
+        await order.save();
+
+        // Restore stock
+        for (const item of order.items) {
+            await Product.findByIdAndUpdate(item.product, {
+                $inc: { stock: item.quantity }
+            });
+        }
+
+        res.status(HTTP_STATUS.OK).json({
+            success: true,
+            message: 'Order cancelled',
+            data: { order }
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+module.exports = {
+    createOrder,
+    getOrders,
+    getOrderById,
+    getAllOrders,
+    updateOrderStatus,
+    cancelOrder
+};
