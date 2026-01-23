@@ -31,7 +31,7 @@ router.post(
     '/',
     protect,
     requireAdmin,
-    uploadSingle('categoryImage'),
+    uploadSingle('image'),
     createCategoryValidator,
     validate,
     createCategory
@@ -42,7 +42,7 @@ router.put(
     '/:id',
     protect,
     requireAdmin,
-    uploadSingle('categoryImage'),
+    uploadSingle('image'),
     updateCategoryValidator,
     validate,
     updateCategory
