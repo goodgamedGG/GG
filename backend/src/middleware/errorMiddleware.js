@@ -38,12 +38,6 @@ const errorHandler = (err, req, res, next) => {
         console.error('Error:', err);
     }
 
-    // Multer file upload errors
-    if (err.name === 'MulterError' || /Only image files are allowed/.test(err.message)) {
-        const message = err.message || 'File upload error';
-        error = new AppError(message, HTTP_STATUS.BAD_REQUEST);
-    }
-
     // Mongoose bad ObjectId
     if (err.name === 'CastError') {
         const message = 'Resource not found';
