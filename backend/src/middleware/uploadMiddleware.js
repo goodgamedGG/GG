@@ -10,13 +10,13 @@ const storage = multer.diskStorage({
         let uploadPath = 'uploads/';
 
         // Determine upload path based on fieldname
-        if (file.fieldname === 'productImages' || file.fieldname === 'productImage') {
+        if (file.fieldname === 'images' || file.fieldname === 'productImages' || file.fieldname === 'productImage') {
             uploadPath += 'products/';
         } else if (file.fieldname === 'bannerImage' || file.fieldname === 'bannerImages') {
             uploadPath += 'banners/';
         } else if (file.fieldname === 'proofImage' || file.fieldname === 'paymentProof') {
             uploadPath += 'payments/';
-        } else if (file.fieldname === 'categoryImage') {
+        } else if (file.fieldname === 'categoryImage' || file.fieldname === 'image') {
             uploadPath += 'categories/';
         }
 

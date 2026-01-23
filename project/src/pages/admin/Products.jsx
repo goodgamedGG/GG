@@ -89,7 +89,7 @@ const Products = () => {
     const handleToggle = async (id) => {
         try {
             const result = await adminAPI.toggleProduct(id);
-            setProducts(products.map(p => 
+            setProducts(products.map(p =>
                 p._id === id ? { ...p, isActive: result.product.isActive } : p
             ));
         } catch (error) {
@@ -103,7 +103,9 @@ const Products = () => {
             const data = new FormData();
             Object.keys(formData).forEach(key => {
                 if (formData[key] !== null && formData[key] !== '') {
-                    data.append(key, formData[key]);
+                    // Use 'images' field name for product images instead of 'image'
+                    const fieldName = key === 'image' ? 'images' : key;
+                    data.append(fieldName, formData[key]);
                 }
             });
 
