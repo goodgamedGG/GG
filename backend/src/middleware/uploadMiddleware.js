@@ -10,7 +10,7 @@ const storage = multer.diskStorage({
         let uploadPath = 'uploads/';
 
         // Determine upload path based on fieldname
-        if (file.fieldname === 'productImages' || file.fieldname === 'productImage') {
+        if (file.fieldname === 'productImages' || file.fieldname === 'productImage' || file.fieldname === 'images') {
             uploadPath += 'products/';
         } else if (file.fieldname === 'bannerImage' || file.fieldname === 'bannerImages') {
             uploadPath += 'banners/';
@@ -20,7 +20,9 @@ const storage = multer.diskStorage({
             uploadPath += 'categories/';
         }
 
-        cb(null, uploadPath);
+        // Use absolute path to avoid relative path issues
+        const absPath = path.resolve(process.cwd(), uploadPath);
+        cb(null, absPath);
     },
     filename: (req, file, cb) => {
         const uniqueName = generateUniqueFilename(file.originalname);
@@ -38,7 +40,8 @@ const fileFilter = (req, file, cb) => {
     if (extname && mimetype) {
         cb(null, true);
     } else {
-        cb(new AppError('Only image files are allowed (jpeg, jpg, png, gif, webp)', HTTP_STATUS.BAD_REQUEST), false);
+        // Pass a plain Error so multer handles it consistently
+        cb(new Error('Only image files are allowed (jpeg, jpg, png, gif, webp)'), false);
     }
 };
 
