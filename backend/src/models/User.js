@@ -84,6 +84,14 @@ userSchema.methods.generateVerificationCode = function () {
     return code;
 };
 
+// Generate password reset code
+userSchema.methods.generatePasswordResetCode = function () {
+    const code = generateVerificationCode(6);
+    this.resetPasswordToken = code;
+    this.resetPasswordExpires = Date.now() + 15 * 60 * 1000; // 15 minutes
+    return code;
+};
+
 // Convert to JSON - remove sensitive fields
 userSchema.methods.toJSON = function () {
     const user = this.toObject();

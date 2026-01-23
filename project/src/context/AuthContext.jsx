@@ -51,8 +51,12 @@ export const AuthProvider = ({ children }) => {
         return await authAPI.forgotPassword(email);
     };
 
-    const resetPassword = async (token, newPassword) => {
-        return await authAPI.resetPassword(token, newPassword);
+    const verifyResetCode = async (email, code) => {
+        return await authAPI.verifyResetCode(email, code);
+    };
+
+    const resetPassword = async (email, code, newPassword) => {
+        return await authAPI.resetPassword(email, code, newPassword);
     };
 
     const updateProfile = async (data) => {
@@ -78,6 +82,7 @@ export const AuthProvider = ({ children }) => {
         verifyEmail,
         resendVerification,
         forgotPassword,
+        verifyResetCode,
         resetPassword,
         updateProfile,
         changePassword,

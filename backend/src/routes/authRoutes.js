@@ -6,6 +6,7 @@ const {
     verifyEmail,
     resendVerificationCode,
     forgotPassword,
+    verifyResetCode,
     resetPassword
 } = require('../controllers/authController');
 const validate = require('../middleware/validateMiddleware');
@@ -33,6 +34,9 @@ router.post('/resend-verification', resendVerificationCode);
 
 // @route   POST /api/auth/forgot-password
 router.post('/forgot-password', forgotPassword);
+
+// @route   POST /api/auth/verify-reset-code
+router.post('/verify-reset-code', verifyResetCode);
 
 // @route   POST /api/auth/reset-password
 router.post('/reset-password', resetPassword);

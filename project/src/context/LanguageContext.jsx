@@ -7,6 +7,7 @@ const translations = {
         games: 'GAMES',
         giftCards: 'GIFT CARDS',
         signIn: 'SIGN IN',
+        signUp: 'SIGN UP',
         createAccount: 'CREATE ACCOUNT',
         logout: 'LOGOUT',
         dashboard: 'DASHBOARD',
@@ -19,6 +20,15 @@ const translations = {
         searchGames: 'Search games...',
         signedInAs: 'Signed in as',
         language: 'Language',
+        
+        // Games Section
+        bestSeller: 'Best Seller',
+        noGamesFound: 'No games found.',
+        checkAdminDashboard: 'Check the Admin Dashboard to add games.',
+        loadingGames: 'Loading Games...',
+        
+        // Footer
+        newsletter: 'Newsletter $99UP',
         
         // Pages
         aboutTitle: 'About SUB HUB',
@@ -67,6 +77,7 @@ const translations = {
         games: 'الألعاب',
         giftCards: 'بطاقات الهدايا',
         signIn: 'تسجيل الدخول',
+        signUp: 'إنشاء حساب',
         createAccount: 'إنشاء حساب',
         logout: 'تسجيل الخروج',
         dashboard: 'لوحة التحكم',
@@ -79,6 +90,15 @@ const translations = {
         searchGames: 'ابحث عن الألعاب...',
         signedInAs: 'تم تسجيل الدخول كـ',
         language: 'اللغة',
+        
+        // Games Section
+        bestSeller: 'الأكثر مبيعاً',
+        noGamesFound: 'لا توجد ألعاب.',
+        checkAdminDashboard: 'تحقق من لوحة التحكم لإضافة ألعاب.',
+        loadingGames: 'جاري تحميل الألعاب...',
+        
+        // Footer
+        newsletter: 'النشرة الإخبارية $99UP',
         
         // Pages
         aboutTitle: 'من نحن - SUB HUB',

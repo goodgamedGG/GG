@@ -48,7 +48,7 @@ const authAPI = {
         return response;
     },
 
-    // Forgot password
+    // Forgot password - send reset code
     forgotPassword: async (email) => {
         const response = await client.post('/auth/forgot-password', {
             email
@@ -56,10 +56,20 @@ const authAPI = {
         return response;
     },
 
-    // Reset password
-    resetPassword: async (token, newPassword) => {
+    // Verify reset code
+    verifyResetCode: async (email, code) => {
+        const response = await client.post('/auth/verify-reset-code', {
+            email,
+            code
+        });
+        return response;
+    },
+
+    // Reset password with code
+    resetPassword: async (email, code, newPassword) => {
         const response = await client.post('/auth/reset-password', {
-            token,
+            email,
+            code,
             newPassword
         });
         return response;

@@ -2,30 +2,29 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
-import { ShoppingCart, User, Menu, X, Search, LogOut, LayoutDashboard, Globe } from 'lucide-react';
+import { ShoppingCart, User, Menu, X, LogOut, LayoutDashboard } from 'lucide-react';
 
 const Header = () => {
     const [menuOpen, setMenuOpen] = useState(false);
     const { user, logout, isAdmin } = useAuth();
-    const { t, language, toggleLanguage, isRTL } = useLanguage();
+    const { t, language, toggleLanguage } = useLanguage();
     const navigate = useNavigate();
 
     const handleLogout = async () => {
         await logout();
+        setMenuOpen(false);
         navigate('/');
+    };
+
+    const closeMenu = () => {
+        setMenuOpen(false);
     };
 
     return (
         <header className="header">
             <div className="container">
                 <nav className="nav-container">
-                    {/* Logo */}
-                    <Link to="/" className="logo" style={{ textDecoration: 'none' }}>
-                        SUB HUB
-                        <span className="logo-subtitle">GAMING</span>
-                    </Link>
-
-                    {/* Mobile Menu Toggle */}
+                    {/* Mobile Menu Toggle - Shows only on mobile */}
                     <button
                         className="mobile-menu-toggle"
                         onClick={() => setMenuOpen(!menuOpen)}
@@ -34,85 +33,78 @@ const Header = () => {
                         {menuOpen ? <X size={24} /> : <Menu size={24} />}
                     </button>
 
-                    {/* Navigation Menu */}
-                    <ul className={`nav-menu ${menuOpen ? 'active' : ''}`} style={{ direction: isRTL ? 'rtl' : 'ltr' }}>
-                        <li><Link to="/" className="nav-link active">{t('home')}</Link></li>
-                        <li><a href="#games" className="nav-link">{t('games')}</a></li>
-                        <li><a href="#gifts" className="nav-link">{t('giftCards')}</a></li>
+                    {/* Logo */}
+                    <Link to="/" className="logo" onClick={closeMenu}>
+                        SUB HUB
+                        <span className="logo-subtitle">GAMING</span>
+                    </Link>
+
+                    {/* Navigation Menu - Hidden on mobile, shown on desktop */}
+                    <ul className={`nav-menu ${menuOpen ? 'active' : ''}`}>
+                        <li><Link to="/" className="nav-link active" onClick={closeMenu}>{t('home')}</Link></li>
+                        <li><a href="#games" className="nav-link" onClick={closeMenu}>{t('games')}</a></li>
+                        <li><a href="#gifts" className="nav-link" onClick={closeMenu}>{t('giftCards')}</a></li>
 
                         {/* Mobile Only User Links */}
-                        <div className="d-md-none" style={{ marginTop: '20px', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '20px' }}>
+                        <div className="mobile-user-links">
                             {user ? (
                                 <>
-                                    <li style={{ color: 'var(--color-cyan-primary)', fontSize: '14px', marginBottom: '10px' }}>
+                                    <li style={{ color: 'var(--color-cyan-primary)', fontSize: '14px', marginBottom: '10px', listStyle: 'none' }}>
                                         {t('signedInAs')} {user.name}
                                     </li>
                                     {isAdmin && (
-                                        <li><Link to="/admin" className="nav-link">{t('dashboard')}</Link></li>
+                                        <li><Link to="/admin" className="nav-link" onClick={closeMenu}>{t('dashboard')}</Link></li>
                                     )}
-                                    <li><button onClick={handleLogout} className="nav-link" style={{ background: 'none', border: 'none', textAlign: isRTL ? 'right' : 'left', padding: 0 }}>{t('logout')}</button></li>
+                                    <li>
+                                        <button 
+                                            onClick={handleLogout} 
+                                            className="nav-link" 
+                                            style={{ background: 'none', border: 'none', padding: 'var(--spacing-sm) 0', width: '100%', textAlign: 'left', cursor: 'pointer' }}
+                                        >
+                                            {t('logout')}
+                                        </button>
+                                    </li>
                                 </>
                             ) : (
-                                <>
-                                    <li><Link to="/login" className="nav-link">{t('signIn')}</Link></li>
-                                    <li><Link to="/signup" className="nav-link">{t('createAccount')}</Link></li>
-                                </>
+                                <li><Link to="/login" className="nav-link" onClick={closeMenu}>{t('signIn')}</Link></li>
                             )}
                         </div>
                     </ul>
 
-                    {/* Actions (Desktop) */}
+                    {/* Actions - Right side */}
                     <div className="nav-actions">
-                        {/* Search Bar */}
-                        <div className="search-bar">
-                            <Search size={16} />
-                            <input type="text" placeholder={t('searchGames')} />
-                        </div>
+                        {/* User Actions */}
+                        {user ? (
+                            <>
+                                {isAdmin && (
+                                    <Link to="/admin" className="icon-btn desktop-only" title={t('dashboard')}>
+                                        <LayoutDashboard size={18} />
+                                    </Link>
+                                )}
+                                <button onClick={handleLogout} className="icon-btn desktop-only" title={t('logout')}>
+                                    <LogOut size={18} />
+                                </button>
+                            </>
+                        ) : (
+                            <Link to="/login" className="icon-btn" title={t('signIn')}>
+                                <User size={18} />
+                            </Link>
+                        )}
+
+                        {/* Cart Icon */}
+                        <Link to="/cart" className="icon-btn" aria-label={t('cart')}>
+                            <ShoppingCart size={18} />
+                        </Link>
 
                         {/* Language Switcher */}
                         <button 
                             className="icon-btn" 
                             onClick={toggleLanguage}
                             title={t('language')}
-                            style={{ fontFamily: 'Orbitron, sans-serif', fontSize: '12px', fontWeight: 'bold' }}
+                            style={{ fontFamily: 'Orbitron, sans-serif', fontSize: '11px', fontWeight: 'bold' }}
                         >
                             {language === 'en' ? 'AR' : 'EN'}
                         </button>
-
-                        {/* Cart Icon */}
-                        <Link to="/cart" className="icon-btn" aria-label={t('cart')}>
-                            <ShoppingCart size={20} />
-                        </Link>
-
-                        {/* User Actions */}
-                        {user ? (
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                {isAdmin && (
-                                    <Link to="/admin" className="icon-btn" title={t('dashboard')}>
-                                        <LayoutDashboard size={20} />
-                                    </Link>
-                                )}
-                                <div className="user-menu-trigger" style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                    <img
-                                        src={user.avatar}
-                                        alt={user.name}
-                                        style={{ width: '32px', height: '32px', borderRadius: '50%', border: '1px solid var(--color-cyan-primary)' }}
-                                    />
-                                    <button onClick={handleLogout} className="icon-btn" title={t('logout')}>
-                                        <LogOut size={20} />
-                                    </button>
-                                </div>
-                            </div>
-                        ) : (
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                <Link to="/signup" className="nav-link" style={{ fontSize: '12px', padding: '8px 16px', border: '1px solid var(--color-cyan-primary)', borderRadius: '4px' }}>
-                                    {t('createAccount')}
-                                </Link>
-                                <Link to="/login" className="icon-btn" title={t('signIn')}>
-                                    <User size={20} />
-                                </Link>
-                            </div>
-                        )}
                     </div>
                 </nav>
             </div>

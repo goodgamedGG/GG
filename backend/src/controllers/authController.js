@@ -2,7 +2,7 @@ const User = require('../models/User');
 const { AppError } = require('../middleware/errorMiddleware');
 const { HTTP_STATUS } = require('../utils/constants');
 const { generateToken } = require('../services/tokenService');
-const { sendVerificationEmail, sendPasswordResetEmail } = require('../services/emailService');
+const { sendVerificationEmail, sendPasswordResetCodeEmail } = require('../services/emailService');
 
 /**
  * @desc    Register new user
@@ -202,7 +202,7 @@ const resendVerificationCode = async (req, res, next) => {
 };
 
 /**
- * @desc    Forgot password
+ * @desc    Forgot password - send reset code
  * @route   POST /api/auth/forgot-password
  * @access  Public
  */
@@ -216,15 +216,13 @@ const forgotPassword = async (req, res, next) => {
             return next(new AppError('User not found', HTTP_STATUS.NOT_FOUND));
         }
 
-        // Generate reset token
-        const resetToken = generateToken(user._id);
-        user.resetPasswordToken = resetToken;
-        user.resetPasswordExpires = Date.now() + 3600000; // 1 hour
+        // Generate reset code
+        const resetCode = user.generatePasswordResetCode();
         await user.save();
 
-        // Send reset email
+        // Send reset email with code
         try {
-            await sendPasswordResetEmail(email, user.name, resetToken);
+            await sendPasswordResetCodeEmail(email, user.name, resetCode);
         } catch (emailError) {
             console.error('Email sending failed:', emailError);
             return next(new AppError('Failed to send reset email', HTTP_STATUS.INTERNAL_SERVER_ERROR));
@@ -232,7 +230,7 @@ const forgotPassword = async (req, res, next) => {
 
         res.status(HTTP_STATUS.OK).json({
             success: true,
-            message: 'Password reset link sent to your email'
+            message: 'Password reset code sent to your email'
         });
     } catch (error) {
         next(error);
@@ -240,22 +238,64 @@ const forgotPassword = async (req, res, next) => {
 };
 
 /**
- * @desc    Reset password
+ * @desc    Verify reset code
+ * @route   POST /api/auth/verify-reset-code
+ * @access  Public
+ */
+const verifyResetCode = async (req, res, next) => {
+    try {
+        const { email, code } = req.body;
+
+        // Find user with valid reset code
+        const user = await User.findOne({ email }).select('+resetPasswordToken +resetPasswordExpires');
+
+        if (!user) {
+            return next(new AppError('User not found', HTTP_STATUS.NOT_FOUND));
+        }
+
+        // Check reset code
+        if (user.resetPasswordToken !== code) {
+            return next(new AppError('Invalid verification code', HTTP_STATUS.BAD_REQUEST));
+        }
+
+        // Check if code expired
+        if (user.resetPasswordExpires < Date.now()) {
+            return next(new AppError('Verification code has expired', HTTP_STATUS.BAD_REQUEST));
+        }
+
+        res.status(HTTP_STATUS.OK).json({
+            success: true,
+            message: 'Code verified successfully'
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+/**
+ * @desc    Reset password with code
  * @route   POST /api/auth/reset-password
  * @access  Public
  */
 const resetPassword = async (req, res, next) => {
     try {
-        const { token, newPassword } = req.body;
+        const { email, code, newPassword } = req.body;
 
-        // Find user with valid reset token
-        const user = await User.findOne({
-            resetPasswordToken: token,
-            resetPasswordExpires: { $gt: Date.now() }
-        }).select('+resetPasswordToken +resetPasswordExpires');
+        // Find user with valid reset code
+        const user = await User.findOne({ email }).select('+resetPasswordToken +resetPasswordExpires');
 
         if (!user) {
-            return next(new AppError('Invalid or expired reset token', HTTP_STATUS.BAD_REQUEST));
+            return next(new AppError('User not found', HTTP_STATUS.NOT_FOUND));
+        }
+
+        // Verify the code again
+        if (user.resetPasswordToken !== code) {
+            return next(new AppError('Invalid verification code', HTTP_STATUS.BAD_REQUEST));
+        }
+
+        // Check if code expired
+        if (user.resetPasswordExpires < Date.now()) {
+            return next(new AppError('Verification code has expired', HTTP_STATUS.BAD_REQUEST));
         }
 
         // Update password
@@ -279,5 +319,6 @@ module.exports = {
     verifyEmail,
     resendVerificationCode,
     forgotPassword,
+    verifyResetCode,
     resetPassword
 };

@@ -11,6 +11,7 @@ import AdminLayout from './layouts/AdminLayout';
 
 // Components
 import Header from './components/Header';
+import SearchBar from './components/SearchBar';
 import Hero from './components/Hero';
 import CTAButtons from './components/CTAButtons';
 import GameGrid from './components/GameGrid';
@@ -19,6 +20,7 @@ import Footer from './components/Footer';
 // Pages
 import Login from './pages/auth/Login';
 import SignUp from './pages/auth/SignUp';
+import VerifyEmail from './pages/auth/VerifyEmail';
 import ForgotPassword from './pages/auth/ForgotPassword';
 import Cart from './pages/Cart';
 import Checkout from './pages/Checkout';
@@ -47,6 +49,7 @@ const ProtectedRoute = ({ children, requireAdmin }) => {
 const Home = () => (
     <>
         <Header />
+        <SearchBar />
         <Hero />
         <CTAButtons />
         <GameGrid />
@@ -73,6 +76,7 @@ function App() {
                                 <Route element={<AuthLayout />}>
                                     <Route path="/login" element={<Login />} />
                                     <Route path="/signup" element={<SignUp />} />
+                                    <Route path="/verify-email" element={<VerifyEmail />} />
                                     <Route path="/forgot-password" element={<ForgotPassword />} />
                                 </Route>
 

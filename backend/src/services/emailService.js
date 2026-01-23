@@ -206,18 +206,16 @@ const sendPaymentConfirmationEmail = async (email, name, order) => {
 };
 
 /**
- * Send password reset email
+ * Send password reset code email
  * @param {string} email - Recipient email
  * @param {string} name - Recipient name
- * @param {string} resetToken - Reset token
+ * @param {string} code - Reset code
  */
-const sendPasswordResetEmail = async (email, name, resetToken) => {
-    const resetUrl = `${process.env.FRONTEND_URL}/reset-password?token=${resetToken}`;
-
+const sendPasswordResetCodeEmail = async (email, name, code) => {
     const mailOptions = {
         from: `${process.env.EMAIL_FROM_NAME} <${process.env.EMAIL_FROM}>`,
         to: email,
-        subject: 'Password Reset Request',
+        subject: 'Password Reset Code',
         html: `
       <!DOCTYPE html>
       <html>
@@ -227,7 +225,7 @@ const sendPasswordResetEmail = async (email, name, resetToken) => {
           .container { max-width: 600px; margin: 0 auto; padding: 20px; }
           .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
           .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px; }
-          .button { display: inline-block; background: #667eea; color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; margin: 20px 0; }
+          .code { background: white; border: 2px dashed #667eea; padding: 20px; text-align: center; font-size: 32px; font-weight: bold; letter-spacing: 5px; margin: 20px 0; border-radius: 5px; }
           .footer { text-align: center; margin-top: 20px; color: #666; font-size: 12px; }
         </style>
       </head>
@@ -238,11 +236,9 @@ const sendPasswordResetEmail = async (email, name, resetToken) => {
           </div>
           <div class="content">
             <p>Hi ${name},</p>
-            <p>You requested to reset your password. Click the button below to reset it:</p>
-            <div style="text-align: center;">
-              <a href="${resetUrl}" class="button">Reset Password</a>
-            </div>
-            <p>This link will expire in 1 hour.</p>
+            <p>You requested to reset your password. Use the code below to proceed:</p>
+            <div class="code">${code}</div>
+            <p>This code will expire in 15 minutes.</p>
             <p>If you didn't request a password reset, please ignore this email.</p>
           </div>
           <div class="footer">
@@ -256,7 +252,7 @@ const sendPasswordResetEmail = async (email, name, resetToken) => {
 
     try {
         await transporter.sendMail(mailOptions);
-        console.log(`✅ Password reset email sent to ${email}`);
+        console.log(`✅ Password reset code email sent to ${email}`);
     } catch (error) {
         console.error('❌ Error sending password reset email:', error.message);
         throw new Error('Failed to send password reset email');
@@ -267,5 +263,5 @@ module.exports = {
     sendVerificationEmail,
     sendOrderConfirmationEmail,
     sendPaymentConfirmationEmail,
-    sendPasswordResetEmail
+    sendPasswordResetCodeEmail
 };

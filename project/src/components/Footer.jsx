@@ -8,7 +8,7 @@ const Footer = () => {
     return (
         <footer className="footer">
             <div className="container">
-                <div className="footer-content" style={{ direction: isRTL ? 'rtl' : 'ltr' }}>
+                <div className="footer-content">
                     {/* Social Links */}
                     <div className="social-links">
                         <a href="#" className="social-icon" aria-label="Facebook">
@@ -30,14 +30,14 @@ const Footer = () => {
 
                     {/* Footer Text */}
                     <div className="footer-links">
-                        <Link to="/privacy-policy" className="footer-text" style={{ marginRight: '20px' }}>{t('privacyPolicy')}</Link>
-                        <Link to="/about" className="footer-text" style={{ marginRight: '20px' }}>{t('about')}</Link>
-                        <a href="#" className="footer-text">Newsletter $99UP</a>
+                        <Link to="/privacy-policy" className="footer-text">{t('privacyPolicy')}</Link>
+                        <Link to="/about" className="footer-text">{t('about')}</Link>
+                        <a href="#" className="footer-text">{t('newsletter')}</a>
                     </div>
 
                     {/* Copyright */}
-                    <p className="footer-text">
-                        © 2026 Sub HUB. All rights reserved.
+                    <p className="footer-text copyright">
+                        © 2026 Sub HUB. {isRTL ? 'جميع الحقوق محفوظة.' : 'All rights reserved.'}
                     </p>
                 </div>
             </div>
