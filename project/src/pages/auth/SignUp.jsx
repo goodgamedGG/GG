@@ -106,6 +106,9 @@ const SignUp = () => {
                         placeholder={isRTL ? 'أنشئ كلمة مرور (8 أحرف على الأقل)' : 'Create a password (min 8 characters)'}
                         minLength={8}
                     />
+                    <small style={{ color: '#888', marginTop: '5px', display: 'block' }}>
+                        Must be at least 8 characters with uppercase, lowercase, and number
+                    </small>
                 </div>
 
                 <div className="form-group">
