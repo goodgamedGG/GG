@@ -27,7 +27,11 @@ import Checkout from './pages/Checkout';
 import About from './pages/About';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import Dashboard from './pages/admin/Dashboard';
-import Games from './pages/admin/Games';
+import Products from './pages/admin/Products';
+import Orders from './pages/admin/Orders';
+import Payments from './pages/admin/Payments';
+import Categories from './pages/admin/Categories';
+import PromoCodes from './pages/admin/PromoCodes';
 import Users from './pages/admin/Users';
 
 // Protected Route Component
@@ -38,7 +42,7 @@ const ProtectedRoute = ({ children, requireAdmin }) => {
 
     if (!user) return <Navigate to="/login" />;
 
-    if (requireAdmin && user.role !== 'ADMIN') {
+    if (requireAdmin && user.role !== 'admin' && user.role !== 'ADMIN') {
         return <Navigate to="/" />;
     }
 
@@ -87,7 +91,11 @@ function App() {
                                     </ProtectedRoute>
                                 }>
                                     <Route index element={<Dashboard />} />
-                                    <Route path="games" element={<Games />} />
+                                    <Route path="products" element={<Products />} />
+                                    <Route path="orders" element={<Orders />} />
+                                    <Route path="payments" element={<Payments />} />
+                                    <Route path="categories" element={<Categories />} />
+                                    <Route path="promo-codes" element={<PromoCodes />} />
                                     <Route path="users" element={<Users />} />
                                 </Route>
                             </Routes>
