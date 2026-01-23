@@ -1,10 +1,14 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
+import { useLanguage } from '../context/LanguageContext';
 
 const Footer = () => {
+    const { t, isRTL } = useLanguage();
+    
     return (
         <footer className="footer">
             <div className="container">
-                <div className="footer-content">
+                <div className="footer-content" style={{ direction: isRTL ? 'rtl' : 'ltr' }}>
                     {/* Social Links */}
                     <div className="social-links">
                         <a href="#" className="social-icon" aria-label="Facebook">
@@ -26,8 +30,8 @@ const Footer = () => {
 
                     {/* Footer Text */}
                     <div className="footer-links">
-                        <a href="#" className="footer-text" style={{ marginRight: '20px' }}>Privacy Policy</a>
-                        <a href="#" className="footer-text" style={{ marginRight: '20px' }}>Terms of Use</a>
+                        <Link to="/privacy-policy" className="footer-text" style={{ marginRight: '20px' }}>{t('privacyPolicy')}</Link>
+                        <Link to="/about" className="footer-text" style={{ marginRight: '20px' }}>{t('about')}</Link>
                         <a href="#" className="footer-text">Newsletter $99UP</a>
                     </div>
 

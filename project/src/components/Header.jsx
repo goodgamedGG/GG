@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { ShoppingCart, User, Menu, X, Search, LogOut, LayoutDashboard } from 'lucide-react';
+import { useLanguage } from '../context/LanguageContext';
+import { ShoppingCart, User, Menu, X, Search, LogOut, LayoutDashboard, Globe } from 'lucide-react';
 
 const Header = () => {
     const [menuOpen, setMenuOpen] = useState(false);
     const { user, logout, isAdmin } = useAuth();
+    const { t, language, toggleLanguage, isRTL } = useLanguage();
     const navigate = useNavigate();
 
     const handleLogout = async () => {
@@ -33,25 +35,28 @@ const Header = () => {
                     </button>
 
                     {/* Navigation Menu */}
-                    <ul className={`nav-menu ${menuOpen ? 'active' : ''}`}>
-                        <li><Link to="/" className="nav-link active">HOME</Link></li>
-                        <li><a href="#games" className="nav-link">GAMES</a></li>
-                        <li><a href="#gifts" className="nav-link">GIFT CARDS</a></li>
+                    <ul className={`nav-menu ${menuOpen ? 'active' : ''}`} style={{ direction: isRTL ? 'rtl' : 'ltr' }}>
+                        <li><Link to="/" className="nav-link active">{t('home')}</Link></li>
+                        <li><a href="#games" className="nav-link">{t('games')}</a></li>
+                        <li><a href="#gifts" className="nav-link">{t('giftCards')}</a></li>
 
                         {/* Mobile Only User Links */}
                         <div className="d-md-none" style={{ marginTop: '20px', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '20px' }}>
                             {user ? (
                                 <>
                                     <li style={{ color: 'var(--color-cyan-primary)', fontSize: '14px', marginBottom: '10px' }}>
-                                        Signed in as {user.name}
+                                        {t('signedInAs')} {user.name}
                                     </li>
                                     {isAdmin && (
-                                        <li><Link to="/admin" className="nav-link">DASHBOARD</Link></li>
+                                        <li><Link to="/admin" className="nav-link">{t('dashboard')}</Link></li>
                                     )}
-                                    <li><button onClick={handleLogout} className="nav-link" style={{ background: 'none', border: 'none', textAlign: 'left', padding: 0 }}>LOGOUT</button></li>
+                                    <li><button onClick={handleLogout} className="nav-link" style={{ background: 'none', border: 'none', textAlign: isRTL ? 'right' : 'left', padding: 0 }}>{t('logout')}</button></li>
                                 </>
                             ) : (
-                                <li><Link to="/login" className="nav-link">SIGN IN</Link></li>
+                                <>
+                                    <li><Link to="/login" className="nav-link">{t('signIn')}</Link></li>
+                                    <li><Link to="/signup" className="nav-link">{t('createAccount')}</Link></li>
+                                </>
                             )}
                         </div>
                     </ul>
@@ -61,19 +66,29 @@ const Header = () => {
                         {/* Search Bar */}
                         <div className="search-bar">
                             <Search size={16} />
-                            <input type="text" placeholder="Search games..." />
+                            <input type="text" placeholder={t('searchGames')} />
                         </div>
 
-                        {/* Cart Icon */}
-                        <button className="icon-btn" aria-label="Shopping cart">
-                            <ShoppingCart size={20} />
+                        {/* Language Switcher */}
+                        <button 
+                            className="icon-btn" 
+                            onClick={toggleLanguage}
+                            title={t('language')}
+                            style={{ fontFamily: 'Orbitron, sans-serif', fontSize: '12px', fontWeight: 'bold' }}
+                        >
+                            {language === 'en' ? 'AR' : 'EN'}
                         </button>
+
+                        {/* Cart Icon */}
+                        <Link to="/cart" className="icon-btn" aria-label={t('cart')}>
+                            <ShoppingCart size={20} />
+                        </Link>
 
                         {/* User Actions */}
                         {user ? (
                             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                                 {isAdmin && (
-                                    <Link to="/admin" className="icon-btn" title="Admin Dashboard">
+                                    <Link to="/admin" className="icon-btn" title={t('dashboard')}>
                                         <LayoutDashboard size={20} />
                                     </Link>
                                 )}
@@ -83,15 +98,20 @@ const Header = () => {
                                         alt={user.name}
                                         style={{ width: '32px', height: '32px', borderRadius: '50%', border: '1px solid var(--color-cyan-primary)' }}
                                     />
-                                    <button onClick={handleLogout} className="icon-btn" title="Logout">
+                                    <button onClick={handleLogout} className="icon-btn" title={t('logout')}>
                                         <LogOut size={20} />
                                     </button>
                                 </div>
                             </div>
                         ) : (
-                            <Link to="/login" className="icon-btn" title="Sign In">
-                                <User size={20} />
-                            </Link>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                <Link to="/signup" className="nav-link" style={{ fontSize: '12px', padding: '8px 16px', border: '1px solid var(--color-cyan-primary)', borderRadius: '4px' }}>
+                                    {t('createAccount')}
+                                </Link>
+                                <Link to="/login" className="icon-btn" title={t('signIn')}>
+                                    <User size={20} />
+                                </Link>
+                            </div>
                         )}
                     </div>
                 </nav>
