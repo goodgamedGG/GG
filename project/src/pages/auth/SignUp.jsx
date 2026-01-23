@@ -6,6 +6,7 @@ const SignUp = () => {
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [phone, setPhone] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
     const { signup } = useAuth();
@@ -14,9 +15,28 @@ const SignUp = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
+        
+        // Validate password
+        if (password.length < 8) {
+            setError('Password must be at least 8 characters');
+            return;
+        }
+        if (!/[a-z]/.test(password)) {
+            setError('Password must contain at least one lowercase letter');
+            return;
+        }
+        if (!/[A-Z]/.test(password)) {
+            setError('Password must contain at least one uppercase letter');
+            return;
+        }
+        if (!/\d/.test(password)) {
+            setError('Password must contain at least one number');
+            return;
+        }
+
         setLoading(true);
         try {
-            await signup(name, email, password);
+            await signup(name, email, password, phone);
             navigate('/');
         } catch (err) {
             setError(err.message || 'Failed to create account');
@@ -56,6 +76,18 @@ const SignUp = () => {
                 </div>
 
                 <div className="form-group">
+                    <label className="form-label">Phone Number</label>
+                    <input
+                        type="tel"
+                        className="form-input"
+                        value={phone}
+                        onChange={(e) => setPhone(e.target.value)}
+                        required
+                        placeholder="Enter your phone number"
+                    />
+                </div>
+
+                <div className="form-group">
                     <label className="form-label">Password</label>
                     <input
                         type="password"
@@ -63,9 +95,12 @@ const SignUp = () => {
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         required
-                        placeholder="Create a password"
-                        minLength={6}
+                        placeholder="Create a password (Min 8 chars, 1 uppercase, 1 lowercase, 1 number)"
+                        minLength={8}
                     />
+                    <small style={{ color: '#888', marginTop: '5px', display: 'block' }}>
+                        Must be at least 8 characters with uppercase, lowercase, and number
+                    </small>
                 </div>
 
                 <button type="submit" className="auth-btn" disabled={loading}>

@@ -2,22 +2,27 @@ import client from './client';
 
 export const gamesApi = {
     getAll: async () => {
-        return client.get('/games');
+        const response = await client.get('/products?active=true');
+        return response.data?.products || response;
     },
 
     getOne: async (id) => {
-        return client.get(`/games/${id}`);
+        const response = await client.get(`/products/${id}`);
+        return response.data?.product || response;
     },
 
     create: async (gameData) => {
-        return client.post('/games', gameData);
+        const response = await client.post('/products', gameData);
+        return response.data?.product || response;
     },
 
     update: async (id, gameData) => {
-        return client.put(`/games/${id}`, gameData);
+        const response = await client.put(`/products/${id}`, gameData);
+        return response.data?.product || response;
     },
 
     delete: async (id) => {
-        return client.delete(`/games/${id}`);
+        const response = await client.delete(`/products/${id}`);
+        return response.data || response;
     }
 };
