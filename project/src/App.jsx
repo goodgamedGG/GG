@@ -34,6 +34,15 @@ import Payments from './pages/admin/Payments';
 import Categories from './pages/admin/Categories';
 import PromoCodes from './pages/admin/PromoCodes';
 import Users from './pages/admin/Users';
+import Reviews from './pages/admin/Reviews';
+import Content from './pages/admin/Content';
+import FlashSales from './pages/admin/FlashSales';
+import PriceAlerts from './pages/admin/PriceAlerts';
+import Loyalty from './pages/admin/Loyalty';
+import Settings from './pages/admin/Settings';
+import Analytics from './pages/admin/Analytics';
+import EmailQueue from './pages/admin/EmailQueue';
+import AuditLogs from './pages/admin/AuditLogs';
 
 // Protected Route Component
 const ProtectedRoute = ({ children, requireAdmin }) => {
@@ -100,6 +109,15 @@ function App() {
                                             <Route path="categories" element={<Categories />} />
                                             <Route path="promo-codes" element={<PromoCodes />} />
                                             <Route path="users" element={<Users />} />
+                                            <Route path="reviews" element={<Reviews />} />
+                                            <Route path="content" element={<Content />} />
+                                            <Route path="flash-sales" element={<FlashSales />} />
+                                            <Route path="price-alerts" element={<PriceAlerts />} />
+                                            <Route path="loyalty" element={<Loyalty />} />
+                                            <Route path="settings" element={<Settings />} />
+                                            <Route path="analytics" element={<Analytics />} />
+                                            <Route path="email-queue" element={<EmailQueue />} />
+                                            <Route path="audit-logs" element={<AuditLogs />} />
                                         </Route>
                                     </Routes>
                                 </ErrorBoundary>

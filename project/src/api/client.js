@@ -145,8 +145,8 @@ const client = {
     },
 
     // DELETE request
-    delete: async (endpoint) => {
-        return makeRequest(endpoint, { method: 'DELETE' });
+    delete: async (endpoint, data = null) => {
+        return makeRequest(endpoint, { method: 'DELETE', body: data });
     },
 
     // Token management helpers

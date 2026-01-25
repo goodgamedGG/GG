@@ -24,8 +24,15 @@ const Dashboard = () => {
         users: 0,
         orders: 0,
         revenue: 0,
+        todayRevenue: 0,
+        todayOrders: 0,
+        monthlyGrowth: 0,
         pendingOrders: 0,
-        pendingPayments: 0
+        pendingPayments: 0,
+        pendingReviews: 0,
+        activeFlashSales: 0,
+        activePriceAlerts: 0,
+        totalLoyaltyUsers: 0
     });
     const [recentOrders, setRecentOrders] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -37,37 +44,64 @@ const Dashboard = () => {
     const loadDashboardData = async () => {
         try {
             setLoading(true);
-            const [productsRes, usersRes, ordersRes, paymentsRes] = await Promise.all([
-                adminAPI.getProducts(1, 1000).catch(() => ({ products: [] })),
-                adminAPI.getUsers(1, 1000).catch(() => ({ users: [] })),
-                adminAPI.getOrders(1, 10).catch(() => ({ orders: [] })),
-                adminAPI.getPayments(1, 100, 'pending').catch(() => ({ payments: [] }))
-            ]);
+            const statsData = await adminAPI.getStats();
+            
+            if (statsData?.data) {
+                const { overview, today, thisMonth, pending, topProducts, recentOrders } = statsData.data;
+                
+                setStats({
+                    products: overview?.totalProducts || 0,
+                    users: overview?.totalUsers || 0,
+                    orders: overview?.totalOrders || 0,
+                    revenue: thisMonth?.revenue || 0,
+                    todayRevenue: today?.revenue || 0,
+                    todayOrders: today?.orders || 0,
+                    monthlyGrowth: thisMonth?.growth || 0,
+                    pendingOrders: pending?.orders || 0,
+                    pendingPayments: pending?.payments || 0,
+                    pendingReviews: pending?.reviews || 0,
+                    activeFlashSales: overview?.activeFlashSales || 0,
+                    activePriceAlerts: overview?.activePriceAlerts || 0,
+                    totalLoyaltyUsers: overview?.totalLoyaltyUsers || 0
+                });
 
-            const products = productsRes?.products || [];
-            const users = usersRes?.users || [];
-            const orders = ordersRes?.orders || [];
-            const pendingPayments = paymentsRes?.payments || [];
-
-            // Calculate stats
-            const totalRevenue = orders
-                .filter(o => o.paymentStatus === 'confirmed')
-                .reduce((sum, o) => sum + (o.total || 0), 0);
-
-            const pendingOrders = orders.filter(o => o.orderStatus === 'pending').length;
-
-            setStats({
-                products: products.length,
-                users: users.length,
-                orders: orders.length,
-                revenue: totalRevenue,
-                pendingOrders,
-                pendingPayments: pendingPayments.length
-            });
-
-            setRecentOrders(orders.slice(0, 5));
+                setRecentOrders(recentOrders || []);
+            }
         } catch (error) {
             console.error('Failed to load dashboard data:', error);
+            // Fallback to old method if new endpoint fails
+            try {
+                const [productsRes, usersRes, ordersRes, paymentsRes] = await Promise.all([
+                    adminAPI.getProducts(1, 1000).catch(() => ({ products: [] })),
+                    adminAPI.getUsers(1, 1000).catch(() => ({ users: [] })),
+                    adminAPI.getOrders(1, 10).catch(() => ({ orders: [] })),
+                    adminAPI.getPayments(1, 100, 'pending').catch(() => ({ payments: [] }))
+                ]);
+
+                const products = productsRes?.products || [];
+                const users = usersRes?.users || [];
+                const orders = ordersRes?.orders || [];
+                const pendingPayments = paymentsRes?.payments || [];
+
+                const totalRevenue = orders
+                    .filter(o => o.paymentStatus === 'confirmed')
+                    .reduce((sum, o) => sum + (o.total || 0), 0);
+
+                const pendingOrders = orders.filter(o => o.orderStatus === 'pending').length;
+
+                setStats({
+                    products: products.length,
+                    users: users.length,
+                    orders: orders.length,
+                    revenue: totalRevenue,
+                    pendingOrders,
+                    pendingPayments: pendingPayments.length
+                });
+
+                setRecentOrders(orders.slice(0, 5));
+            } catch (fallbackError) {
+                console.error('Fallback also failed:', fallbackError);
+            }
         } finally {
             setLoading(false);
         }
@@ -132,15 +166,33 @@ const Dashboard = () => {
                             color="255, 200, 0"
                         />
                         <StatCard
-                            title="Revenue"
+                            title="Monthly Revenue"
                             value={formatCurrency(stats.revenue)}
                             icon={DollarSign}
                             color="0, 255, 200"
+                            subtitle={stats.monthlyGrowth ? `${stats.monthlyGrowth > 0 ? '+' : ''}${stats.monthlyGrowth}% vs last month` : ''}
                         />
+                        {stats.todayRevenue !== undefined && (
+                            <StatCard
+                                title="Today's Revenue"
+                                value={formatCurrency(stats.todayRevenue)}
+                                icon={TrendingUp}
+                                color="0, 255, 128"
+                                subtitle={`${stats.todayOrders || 0} orders today`}
+                            />
+                        )}
+                        {stats.activeFlashSales > 0 && (
+                            <StatCard
+                                title="Active Flash Sales"
+                                value={stats.activeFlashSales}
+                                icon={Clock}
+                                color="255, 100, 100"
+                            />
+                        )}
                     </div>
 
                     {/* Alerts */}
-                    {(stats.pendingOrders > 0 || stats.pendingPayments > 0) && (
+                    {(stats.pendingOrders > 0 || stats.pendingPayments > 0 || stats.pendingReviews > 0) && (
                         <div style={{ display: 'flex', gap: '16px', marginBottom: '30px', flexWrap: 'wrap' }}>
                             {stats.pendingOrders > 0 && (
                                 <Link to="/admin/orders" style={{
@@ -172,6 +224,22 @@ const Dashboard = () => {
                                 }}>
                                     <CreditCard size={20} />
                                     <span><strong>{stats.pendingPayments}</strong> payments awaiting confirmation</span>
+                                </Link>
+                            )}
+                            {stats.pendingReviews > 0 && (
+                                <Link to="/admin/reviews" style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '12px',
+                                    padding: '16px 20px',
+                                    background: 'rgba(0, 217, 255, 0.1)',
+                                    border: '1px solid rgba(0, 217, 255, 0.3)',
+                                    borderRadius: 'var(--radius-md)',
+                                    color: '#00d9ff',
+                                    textDecoration: 'none'
+                                }}>
+                                    <Package size={20} />
+                                    <span><strong>{stats.pendingReviews}</strong> reviews awaiting moderation</span>
                                 </Link>
                             )}
                         </div>

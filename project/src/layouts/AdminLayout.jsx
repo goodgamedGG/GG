@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { LayoutDashboard, Gamepad2, Users, LogOut, Home, ShoppingCart, CreditCard, FolderOpen, Tag, Menu, X } from 'lucide-react';
+import { LayoutDashboard, Gamepad2, Users, LogOut, Home, ShoppingCart, CreditCard, FolderOpen, Tag, Menu, X, Star, MessageSquare, Image as ImageIcon, Zap, Bell, Award, Settings as SettingsIcon, BarChart3, Mail, FileText } from 'lucide-react';
 
 const AdminLayout = () => {
     const { logout, user } = useAuth();
@@ -562,6 +562,18 @@ const AdminLayout = () => {
                         <Tag size={20} />
                         Promo Codes
                     </Link>
+                    <Link to="/admin/reviews" className={`nav-item ${isActive('/admin/reviews') ? 'active' : ''}`} onClick={closeSidebar}>
+                        <Star size={20} />
+                        Reviews
+                    </Link>
+                    <Link to="/admin/content" className={`nav-item ${isActive('/admin/content') ? 'active' : ''}`} onClick={closeSidebar}>
+                        <ImageIcon size={20} />
+                        Content
+                    </Link>
+                    <Link to="/admin/flash-sales" className={`nav-item ${isActive('/admin/flash-sales') ? 'active' : ''}`} onClick={closeSidebar}>
+                        <Zap size={20} />
+                        Flash Sales
+                    </Link>
 
                     <div className="nav-section">Sales</div>
                     <Link to="/admin/orders" className={`nav-item ${isActive('/admin/orders') ? 'active' : ''}`} onClick={closeSidebar}>
@@ -572,11 +584,37 @@ const AdminLayout = () => {
                         <CreditCard size={20} />
                         Payments
                     </Link>
+                    <Link to="/admin/price-alerts" className={`nav-item ${isActive('/admin/price-alerts') ? 'active' : ''}`} onClick={closeSidebar}>
+                        <Bell size={20} />
+                        Price Alerts
+                    </Link>
 
-                    <div className="nav-section">Users</div>
+                    <div className="nav-section">Users & Engagement</div>
                     <Link to="/admin/users" className={`nav-item ${isActive('/admin/users') ? 'active' : ''}`} onClick={closeSidebar}>
                         <Users size={20} />
                         Users
+                    </Link>
+                    <Link to="/admin/loyalty" className={`nav-item ${isActive('/admin/loyalty') ? 'active' : ''}`} onClick={closeSidebar}>
+                        <Award size={20} />
+                        Loyalty Points
+                    </Link>
+
+                    <div className="nav-section">System</div>
+                    <Link to="/admin/analytics" className={`nav-item ${isActive('/admin/analytics') ? 'active' : ''}`} onClick={closeSidebar}>
+                        <BarChart3 size={20} />
+                        Analytics
+                    </Link>
+                    <Link to="/admin/settings" className={`nav-item ${isActive('/admin/settings') ? 'active' : ''}`} onClick={closeSidebar}>
+                        <SettingsIcon size={20} />
+                        Settings
+                    </Link>
+                    <Link to="/admin/email-queue" className={`nav-item ${isActive('/admin/email-queue') ? 'active' : ''}`} onClick={closeSidebar}>
+                        <Mail size={20} />
+                        Email Queue
+                    </Link>
+                    <Link to="/admin/audit-logs" className={`nav-item ${isActive('/admin/audit-logs') ? 'active' : ''}`} onClick={closeSidebar}>
+                        <FileText size={20} />
+                        Audit Logs
                     </Link>
 
                     <div style={{ marginTop: 'auto', paddingTop: '20px' }}>

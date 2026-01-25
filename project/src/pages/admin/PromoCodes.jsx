@@ -1,11 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { Pencil, Trash2, Plus, X, Save, Eye, EyeOff, Tag, Copy } from 'lucide-react';
+import { Pencil, Trash2, Plus, X, Save, Eye, EyeOff, Tag, Copy, BarChart3, TrendingUp } from 'lucide-react';
 import adminAPI from '../../api/admin';
 
 const PromoCodes = () => {
     const [promoCodes, setPromoCodes] = useState([]);
+    const [promoStats, setPromoStats] = useState(null);
+    const [selectedPromoStats, setSelectedPromoStats] = useState(null);
     const [loading, setLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isStatsModalOpen, setIsStatsModalOpen] = useState(false);
+    const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
     const [editingPromo, setEditingPromo] = useState(null);
     const [formData, setFormData] = useState({
         code: '',
@@ -18,6 +22,7 @@ const PromoCodes = () => {
 
     useEffect(() => {
         loadPromoCodes();
+        loadPromoStats();
     }, []);
 
     const loadPromoCodes = async () => {
@@ -29,6 +34,25 @@ const PromoCodes = () => {
             console.error('Failed to load promo codes:', error);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const loadPromoStats = async () => {
+        try {
+            const result = await adminAPI.getPromoCodeStats();
+            setPromoStats(result?.data);
+        } catch (error) {
+            console.error('Failed to load promo stats:', error);
+        }
+    };
+
+    const loadPromoDetails = async (promoId) => {
+        try {
+            const result = await adminAPI.getPromoCodeStats(promoId);
+            setSelectedPromoStats(result?.data);
+            setIsDetailsModalOpen(true);
+        } catch (error) {
+            alert('Failed to load promo code details: ' + error.message);
         }
     };
 
@@ -62,7 +86,8 @@ const PromoCodes = () => {
         if (window.confirm('Are you sure you want to delete this promo code?')) {
             try {
                 await adminAPI.deletePromoCode(id);
-                setPromoCodes(promoCodes.filter(p => p._id !== id));
+                loadPromoCodes();
+                loadPromoStats();
             } catch (error) {
                 alert('Failed to delete promo code: ' + error.message);
             }
@@ -71,10 +96,8 @@ const PromoCodes = () => {
 
     const handleToggle = async (id) => {
         try {
-            const result = await adminAPI.togglePromoCode(id);
-            setPromoCodes(promoCodes.map(p => 
-                p._id === id ? { ...p, isActive: result.promoCode.isActive } : p
-            ));
+            await adminAPI.togglePromoCode(id);
+            loadPromoCodes();
         } catch (error) {
             alert('Failed to toggle promo code: ' + error.message);
         }
@@ -99,6 +122,7 @@ const PromoCodes = () => {
             }
             setIsModalOpen(false);
             loadPromoCodes();
+            loadPromoStats();
         } catch (error) {
             alert('Failed to save promo code: ' + error.message);
         }
@@ -123,6 +147,14 @@ const PromoCodes = () => {
         return new Date(date) < new Date();
     };
 
+    const formatCurrency = (amount) => {
+        return new Intl.NumberFormat('en-US', {
+            style: 'currency',
+            currency: 'USD',
+            minimumFractionDigits: 2
+        }).format(amount);
+    };
+
     return (
         <div>
             <header className="admin-header">
@@ -132,10 +164,16 @@ const PromoCodes = () => {
                         {promoCodes.length} promo codes
                     </p>
                 </div>
-                <button onClick={handleAdd} className="btn-primary">
-                    <Plus size={18} />
-                    Add Promo Code
-                </button>
+                <div style={{ display: 'flex', gap: '12px' }}>
+                    <button onClick={() => setIsStatsModalOpen(true)} className="btn-secondary">
+                        <BarChart3 size={18} />
+                        Statistics
+                    </button>
+                    <button onClick={handleAdd} className="btn-primary">
+                        <Plus size={18} />
+                        Add Promo Code
+                    </button>
+                </div>
             </header>
 
             {loading ? (
@@ -157,6 +195,7 @@ const PromoCodes = () => {
                                 <th>Discount</th>
                                 <th>Min Purchase</th>
                                 <th>Usage</th>
+                                <th>Revenue</th>
                                 <th>Expires</th>
                                 <th>Status</th>
                                 <th>Actions</th>
@@ -192,7 +231,26 @@ const PromoCodes = () => {
                                         {promo.minPurchaseAmount ? `$${promo.minPurchaseAmount}` : '-'}
                                     </td>
                                     <td>
-                                        {promo.usedCount || 0} / {promo.usageLimit || '∞'}
+                                        <div>
+                                            <div style={{ fontWeight: 500 }}>
+                                                {promo.usedCount || 0} / {promo.usageLimit || '∞'}
+                                            </div>
+                                            {promo.usageLimit && (
+                                                <div style={{ fontSize: '11px', color: 'var(--color-text-muted)' }}>
+                                                    {Math.round(((promo.usedCount || 0) / promo.usageLimit) * 100)}% used
+                                                </div>
+                                            )}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <button 
+                                            onClick={() => loadPromoDetails(promo._id)}
+                                            className="icon-btn"
+                                            title="View Revenue Details"
+                                            style={{ color: 'var(--color-cyan-primary)' }}
+                                        >
+                                            <TrendingUp size={16} />
+                                        </button>
                                     </td>
                                     <td style={{ color: isExpired(promo.expirationDate) ? '#ff4444' : 'var(--color-text-muted)' }}>
                                         {formatDate(promo.expirationDate)}
@@ -205,6 +263,9 @@ const PromoCodes = () => {
                                     </td>
                                     <td>
                                         <div className="action-btns">
+                                            <button onClick={() => loadPromoDetails(promo._id)} className="icon-btn" title="View Details">
+                                                <Eye size={18} />
+                                            </button>
                                             <button onClick={() => handleToggle(promo._id)} className="icon-btn" title={promo.isActive ? 'Deactivate' : 'Activate'}>
                                                 {promo.isActive ? <EyeOff size={18} /> : <Eye size={18} />}
                                             </button>
@@ -319,6 +380,147 @@ const PromoCodes = () => {
                                 </button>
                             </div>
                         </form>
+                    </div>
+                </div>
+            )}
+
+            {/* Statistics Modal */}
+            {isStatsModalOpen && promoStats && (
+                <div className="modal-overlay">
+                    <div className="modal-content" style={{ maxWidth: '600px' }}>
+                        <div className="modal-header">
+                            <h2 className="modal-title">Promo Code Statistics</h2>
+                            <button onClick={() => setIsStatsModalOpen(false)} className="modal-close">
+                                <X size={24} />
+                            </button>
+                        </div>
+                        <div style={{ padding: '20px' }}>
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '16px', marginBottom: '24px' }}>
+                                <div style={{ padding: '16px', background: 'var(--color-bg-secondary)', borderRadius: 'var(--radius-md)' }}>
+                                    <div style={{ fontSize: '12px', color: 'var(--color-text-muted)', marginBottom: '4px' }}>Total Codes</div>
+                                    <div style={{ fontSize: '24px', fontWeight: 'bold' }}>{promoStats.totalCodes || 0}</div>
+                                </div>
+                                <div style={{ padding: '16px', background: 'var(--color-bg-secondary)', borderRadius: 'var(--radius-md)' }}>
+                                    <div style={{ fontSize: '12px', color: 'var(--color-text-muted)', marginBottom: '4px' }}>Active Codes</div>
+                                    <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#00ff80' }}>{promoStats.activeCodes || 0}</div>
+                                </div>
+                                <div style={{ padding: '16px', background: 'var(--color-bg-secondary)', borderRadius: 'var(--radius-md)' }}>
+                                    <div style={{ fontSize: '12px', color: 'var(--color-text-muted)', marginBottom: '4px' }}>Expired Codes</div>
+                                    <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#ff6464' }}>{promoStats.expiredCodes || 0}</div>
+                                </div>
+                                <div style={{ padding: '16px', background: 'var(--color-bg-secondary)', borderRadius: 'var(--radius-md)' }}>
+                                    <div style={{ fontSize: '12px', color: 'var(--color-text-muted)', marginBottom: '4px' }}>Total Usage</div>
+                                    <div style={{ fontSize: '24px', fontWeight: 'bold', color: 'var(--color-cyan-primary)' }}>{promoStats.totalUsage || 0}</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div style={{ padding: '20px', borderTop: '1px solid var(--color-border)', display: 'flex', justifyContent: 'flex-end' }}>
+                            <button onClick={() => setIsStatsModalOpen(false)} className="btn-secondary">
+                                Close
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Promo Code Details Modal */}
+            {isDetailsModalOpen && selectedPromoStats && (
+                <div className="modal-overlay">
+                    <div className="modal-content" style={{ maxWidth: '700px', maxHeight: '90vh', overflowY: 'auto' }}>
+                        <div className="modal-header">
+                            <h2 className="modal-title">Promo Code Details - {selectedPromoStats.promoCode?.code}</h2>
+                            <button onClick={() => setIsDetailsModalOpen(false)} className="modal-close">
+                                <X size={24} />
+                            </button>
+                        </div>
+                        <div style={{ padding: '20px' }}>
+                            {selectedPromoStats.promoCode && (
+                                <div style={{ marginBottom: '24px', padding: '16px', background: 'var(--color-bg-secondary)', borderRadius: '8px' }}>
+                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                                        <div>
+                                            <div style={{ fontSize: '12px', color: 'var(--color-text-muted)', marginBottom: '4px' }}>Discount</div>
+                                            <div style={{ fontSize: '18px', fontWeight: 'bold', color: '#00ff80' }}>
+                                                {selectedPromoStats.promoCode.discountType === 'percentage' 
+                                                    ? `${selectedPromoStats.promoCode.discountValue}%` 
+                                                    : formatCurrency(selectedPromoStats.promoCode.discountValue)
+                                                }
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <div style={{ fontSize: '12px', color: 'var(--color-text-muted)', marginBottom: '4px' }}>Status</div>
+                                            <span className={`status-badge ${selectedPromoStats.promoCode.isActive ? 'status-active' : 'status-inactive'}`}>
+                                                {selectedPromoStats.promoCode.isActive ? 'Active' : 'Inactive'}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+                            {selectedPromoStats.usage && (
+                                <div>
+                                    <h3 style={{ marginBottom: '16px' }}>Usage Statistics</h3>
+                                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '16px', marginBottom: '24px' }}>
+                                        <div style={{ padding: '16px', background: 'var(--color-bg-secondary)', borderRadius: '8px' }}>
+                                            <div style={{ fontSize: '12px', color: 'var(--color-text-muted)', marginBottom: '4px' }}>Total Orders</div>
+                                            <div style={{ fontSize: '24px', fontWeight: 'bold' }}>{selectedPromoStats.usage.totalOrders || 0}</div>
+                                        </div>
+                                        <div style={{ padding: '16px', background: 'var(--color-bg-secondary)', borderRadius: '8px' }}>
+                                            <div style={{ fontSize: '12px', color: 'var(--color-text-muted)', marginBottom: '4px' }}>Total Discount</div>
+                                            <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#00ff80' }}>
+                                                {formatCurrency(selectedPromoStats.usage.totalDiscount || 0)}
+                                            </div>
+                                        </div>
+                                        <div style={{ padding: '16px', background: 'var(--color-bg-secondary)', borderRadius: '8px' }}>
+                                            <div style={{ fontSize: '12px', color: 'var(--color-text-muted)', marginBottom: '4px' }}>Total Revenue</div>
+                                            <div style={{ fontSize: '24px', fontWeight: 'bold', color: 'var(--color-cyan-primary)' }}>
+                                                {formatCurrency(selectedPromoStats.usage.totalRevenue || 0)}
+                                            </div>
+                                        </div>
+                                        <div style={{ padding: '16px', background: 'var(--color-bg-secondary)', borderRadius: '8px' }}>
+                                            <div style={{ fontSize: '12px', color: 'var(--color-text-muted)', marginBottom: '4px' }}>Avg Discount</div>
+                                            <div style={{ fontSize: '24px', fontWeight: 'bold' }}>
+                                                {formatCurrency(selectedPromoStats.usage.averageDiscount || 0)}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {selectedPromoStats.recentOrders && selectedPromoStats.recentOrders.length > 0 && (
+                                        <div>
+                                            <h4 style={{ marginBottom: '12px', fontSize: '14px' }}>Recent Orders</h4>
+                                            <div style={{ maxHeight: '300px', overflowY: 'auto' }}>
+                                                <table className="data-table">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Order #</th>
+                                                            <th>Total</th>
+                                                            <th>Discount</th>
+                                                            <th>Date</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        {selectedPromoStats.recentOrders.map((order, idx) => (
+                                                            <tr key={idx}>
+                                                                <td style={{ fontFamily: 'monospace', fontSize: '12px' }}>
+                                                                    {order.orderNumber || '-'}
+                                                                </td>
+                                                                <td>{formatCurrency(order.total || 0)}</td>
+                                                                <td style={{ color: '#00ff80' }}>{formatCurrency(order.discount || 0)}</td>
+                                                                <td style={{ fontSize: '12px', color: 'var(--color-text-muted)' }}>
+                                                                    {formatDate(order.createdAt)}
+                                                                </td>
+                                                            </tr>
+                                                        ))}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+                        </div>
+                        <div style={{ padding: '20px', borderTop: '1px solid var(--color-border)', display: 'flex', justifyContent: 'flex-end' }}>
+                            <button onClick={() => setIsDetailsModalOpen(false)} className="btn-secondary">
+                                Close
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}
