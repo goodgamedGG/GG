@@ -90,6 +90,34 @@ const orderSchema = new mongoose.Schema(
             type: mongoose.Schema.Types.ObjectId,
             ref: 'PromoCode',
             default: null
+        },
+        trackingHistory: [{
+            status: {
+                type: String,
+                enum: Object.values(ORDER_STATUS),
+                required: true
+            },
+            message: {
+                type: String,
+                default: null
+            },
+            updatedAt: {
+                type: Date,
+                default: Date.now
+            },
+            updatedBy: {
+                type: String,
+                enum: ['system', 'admin', 'user'],
+                default: 'system'
+            }
+        }],
+        estimatedDelivery: {
+            type: Date,
+            default: null
+        },
+        deliveredAt: {
+            type: Date,
+            default: null
         }
     },
     {
@@ -102,6 +130,29 @@ orderSchema.pre('save', function (next) {
     if (!this.orderNumber) {
         this.orderNumber = generateOrderNumber();
     }
+    
+    // Track status changes
+    if (this.isModified('orderStatus') && !this.isNew) {
+        const statusMessages = {
+            [ORDER_STATUS.NEW]: 'Order placed successfully',
+            [ORDER_STATUS.PROCESSING]: 'Order is being processed',
+            [ORDER_STATUS.COMPLETED]: 'Order completed and delivered',
+            [ORDER_STATUS.CANCELLED]: 'Order has been cancelled'
+        };
+        
+        this.trackingHistory.push({
+            status: this.orderStatus,
+            message: statusMessages[this.orderStatus] || 'Order status updated',
+            updatedAt: new Date(),
+            updatedBy: 'system'
+        });
+        
+        // Set deliveredAt when completed
+        if (this.orderStatus === ORDER_STATUS.COMPLETED && !this.deliveredAt) {
+            this.deliveredAt = new Date();
+        }
+    }
+    
     next();
 });
 

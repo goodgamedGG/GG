@@ -169,10 +169,160 @@ const updateUserRole = async (req, res, next) => {
     }
 };
 
+/**
+ * @desc    Get user by ID (Admin)
+ * @route   GET /api/users/:id
+ * @access  Private/Admin
+ */
+const getUserById = async (req, res, next) => {
+    try {
+        const user = await User.findById(req.params.id)
+            .select('-password -verificationCode -resetPasswordToken');
+
+        if (!user) {
+            return next(new AppError('User not found', HTTP_STATUS.NOT_FOUND));
+        }
+
+        // Get user's orders count
+        const Order = require('../models/Order');
+        const ordersCount = await Order.countDocuments({ user: user._id });
+
+        // Get user's loyalty points
+        const LoyaltyPoint = require('../models/LoyaltyPoint');
+        const loyalty = await LoyaltyPoint.findOne({ user: user._id });
+
+        res.status(HTTP_STATUS.OK).json({
+            success: true,
+            data: {
+                user: {
+                    ...user.toObject(),
+                    ordersCount,
+                    loyaltyPoints: loyalty?.points || 0,
+                    loyaltyTier: loyalty?.tier || 'bronze'
+                }
+            }
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+/**
+ * @desc    Update user (Admin)
+ * @route   PUT /api/users/:id
+ * @access  Private/Admin
+ */
+const updateUser = async (req, res, next) => {
+    try {
+        const { name, email, phone, isEmailVerified, role } = req.body;
+
+        const user = await User.findById(req.params.id);
+        if (!user) {
+            return next(new AppError('User not found', HTTP_STATUS.NOT_FOUND));
+        }
+
+        if (name) user.name = name;
+        if (email && email !== user.email) {
+            // Check if email already exists
+            const existingUser = await User.findOne({ email });
+            if (existingUser && existingUser._id.toString() !== user._id.toString()) {
+                return next(new AppError('Email already in use', HTTP_STATUS.CONFLICT));
+            }
+            user.email = email;
+            user.isEmailVerified = false; // Require re-verification if email changed
+        }
+        if (phone) user.phone = phone;
+        if (isEmailVerified !== undefined) user.isEmailVerified = isEmailVerified;
+        if (role && Object.values(USER_ROLES).includes(role)) user.role = role;
+
+        await user.save();
+
+        res.status(HTTP_STATUS.OK).json({
+            success: true,
+            message: 'User updated successfully',
+            data: { user }
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+/**
+ * @desc    Delete user (Admin)
+ * @route   DELETE /api/users/:id
+ * @access  Private/Admin
+ */
+const deleteUser = async (req, res, next) => {
+    try {
+        const user = await User.findById(req.params.id);
+        if (!user) {
+            return next(new AppError('User not found', HTTP_STATUS.NOT_FOUND));
+        }
+
+        // Prevent deleting yourself
+        if (user._id.toString() === req.user._id.toString()) {
+            return next(new AppError('Cannot delete your own account', HTTP_STATUS.BAD_REQUEST));
+        }
+
+        await user.deleteOne();
+
+        res.status(HTTP_STATUS.OK).json({
+            success: true,
+            message: 'User deleted successfully'
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+/**
+ * @desc    Bulk update users (Admin)
+ * @route   POST /api/users/bulk
+ * @access  Private/Admin
+ */
+const bulkUpdateUsers = async (req, res, next) => {
+    try {
+        const { userIds, updates } = req.body;
+
+        if (!Array.isArray(userIds) || userIds.length === 0) {
+            return next(new AppError('User IDs array is required', HTTP_STATUS.BAD_REQUEST));
+        }
+
+        if (!updates || typeof updates !== 'object') {
+            return next(new AppError('Updates object is required', HTTP_STATUS.BAD_REQUEST));
+        }
+
+        // Prevent bulk updating yourself
+        if (userIds.includes(req.user._id.toString()) && updates.role) {
+            return next(new AppError('Cannot change your own role via bulk update', HTTP_STATUS.BAD_REQUEST));
+        }
+
+        const result = await User.updateMany(
+            { _id: { $in: userIds } },
+            { $set: updates }
+        );
+
+        res.status(HTTP_STATUS.OK).json({
+            success: true,
+            message: `${result.modifiedCount} users updated`,
+            data: {
+                matched: result.matchedCount,
+                modified: result.modifiedCount
+            }
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
 module.exports = {
     getProfile,
     updateProfile,
     changePassword,
     getAllUsers,
-    updateUserRole
+    updateUserRole,
+    getUserById,
+    updateUser,
+    deleteUser,
+    bulkUpdateUsers
 };

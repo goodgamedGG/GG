@@ -66,6 +66,43 @@ const productSchema = new mongoose.Schema(
         isActive: {
             type: Boolean,
             default: true
+        },
+        averageRating: {
+            type: Number,
+            default: 0,
+            min: 0,
+            max: 5
+        },
+        totalReviews: {
+            type: Number,
+            default: 0,
+            min: 0
+        },
+        viewCount: {
+            type: Number,
+            default: 0,
+            min: 0
+        },
+        purchaseCount: {
+            type: Number,
+            default: 0,
+            min: 0
+        },
+        isFlashSale: {
+            type: Boolean,
+            default: false
+        },
+        flashSaleEndsAt: {
+            type: Date,
+            default: null
+        },
+        isFeatured: {
+            type: Boolean,
+            default: false
+        },
+        tags: {
+            type: [String],
+            default: []
         }
     },
     {
@@ -80,6 +117,11 @@ productSchema.index({ platform: 1, isActive: 1 });
 productSchema.index({ region: 1, isActive: 1 });
 productSchema.index({ price: 1 });
 productSchema.index({ name: 'text', description: 'text' });
+productSchema.index({ viewCount: -1 }); // For trending
+productSchema.index({ purchaseCount: -1 }); // For popular
+productSchema.index({ isFlashSale: 1, flashSaleEndsAt: 1 }); // For flash sales
+productSchema.index({ isFeatured: 1 }); // For featured products
+productSchema.index({ tags: 1 }); // For tag-based recommendations
 
 // Virtual for effective price (considering discount)
 productSchema.virtual('effectivePrice').get(function () {

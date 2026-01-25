@@ -32,6 +32,7 @@ router.post(
     protect,
     requireAdmin,
     uploadSingle('image'),
+    require('../middleware/uploadMiddleware').processUploadedImages,
     createCategoryValidator,
     validate,
     createCategory
@@ -43,6 +44,7 @@ router.put(
     protect,
     requireAdmin,
     uploadSingle('image'),
+    require('../middleware/uploadMiddleware').processUploadedImages,
     updateCategoryValidator,
     validate,
     updateCategory

@@ -6,7 +6,8 @@ const {
     createProduct,
     updateProduct,
     deleteProduct,
-    toggleProductStatus
+    toggleProductStatus,
+    getProductByIdAdmin
 } = require('../controllers/productController');
 const { protect } = require('../middleware/authMiddleware');
 const { requireAdmin } = require('../middleware/roleMiddleware');
@@ -65,5 +66,8 @@ router.delete('/:id', protect, requireAdmin, auditLog, mongoIdValidator, validat
 
 // @route   PATCH /api/products/:id/toggle
 router.patch('/:id/toggle', protect, requireAdmin, auditLog, mongoIdValidator, validate, toggleProductStatus);
+
+// @route   GET /api/products/:id/admin (Admin detailed view)
+router.get('/:id/admin', protect, requireAdmin, mongoIdValidator, validate, getProductByIdAdmin);
 
 module.exports = router;

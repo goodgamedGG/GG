@@ -7,6 +7,7 @@ const { HTTP_STATUS, ORDER_STATUS } = require('../utils/constants');
 const { validateStock } = require('../services/calculationService');
 const { sendOrderConfirmationEmail } = require('../services/emailService');
 const { getPagination, createPaginationMeta } = require('../utils/helpers');
+const { awardPointsForOrder } = require('../controllers/loyaltyController');
 
 /**
  * @desc    Create order from cart
@@ -50,13 +51,22 @@ const createOrder = async (req, res, next) => {
                 phone
             },
             paymentMethod,
-            promoCode: cart.promoCode
+            promoCode: cart.promoCode,
+            trackingHistory: [{
+                status: ORDER_STATUS.NEW,
+                message: 'Order placed successfully',
+                updatedAt: new Date(),
+                updatedBy: 'system'
+            }]
         });
 
-        // Update product stock
+        // Update product stock and purchase count
         for (const item of cart.items) {
             await Product.findByIdAndUpdate(item.product._id, {
-                $inc: { stock: -item.quantity }
+                $inc: { 
+                    stock: -item.quantity,
+                    purchaseCount: item.quantity
+                }
             });
         }
 
@@ -66,6 +76,8 @@ const createOrder = async (req, res, next) => {
                 $inc: { usedCount: 1 }
             });
         }
+
+        // Loyalty points will be awarded when payment is confirmed (in paymentController)
 
         // Clear cart
         cart.items = [];
@@ -195,20 +207,77 @@ const getAllOrders = async (req, res, next) => {
  */
 const updateOrderStatus = async (req, res, next) => {
     try {
-        const { status } = req.body;
+        const { status, message } = req.body;
 
         const order = await Order.findById(req.params.id);
         if (!order) {
             return next(new AppError('Order not found', HTTP_STATUS.NOT_FOUND));
         }
 
+        const oldStatus = order.orderStatus;
         order.orderStatus = status;
+        
+        // Add tracking history entry
+        const statusMessages = {
+            [ORDER_STATUS.NEW]: 'Order placed successfully',
+            [ORDER_STATUS.PROCESSING]: 'Order is being processed',
+            [ORDER_STATUS.COMPLETED]: 'Order completed and delivered',
+            [ORDER_STATUS.CANCELLED]: 'Order has been cancelled'
+        };
+        
+        order.trackingHistory.push({
+            status,
+            message: message || statusMessages[status] || 'Order status updated',
+            updatedAt: new Date(),
+            updatedBy: 'admin'
+        });
+        
+        // Set deliveredAt when completed
+        if (status === ORDER_STATUS.COMPLETED && !order.deliveredAt) {
+            order.deliveredAt = new Date();
+        }
+        
         await order.save();
 
         res.status(HTTP_STATUS.OK).json({
             success: true,
             message: 'Order status updated',
             data: { order }
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+/**
+ * @desc    Get order tracking information
+ * @route   GET /api/orders/:id/tracking
+ * @access  Private
+ */
+const getOrderTracking = async (req, res, next) => {
+    try {
+        const order = await Order.findById(req.params.id)
+            .select('orderNumber orderStatus trackingHistory estimatedDelivery deliveredAt createdAt user');
+
+        if (!order) {
+            return next(new AppError('Order not found', HTTP_STATUS.NOT_FOUND));
+        }
+
+        // Ensure user owns the order (unless admin)
+        if (order.user.toString() !== req.user._id.toString() && req.user.role !== 'admin') {
+            return next(new AppError('Not authorized', HTTP_STATUS.FORBIDDEN));
+        }
+
+        res.status(HTTP_STATUS.OK).json({
+            success: true,
+            data: {
+                orderNumber: order.orderNumber,
+                currentStatus: order.orderStatus,
+                trackingHistory: order.trackingHistory,
+                estimatedDelivery: order.estimatedDelivery,
+                deliveredAt: order.deliveredAt,
+                createdAt: order.createdAt
+            }
         });
     } catch (error) {
         next(error);
@@ -263,5 +332,6 @@ module.exports = {
     getOrderById,
     getAllOrders,
     updateOrderStatus,
-    cancelOrder
+    cancelOrder,
+    getOrderTracking
 };

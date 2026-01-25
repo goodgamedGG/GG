@@ -5,11 +5,18 @@ const {
     updateProfile,
     changePassword,
     getAllUsers,
-    updateUserRole
+    updateUserRole,
+    getUserById,
+    updateUser,
+    deleteUser,
+    bulkUpdateUsers
 } = require('../controllers/userController');
 const { protect } = require('../middleware/authMiddleware');
 const { requireAdmin } = require('../middleware/roleMiddleware');
 const { userApiLimiter, adminLimiter } = require('../middleware/rateLimitMiddleware');
+const validate = require('../middleware/validateMiddleware');
+const { mongoIdValidator, paginationValidator } = require('../utils/validators');
+const { body } = require('express-validator');
 
 // Apply user-based rate limiting to all routes
 router.use(protect, userApiLimiter);
@@ -18,19 +25,61 @@ router.use(protect, userApiLimiter);
 router.use('/:id/role', adminLimiter);
 
 // @route   GET /api/users/profile
-router.get('/profile', protect, getProfile);
+router.get('/profile', getProfile);
 
 // @route   PUT /api/users/profile
-router.put('/profile', protect, updateProfile);
+router.put('/profile', updateProfile);
 
 // @route   PUT /api/users/change-password
-router.put('/change-password', protect, changePassword);
+router.put('/change-password', changePassword);
 
 // Admin routes
 // @route   GET /api/users
-router.get('/', protect, requireAdmin, getAllUsers);
+router.get('/', requireAdmin, paginationValidator, validate, getAllUsers);
+
+// @route   GET /api/users/:id
+router.get('/:id', requireAdmin, mongoIdValidator, validate, getUserById);
+
+// @route   PUT /api/users/:id
+router.put(
+    '/:id',
+    requireAdmin,
+    mongoIdValidator,
+    [
+        body('name').optional().trim().notEmpty(),
+        body('email').optional().isEmail(),
+        body('phone').optional().trim().notEmpty(),
+        body('isEmailVerified').optional().isBoolean(),
+        body('role').optional().isIn(['user', 'admin'])
+    ],
+    validate,
+    updateUser
+);
 
 // @route   PUT /api/users/:id/role
-router.put('/:id/role', protect, requireAdmin, updateUserRole);
+router.put(
+    '/:id/role',
+    requireAdmin,
+    mongoIdValidator,
+    [body('role').isIn(['user', 'admin']).withMessage('Invalid role')],
+    validate,
+    updateUserRole
+);
+
+// @route   DELETE /api/users/:id
+router.delete('/:id', requireAdmin, mongoIdValidator, validate, deleteUser);
+
+// @route   POST /api/users/bulk
+router.post(
+    '/bulk',
+    requireAdmin,
+    [
+        body('userIds').isArray({ min: 1 }).withMessage('User IDs array is required'),
+        body('userIds.*').isMongoId().withMessage('All user IDs must be valid'),
+        body('updates').isObject().withMessage('Updates object is required')
+    ],
+    validate,
+    bulkUpdateUsers
+);
 
 module.exports = router;

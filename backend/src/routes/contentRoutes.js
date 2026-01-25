@@ -24,10 +24,10 @@ router.get('/banners', getBanners);
 
 // Admin routes
 // @route   POST /api/content/banners
-router.post('/banners', protect, requireAdmin, uploadSingle('bannerImage'), createBanner);
+router.post('/banners', protect, requireAdmin, uploadSingle('bannerImage'), require('../middleware/uploadMiddleware').processUploadedImages, createBanner);
 
 // @route   PUT /api/content/banners/:id
-router.put('/banners/:id', protect, requireAdmin, uploadSingle('bannerImage'), mongoIdValidator, validate, updateBanner);
+router.put('/banners/:id', protect, requireAdmin, uploadSingle('bannerImage'), require('../middleware/uploadMiddleware').processUploadedImages, mongoIdValidator, validate, updateBanner);
 
 // @route   DELETE /api/content/banners/:id
 router.delete('/banners/:id', protect, requireAdmin, mongoIdValidator, validate, deleteBanner);

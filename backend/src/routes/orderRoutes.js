@@ -6,8 +6,10 @@ const {
     getOrderById,
     getAllOrders,
     updateOrderStatus,
-    cancelOrder
+    cancelOrder,
+    getOrderTracking
 } = require('../controllers/orderController');
+const { getOrderStats, updateEstimatedDelivery } = require('../controllers/adminOrderController');
 const { protect, requireEmailVerification } = require('../middleware/authMiddleware');
 const { requireAdmin } = require('../middleware/roleMiddleware');
 const validate = require('../middleware/validateMiddleware');
@@ -28,6 +30,9 @@ router.get('/', protect, requireEmailVerification, paginationValidator, validate
 // @route   GET /api/orders/:id
 router.get('/:id', protect, requireEmailVerification, mongoIdValidator, validate, getOrderById);
 
+// @route   GET /api/orders/:id/tracking
+router.get('/:id/tracking', protect, requireEmailVerification, mongoIdValidator, validate, getOrderTracking);
+
 // @route   PATCH /api/orders/:id/cancel
 router.patch('/:id/cancel', protect, requireEmailVerification, mongoIdValidator, validate, cancelOrder);
 
@@ -35,7 +40,23 @@ router.patch('/:id/cancel', protect, requireEmailVerification, mongoIdValidator,
 // @route   GET /api/orders/admin/all
 router.get('/admin/all', protect, requireAdmin, paginationValidator, validate, getAllOrders);
 
+// @route   GET /api/orders/admin/stats
+router.get('/admin/stats', protect, requireAdmin, getOrderStats);
+
 // @route   PATCH /api/orders/:id/status
 router.patch('/:id/status', protect, requireAdmin, updateOrderStatusValidator, validate, updateOrderStatus);
+
+// @route   PATCH /api/orders/:id/delivery
+router.patch(
+    '/:id/delivery',
+    protect,
+    requireAdmin,
+    mongoIdValidator,
+    [
+        body('estimatedDelivery').isISO8601().withMessage('Valid delivery date is required')
+    ],
+    validate,
+    updateEstimatedDelivery
+);
 
 module.exports = router;

@@ -23,6 +23,16 @@ const paymentRoutes = require('./routes/paymentRoutes');
 const promoCodeRoutes = require('./routes/promoCodeRoutes');
 const contentRoutes = require('./routes/contentRoutes');
 const auditRoutes = require('./routes/auditRoutes');
+const wishlistRoutes = require('./routes/wishlistRoutes');
+const reviewRoutes = require('./routes/reviewRoutes');
+const recentlyViewedRoutes = require('./routes/recentlyViewedRoutes');
+const recommendationRoutes = require('./routes/recommendationRoutes');
+const priceAlertRoutes = require('./routes/priceAlertRoutes');
+const flashSaleRoutes = require('./routes/flashSaleRoutes');
+const comparisonRoutes = require('./routes/comparisonRoutes');
+const loyaltyRoutes = require('./routes/loyaltyRoutes');
+const adminRoutes = require('./routes/adminRoutes');
+const adminProductRoutes = require('./routes/adminProductRoutes');
 
 // Initialize Express app
 const app = express();
@@ -174,6 +184,16 @@ app.use('/api/payments', paymentRoutes);
 app.use('/api/promo-codes', promoCodeRoutes);
 app.use('/api/content', contentRoutes);
 app.use('/api/audit-logs', auditRoutes);
+app.use('/api/wishlist', wishlistRoutes);
+app.use('/api/reviews', reviewRoutes);
+app.use('/api/recently-viewed', recentlyViewedRoutes);
+app.use('/api/recommendations', recommendationRoutes);
+app.use('/api/price-alerts', priceAlertRoutes);
+app.use('/api/flash-sales', flashSaleRoutes);
+app.use('/api/compare', comparisonRoutes);
+app.use('/api/loyalty', loyaltyRoutes);
+app.use('/api/admin', adminRoutes);
+app.use('/api/admin/products', adminProductRoutes);
 
 // 404 handler
 app.use(notFound);

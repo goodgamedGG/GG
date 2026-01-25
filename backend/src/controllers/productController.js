@@ -78,6 +78,27 @@ const getProductById = async (req, res, next) => {
             return next(new AppError('Product not found', HTTP_STATUS.NOT_FOUND));
         }
 
+        // Increment view count (async, don't wait)
+        Product.findByIdAndUpdate(req.params.id, { $inc: { viewCount: 1 } })
+            .catch(err => console.error('Error updating view count:', err));
+
+        // Track in recently viewed if user is authenticated
+        if (req.user) {
+            const RecentlyViewed = require('../models/RecentlyViewed');
+            RecentlyViewed.findOneAndUpdate(
+                { user: req.user._id },
+                {
+                    $push: {
+                        products: {
+                            $each: [{ product: req.params.id }],
+                            $slice: 20
+                        }
+                    }
+                },
+                { upsert: true, new: true }
+            ).catch(err => console.error('Error tracking view:', err));
+        }
+
         res.status(HTTP_STATUS.OK).json({
             success: true,
             data: { product }
@@ -198,11 +219,49 @@ const toggleProductStatus = async (req, res, next) => {
 
         product.isActive = !product.isActive;
         await product.save();
+        await product.populate('category', 'name');
 
         res.status(HTTP_STATUS.OK).json({
             success: true,
             message: `Product ${product.isActive ? 'activated' : 'deactivated'} successfully`,
             data: { product }
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+/**
+ * @desc    Get product by ID with full details (Admin)
+ * @route   GET /api/products/:id/admin
+ * @access  Private/Admin
+ */
+const getProductByIdAdmin = async (req, res, next) => {
+    try {
+        const product = await Product.findById(req.params.id)
+            .populate('category', 'name')
+            .select('+viewCount +purchaseCount');
+
+        if (!product) {
+            return next(new AppError('Product not found', HTTP_STATUS.NOT_FOUND));
+        }
+
+        // Get related data
+        const Review = require('../models/Review');
+        const Order = require('../models/Order');
+
+        const reviewCount = await Review.countDocuments({ product: product._id, isApproved: true });
+        const orderCount = await Order.countDocuments({ 'items.product': product._id });
+
+        res.status(HTTP_STATUS.OK).json({
+            success: true,
+            data: {
+                product: {
+                    ...product.toObject(),
+                    reviewCount,
+                    orderCount
+                }
+            }
         });
     } catch (error) {
         next(error);
@@ -215,5 +274,6 @@ module.exports = {
     createProduct,
     updateProduct,
     deleteProduct,
-    toggleProductStatus
+    toggleProductStatus,
+    getProductByIdAdmin
 };

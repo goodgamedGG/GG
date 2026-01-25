@@ -154,6 +154,11 @@ const confirmPayment = async (req, res, next) => {
         order.orderStatus = ORDER_STATUS.PROCESSING;
         await order.save();
 
+        // Award loyalty points when payment is confirmed
+        const { awardPointsForOrder } = require('../controllers/loyaltyController');
+        awardPointsForOrder(payment.user._id, order)
+            .catch(err => console.error('Error awarding loyalty points:', err));
+
         // Send confirmation email
         try {
             await sendPaymentConfirmationEmail(payment.user.email, payment.user.name, order);
