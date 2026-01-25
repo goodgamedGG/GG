@@ -26,6 +26,7 @@ router.post(
     requireEmailVerification,
     uploadLimiter,
     uploadSingle('proofImage'),
+    require('../middleware/uploadMiddleware').processUploadedImages,
     submitPaymentValidator,
     validate,
     submitPayment

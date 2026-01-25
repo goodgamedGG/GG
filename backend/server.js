@@ -1,7 +1,13 @@
 require('dotenv').config();
+
+// Validate environment variables first
+const validateEnv = require('./src/config/env');
+validateEnv();
+
 const app = require('./src/app');
 const connectDB = require('./src/config/db');
 const { ensureUploadDirs } = require('./src/services/uploadService');
+const { processEmailQueue } = require('./src/services/emailQueueService');
 const User = require('./src/models/User');
 const { USER_ROLES } = require('./src/utils/constants');
 
@@ -53,6 +59,10 @@ const startServer = async () => {
         // Ensure upload directories exist
         await ensureUploadDirs();
         console.log('✅ Upload directories ready');
+
+        // Start email queue processor
+        processEmailQueue();
+        console.log('✅ Email queue processor started');
 
         // Create default admin
         await createDefaultAdmin();

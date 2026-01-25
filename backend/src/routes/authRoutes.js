@@ -7,7 +7,12 @@ const {
     resendVerificationCode,
     forgotPassword,
     verifyResetCode,
-    resetPassword
+    resetPassword,
+    refreshToken,
+    logout,
+    getSessions,
+    revokeSession,
+    revokeAllOtherSessions
 } = require('../controllers/authController');
 const validate = require('../middleware/validateMiddleware');
 const {
@@ -16,6 +21,7 @@ const {
     verifyEmailValidator
 } = require('../utils/validators');
 const { authLimiter } = require('../middleware/rateLimitMiddleware');
+const { protect } = require('../middleware/authMiddleware');
 
 // Apply rate limiting to auth routes
 router.use(authLimiter);
@@ -40,5 +46,20 @@ router.post('/verify-reset-code', verifyResetCode);
 
 // @route   POST /api/auth/reset-password
 router.post('/reset-password', resetPassword);
+
+// @route   POST /api/auth/refresh-token
+router.post('/refresh-token', refreshToken);
+
+// @route   POST /api/auth/logout
+router.post('/logout', protect, logout);
+
+// @route   GET /api/auth/sessions
+router.get('/sessions', protect, getSessions);
+
+// @route   DELETE /api/auth/sessions/:sessionId
+router.delete('/sessions/:sessionId', protect, revokeSession);
+
+// @route   DELETE /api/auth/sessions
+router.delete('/sessions', protect, revokeAllOtherSessions);
 
 module.exports = router;

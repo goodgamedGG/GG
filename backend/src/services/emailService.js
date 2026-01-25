@@ -1,5 +1,7 @@
 const transporter = require('../config/email');
 const { formatCurrency } = require('../utils/helpers');
+const { queueEmail } = require('./emailQueueService');
+const logger = require('../utils/logger');
 
 /**
  * Send verification email
@@ -47,11 +49,18 @@ const sendVerificationEmail = async (email, name, code) => {
     };
 
     try {
+        // Try to send directly first
         await transporter.sendMail(mailOptions);
-        console.log(`✅ Verification email sent to ${email}`);
+        logger.info('Verification email sent', { email });
     } catch (error) {
-        console.error('❌ Error sending verification email:', error.message);
-        throw new Error('Failed to send verification email');
+        logger.error('Failed to send verification email directly, queuing', { email, error: error.message });
+        // Queue email for retry
+        await queueEmail({
+            to: email,
+            subject: mailOptions.subject,
+            html: mailOptions.html,
+            emailType: 'verification'
+        });
     }
 };
 
@@ -138,10 +147,15 @@ const sendOrderConfirmationEmail = async (email, name, order) => {
 
     try {
         await transporter.sendMail(mailOptions);
-        console.log(`✅ Order confirmation email sent to ${email}`);
+        logger.info('Order confirmation email sent', { email });
     } catch (error) {
-        console.error('❌ Error sending order confirmation email:', error.message);
-        throw new Error('Failed to send order confirmation email');
+        logger.error('Failed to send order confirmation email directly, queuing', { email, error: error.message });
+        await queueEmail({
+            to: email,
+            subject: mailOptions.subject,
+            html: mailOptions.html,
+            emailType: 'order_confirmation'
+        });
     }
 };
 
@@ -198,10 +212,15 @@ const sendPaymentConfirmationEmail = async (email, name, order) => {
 
     try {
         await transporter.sendMail(mailOptions);
-        console.log(`✅ Payment confirmation email sent to ${email}`);
+        logger.info('Payment confirmation email sent', { email });
     } catch (error) {
-        console.error('❌ Error sending payment confirmation email:', error.message);
-        throw new Error('Failed to send payment confirmation email');
+        logger.error('Failed to send payment confirmation email directly, queuing', { email, error: error.message });
+        await queueEmail({
+            to: email,
+            subject: mailOptions.subject,
+            html: mailOptions.html,
+            emailType: 'payment_confirmation'
+        });
     }
 };
 
@@ -252,10 +271,15 @@ const sendPasswordResetCodeEmail = async (email, name, code) => {
 
     try {
         await transporter.sendMail(mailOptions);
-        console.log(`✅ Password reset code email sent to ${email}`);
+        logger.info('Password reset email sent', { email });
     } catch (error) {
-        console.error('❌ Error sending password reset email:', error.message);
-        throw new Error('Failed to send password reset email');
+        logger.error('Failed to send password reset email directly, queuing', { email, error: error.message });
+        await queueEmail({
+            to: email,
+            subject: mailOptions.subject,
+            html: mailOptions.html,
+            emailType: 'password_reset'
+        });
     }
 };
 

@@ -13,14 +13,14 @@ export const AuthProvider = ({ children }) => {
     }, []);
 
     const loadUser = async () => {
-        const token = authAPI.getAuthToken?.() || localStorage.getItem('token');
+        const token = authAPI.getAuthToken?.();
         if (token) {
             try {
                 const userData = await authAPI.getProfile();
                 setUser(userData);
             } catch (error) {
                 console.error('Failed to load user:', error);
-                localStorage.removeItem('token');
+                // Token will be cleared by client.js on 401
             }
         }
         setLoading(false);
@@ -28,6 +28,10 @@ export const AuthProvider = ({ children }) => {
 
     const login = async (email, password) => {
         const data = await authAPI.login(email, password);
+        // Store access token (refresh token is in httpOnly cookie)
+        if (data.token) {
+            authAPI.setAuthToken(data.token);
+        }
         setUser(data.user);
         return data;
     };
@@ -69,9 +73,15 @@ export const AuthProvider = ({ children }) => {
         return await authAPI.changePassword(currentPassword, newPassword);
     };
 
-    const logout = () => {
-        authAPI.logout();
-        setUser(null);
+    const logout = async () => {
+        try {
+            await authAPI.logout();
+        } catch (error) {
+            console.error('Logout error:', error);
+        } finally {
+            authAPI.removeAuthToken();
+            setUser(null);
+        }
     };
 
     const value = {

@@ -1,10 +1,10 @@
-const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const { AppError } = require('./errorMiddleware');
 const { HTTP_STATUS } = require('../utils/constants');
+const { verifyAccessToken } = require('../services/tokenService');
 
 /**
- * Protect routes - Verify JWT token
+ * Protect routes - Verify JWT access token
  */
 const protect = async (req, res, next) => {
     try {
@@ -26,11 +26,11 @@ const protect = async (req, res, next) => {
         }
 
         try {
-            // Verify token
-            const decoded = jwt.verify(token, process.env.JWT_SECRET);
+            // Verify access token
+            const decoded = verifyAccessToken(token);
 
             // Get user from token
-            req.user = await User.findById(decoded.id).select('-password');
+            req.user = await User.findById(decoded.id).select('-password -refreshToken -refreshTokenExpires');
 
             if (!req.user) {
                 return next(

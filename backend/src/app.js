@@ -3,11 +3,14 @@ const cors = require('cors');
 const helmet = require('helmet');
 const compression = require('compression');
 const morgan = require('morgan');
+const cookieParser = require('cookie-parser');
 const path = require('path');
 
 // Import middleware
 const { notFound, errorHandler } = require('./middleware/errorMiddleware');
 const { apiLimiter } = require('./middleware/rateLimitMiddleware');
+const { createCSRFToken, verifyCSRFToken } = require('./middleware/csrfMiddleware');
+const requestLogger = require('./middleware/requestLogger');
 
 // Import routes
 const authRoutes = require('./routes/authRoutes');
@@ -19,13 +22,42 @@ const orderRoutes = require('./routes/orderRoutes');
 const paymentRoutes = require('./routes/paymentRoutes');
 const promoCodeRoutes = require('./routes/promoCodeRoutes');
 const contentRoutes = require('./routes/contentRoutes');
+const auditRoutes = require('./routes/auditRoutes');
 
 // Initialize Express app
 const app = express();
 
-// Security middleware - configure helmet to allow image loading
+// Security middleware - Enhanced security headers
 app.use(helmet({
-    crossOriginResourcePolicy: { policy: "cross-origin" }
+    crossOriginResourcePolicy: { policy: "cross-origin" },
+    contentSecurityPolicy: {
+        directives: {
+            defaultSrc: ["'self'"],
+            styleSrc: ["'self'", "'unsafe-inline'"],
+            scriptSrc: ["'self'"],
+            imgSrc: ["'self'", "data:", "https:"],
+            connectSrc: ["'self'"],
+            fontSrc: ["'self'"],
+            objectSrc: ["'none'"],
+            mediaSrc: ["'self'"],
+            frameSrc: ["'none'"],
+        },
+    },
+    hsts: {
+        maxAge: 31536000, // 1 year
+        includeSubDomains: true,
+        preload: true
+    },
+    xFrameOptions: { action: 'deny' },
+    xContentTypeOptions: true,
+    referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
+    permissionsPolicy: {
+        features: {
+            geolocation: ["'none'"],
+            microphone: ["'none'"],
+            camera: ["'none'"]
+        }
+    }
 }));
 
 // CORS configuration - allow multiple origins
@@ -53,11 +85,17 @@ app.use(
 // Compression middleware
 app.use(compression());
 
+// Cookie parser middleware (for refresh tokens)
+app.use(cookieParser());
+
 // Body parser middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Logging middleware
+// Request logging middleware (with request IDs)
+app.use(requestLogger);
+
+// Morgan logging (keep for compatibility, but structured logging is primary)
 if (process.env.NODE_ENV === 'development') {
     app.use(morgan('dev'));
 } else {
@@ -67,16 +105,62 @@ if (process.env.NODE_ENV === 'development') {
 // Serve static files (uploads)
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
-// API rate limiting
+// API rate limiting (IP-based for all, user-based for authenticated)
 app.use('/api', apiLimiter);
 
+// CSRF protection - generate token for all requests
+app.use('/api', createCSRFToken);
+
+// CSRF verification for state-changing operations
+app.use('/api', (req, res, next) => {
+    // Skip CSRF for auth endpoints (they have their own security)
+    if (req.path.startsWith('/auth/refresh-token') || 
+        req.path.startsWith('/auth/logout')) {
+        return next();
+    }
+    return verifyCSRFToken(req, res, next);
+});
+
 // Health check route
-app.get('/health', (req, res) => {
-    res.status(200).json({
+app.get('/health', async (req, res) => {
+    const mongoose = require('mongoose');
+    const os = require('os');
+    
+    const health = {
         success: true,
-        message: 'Server is running',
-        timestamp: new Date().toISOString()
-    });
+        status: 'healthy',
+        timestamp: new Date().toISOString(),
+        uptime: process.uptime(),
+        environment: process.env.NODE_ENV || 'development',
+        version: process.env.npm_package_version || '1.0.0',
+        database: {
+            status: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected',
+            readyState: mongoose.connection.readyState,
+            host: mongoose.connection.host || 'N/A',
+            name: mongoose.connection.name || 'N/A'
+        },
+        memory: {
+            used: Math.round((process.memoryUsage().heapUsed / 1024 / 1024) * 100) / 100,
+            total: Math.round((process.memoryUsage().heapTotal / 1024 / 1024) * 100) / 100,
+            unit: 'MB'
+        },
+        system: {
+            platform: os.platform(),
+            arch: os.arch(),
+            cpuCount: os.cpus().length,
+            loadAverage: os.loadavg()
+        }
+    };
+
+    // Determine overall health status
+    if (mongoose.connection.readyState !== 1) {
+        health.status = 'degraded';
+        health.success = false;
+        health.message = 'Database connection issue';
+    }
+
+    const statusCode = health.success ? 200 : 503;
+    res.status(statusCode).json(health);
 });
 
 // API routes
@@ -89,6 +173,7 @@ app.use('/api/orders', orderRoutes);
 app.use('/api/payments', paymentRoutes);
 app.use('/api/promo-codes', promoCodeRoutes);
 app.use('/api/content', contentRoutes);
+app.use('/api/audit-logs', auditRoutes);
 
 // 404 handler
 app.use(notFound);

@@ -76,9 +76,14 @@ const authAPI = {
     },
 
     // Logout
-    logout: () => {
-        client.removeAuthToken();
+    logout: async () => {
+        return await client.logout();
     },
+    
+    // Token management helpers
+    getAuthToken: () => client.getAuthToken(),
+    setAuthToken: (token) => client.setAuthToken(token),
+    removeAuthToken: () => client.removeAuthToken(),
 
     // Get current user profile
     getProfile: async () => {

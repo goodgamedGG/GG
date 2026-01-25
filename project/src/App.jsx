@@ -4,6 +4,7 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import { LanguageProvider } from './context/LanguageContext';
 import { CartProvider } from './context/CartContext';
 import { GameProvider } from './context/GameContext';
+import ErrorBoundary from './components/ErrorBoundary';
 
 // Layouts
 import AuthLayout from './layouts/AuthLayout';
@@ -63,47 +64,51 @@ const Home = () => (
 
 function App() {
     return (
-        <LanguageProvider>
-            <AuthProvider>
-                <CartProvider>
-                    <GameProvider>
-                        <Router>
-                            <Routes>
-                                {/* Public Routes */}
-                                <Route path="/" element={<Home />} />
-                                <Route path="/cart" element={<Cart />} />
-                                <Route path="/checkout" element={<Checkout />} />
-                                <Route path="/about" element={<About />} />
-                                <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+        <ErrorBoundary>
+            <LanguageProvider>
+                <AuthProvider>
+                    <CartProvider>
+                        <GameProvider>
+                            <Router>
+                                <ErrorBoundary>
+                                    <Routes>
+                                        {/* Public Routes */}
+                                        <Route path="/" element={<Home />} />
+                                        <Route path="/cart" element={<Cart />} />
+                                        <Route path="/checkout" element={<Checkout />} />
+                                        <Route path="/about" element={<About />} />
+                                        <Route path="/privacy-policy" element={<PrivacyPolicy />} />
 
-                                {/* Auth Routes */}
-                                <Route element={<AuthLayout />}>
-                                    <Route path="/login" element={<Login />} />
-                                    <Route path="/signup" element={<SignUp />} />
-                                    <Route path="/verify-email" element={<VerifyEmail />} />
-                                    <Route path="/forgot-password" element={<ForgotPassword />} />
-                                </Route>
+                                        {/* Auth Routes */}
+                                        <Route element={<AuthLayout />}>
+                                            <Route path="/login" element={<Login />} />
+                                            <Route path="/signup" element={<SignUp />} />
+                                            <Route path="/verify-email" element={<VerifyEmail />} />
+                                            <Route path="/forgot-password" element={<ForgotPassword />} />
+                                        </Route>
 
-                                {/* Admin Routes */}
-                                <Route path="/admin" element={
-                                    <ProtectedRoute requireAdmin>
-                                        <AdminLayout />
-                                    </ProtectedRoute>
-                                }>
-                                    <Route index element={<Dashboard />} />
-                                    <Route path="products" element={<Products />} />
-                                    <Route path="orders" element={<Orders />} />
-                                    <Route path="payments" element={<Payments />} />
-                                    <Route path="categories" element={<Categories />} />
-                                    <Route path="promo-codes" element={<PromoCodes />} />
-                                    <Route path="users" element={<Users />} />
-                                </Route>
-                            </Routes>
-                        </Router>
-                    </GameProvider>
-                </CartProvider>
-            </AuthProvider>
-        </LanguageProvider>
+                                        {/* Admin Routes */}
+                                        <Route path="/admin" element={
+                                            <ProtectedRoute requireAdmin>
+                                                <AdminLayout />
+                                            </ProtectedRoute>
+                                        }>
+                                            <Route index element={<Dashboard />} />
+                                            <Route path="products" element={<Products />} />
+                                            <Route path="orders" element={<Orders />} />
+                                            <Route path="payments" element={<Payments />} />
+                                            <Route path="categories" element={<Categories />} />
+                                            <Route path="promo-codes" element={<PromoCodes />} />
+                                            <Route path="users" element={<Users />} />
+                                        </Route>
+                                    </Routes>
+                                </ErrorBoundary>
+                            </Router>
+                        </GameProvider>
+                    </CartProvider>
+                </AuthProvider>
+            </LanguageProvider>
+        </ErrorBoundary>
     );
 }
 

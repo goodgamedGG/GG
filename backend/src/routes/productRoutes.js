@@ -12,6 +12,7 @@ const { protect } = require('../middleware/authMiddleware');
 const { requireAdmin } = require('../middleware/roleMiddleware');
 const { uploadFields } = require('../middleware/uploadMiddleware');
 const validate = require('../middleware/validateMiddleware');
+const auditLog = require('../middleware/auditMiddleware');
 const {
     createProductValidator,
     updateProductValidator,
@@ -26,16 +27,18 @@ router.get('/', paginationValidator, validate, getProducts);
 // @route   GET /api/products/:id
 router.get('/:id', mongoIdValidator, validate, getProductById);
 
-// Admin routes
+// Admin routes (with audit logging)
 // @route   POST /api/products
 router.post(
     '/',
     protect,
     requireAdmin,
+    auditLog,
     uploadFields([
         { name: 'images', maxCount: 5 },
         { name: 'bannerImages', maxCount: 3 }
     ]),
+    require('../middleware/uploadMiddleware').processUploadedImages,
     createProductValidator,
     validate,
     createProduct
@@ -46,19 +49,21 @@ router.put(
     '/:id',
     protect,
     requireAdmin,
+    auditLog,
     uploadFields([
         { name: 'images', maxCount: 5 },
         { name: 'bannerImages', maxCount: 3 }
     ]),
+    require('../middleware/uploadMiddleware').processUploadedImages,
     updateProductValidator,
     validate,
     updateProduct
 );
 
 // @route   DELETE /api/products/:id
-router.delete('/:id', protect, requireAdmin, mongoIdValidator, validate, deleteProduct);
+router.delete('/:id', protect, requireAdmin, auditLog, mongoIdValidator, validate, deleteProduct);
 
 // @route   PATCH /api/products/:id/toggle
-router.patch('/:id/toggle', protect, requireAdmin, mongoIdValidator, validate, toggleProductStatus);
+router.patch('/:id/toggle', protect, requireAdmin, auditLog, mongoIdValidator, validate, toggleProductStatus);
 
 module.exports = router;

@@ -1,4 +1,5 @@
 const { HTTP_STATUS } = require('../utils/constants');
+const logger = require('../utils/logger');
 
 /**
  * Custom Error Class
@@ -33,10 +34,8 @@ const errorHandler = (err, req, res, next) => {
     error.message = err.message;
     error.statusCode = err.statusCode || HTTP_STATUS.INTERNAL_SERVER_ERROR;
 
-    // Log error in development
-    if (process.env.NODE_ENV === 'development') {
-        console.error('Error:', err);
-    }
+    // Log error with context
+    logger.errorWithContext(err, req);
 
     // Mongoose bad ObjectId
     if (err.name === 'CastError') {

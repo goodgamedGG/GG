@@ -1,7 +1,8 @@
 const User = require('../models/User');
+const Session = require('../models/Session');
 const { AppError } = require('../middleware/errorMiddleware');
 const { HTTP_STATUS } = require('../utils/constants');
-const { generateToken } = require('../services/tokenService');
+const { generateAccessToken, generateRefreshToken, verifyRefreshToken } = require('../services/tokenService');
 const { sendVerificationEmail, sendPasswordResetCodeEmail } = require('../services/emailService');
 
 /**
@@ -71,14 +72,48 @@ const login = async (req, res, next) => {
             return next(new AppError('Invalid credentials', HTTP_STATUS.UNAUTHORIZED));
         }
 
+        // Check if account is locked
+        if (user.isAccountLocked()) {
+            return next(new AppError('Account is temporarily locked due to too many failed login attempts. Please try again later.', HTTP_STATUS.FORBIDDEN));
+        }
+
         // Check password
         const isPasswordMatch = await user.comparePassword(password);
         if (!isPasswordMatch) {
+            await user.incrementFailedAttempts();
             return next(new AppError('Invalid credentials', HTTP_STATUS.UNAUTHORIZED));
         }
 
-        // Generate token
-        const token = generateToken(user._id);
+        // Reset failed attempts on successful login
+        await user.resetFailedAttempts();
+
+        // Generate tokens
+        const accessToken = generateAccessToken(user._id);
+        const refreshToken = generateRefreshToken();
+        const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
+        
+        // Store refresh token in database (expires in 7 days)
+        user.refreshToken = refreshToken;
+        user.refreshTokenExpires = expiresAt;
+        await user.save({ validateBeforeSave: false });
+
+        // Create session record
+        await Session.create({
+            user: user._id,
+            refreshToken,
+            ipAddress: req.ip,
+            userAgent: req.get('user-agent'),
+            expiresAt,
+            isActive: true
+        });
+
+        // Set refresh token in httpOnly cookie
+        res.cookie('refreshToken', refreshToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict',
+            maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+        });
 
         res.status(HTTP_STATUS.OK).json({
             success: true,
@@ -91,7 +126,7 @@ const login = async (req, res, next) => {
                     role: user.role,
                     isEmailVerified: user.isEmailVerified
                 },
-                token
+                token: accessToken
             }
         });
     } catch (error) {
@@ -138,8 +173,33 @@ const verifyEmail = async (req, res, next) => {
         user.verificationCodeExpires = undefined;
         await user.save();
 
-        // Generate token
-        const token = generateToken(user._id);
+        // Generate tokens
+        const accessToken = generateAccessToken(user._id);
+        const refreshToken = generateRefreshToken();
+        const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
+        
+        // Store refresh token in database
+        user.refreshToken = refreshToken;
+        user.refreshTokenExpires = expiresAt;
+        await user.save({ validateBeforeSave: false });
+
+        // Create session record
+        await Session.create({
+            user: user._id,
+            refreshToken,
+            ipAddress: req.ip,
+            userAgent: req.get('user-agent'),
+            expiresAt,
+            isActive: true
+        });
+
+        // Set refresh token in httpOnly cookie
+        res.cookie('refreshToken', refreshToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict',
+            maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+        });
 
         res.status(HTTP_STATUS.OK).json({
             success: true,
@@ -152,7 +212,7 @@ const verifyEmail = async (req, res, next) => {
                     role: user.role,
                     isEmailVerified: user.isEmailVerified
                 },
-                token
+                token: accessToken
             }
         });
     } catch (error) {
@@ -313,6 +373,212 @@ const resetPassword = async (req, res, next) => {
     }
 };
 
+/**
+ * @desc    Refresh access token
+ * @route   POST /api/auth/refresh-token
+ * @access  Public (but requires refresh token)
+ */
+const refreshToken = async (req, res, next) => {
+    try {
+        // Get refresh token from cookie or body
+        const refreshTokenValue = req.cookies.refreshToken || req.body.refreshToken;
+        
+        if (!refreshTokenValue) {
+            return next(new AppError('Refresh token is required', HTTP_STATUS.UNAUTHORIZED));
+        }
+
+        // Find user with this refresh token
+        const user = await User.findOne({ refreshToken: refreshTokenValue }).select('+refreshToken +refreshTokenExpires');
+        
+        if (!user) {
+            return next(new AppError('Invalid refresh token', HTTP_STATUS.UNAUTHORIZED));
+        }
+
+        // Verify refresh token
+        if (!verifyRefreshToken(refreshTokenValue, user)) {
+            // Clear invalid refresh token
+            user.refreshToken = undefined;
+            user.refreshTokenExpires = undefined;
+            await user.save({ validateBeforeSave: false });
+            
+            return next(new AppError('Refresh token expired or invalid', HTTP_STATUS.UNAUTHORIZED));
+        }
+
+        // Generate new access token
+        const accessToken = generateAccessToken(user._id);
+        
+        // Rotate refresh token (for better security)
+        const newRefreshToken = generateRefreshToken();
+        const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
+        
+        user.refreshToken = newRefreshToken;
+        user.refreshTokenExpires = expiresAt;
+        await user.save({ validateBeforeSave: false });
+
+        // Update session
+        await Session.findOneAndUpdate(
+            { refreshToken: refreshTokenValue },
+            {
+                refreshToken: newRefreshToken,
+                expiresAt,
+                lastActivity: Date.now()
+            }
+        );
+
+        // Set new refresh token in cookie
+        res.cookie('refreshToken', newRefreshToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict',
+            maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+        });
+
+        res.status(HTTP_STATUS.OK).json({
+            success: true,
+            message: 'Token refreshed successfully',
+            data: {
+                token: accessToken
+            }
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+/**
+ * @desc    Logout user (revoke refresh token)
+ * @route   POST /api/auth/logout
+ * @access  Private
+ */
+const logout = async (req, res, next) => {
+    try {
+        const refreshToken = req.cookies.refreshToken;
+        const user = await User.findById(req.user._id);
+        
+        if (user) {
+            // Clear refresh token
+            user.refreshToken = undefined;
+            user.refreshTokenExpires = undefined;
+            await user.save({ validateBeforeSave: false });
+        }
+
+        // Deactivate session
+        if (refreshToken) {
+            await Session.findOneAndUpdate(
+                { refreshToken },
+                { isActive: false }
+            );
+        }
+
+        // Clear refresh token cookie
+        res.clearCookie('refreshToken');
+
+        res.status(HTTP_STATUS.OK).json({
+            success: true,
+            message: 'Logged out successfully'
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+/**
+ * @desc    Get all active sessions for current user
+ * @route   GET /api/auth/sessions
+ * @access  Private
+ */
+const getSessions = async (req, res, next) => {
+    try {
+        const sessions = await Session.find({
+            user: req.user._id,
+            isActive: true,
+            expiresAt: { $gt: new Date() }
+        })
+        .sort({ lastActivity: -1 })
+        .select('-refreshToken'); // Don't expose refresh tokens
+
+        res.status(HTTP_STATUS.OK).json({
+            success: true,
+            data: { sessions }
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+/**
+ * @desc    Revoke a specific session
+ * @route   DELETE /api/auth/sessions/:sessionId
+ * @access  Private
+ */
+const revokeSession = async (req, res, next) => {
+    try {
+        const { sessionId } = req.params;
+
+        const session = await Session.findOne({
+            _id: sessionId,
+            user: req.user._id
+        });
+
+        if (!session) {
+            return next(new AppError('Session not found', HTTP_STATUS.NOT_FOUND));
+        }
+
+        // Deactivate session
+        session.isActive = false;
+        await session.save();
+
+        // If this is the current session, also clear user's refresh token
+        const refreshToken = req.cookies.refreshToken;
+        if (session.refreshToken === refreshToken) {
+            const user = await User.findById(req.user._id);
+            if (user) {
+                user.refreshToken = undefined;
+                user.refreshTokenExpires = undefined;
+                await user.save({ validateBeforeSave: false });
+            }
+            res.clearCookie('refreshToken');
+        }
+
+        res.status(HTTP_STATUS.OK).json({
+            success: true,
+            message: 'Session revoked successfully'
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+/**
+ * @desc    Revoke all other sessions (keep current)
+ * @route   DELETE /api/auth/sessions
+ * @access  Private
+ */
+const revokeAllOtherSessions = async (req, res, next) => {
+    try {
+        const currentRefreshToken = req.cookies.refreshToken;
+
+        // Deactivate all other sessions
+        await Session.updateMany(
+            {
+                user: req.user._id,
+                refreshToken: { $ne: currentRefreshToken },
+                isActive: true
+            },
+            {
+                isActive: false
+            }
+        );
+
+        res.status(HTTP_STATUS.OK).json({
+            success: true,
+            message: 'All other sessions revoked successfully'
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
 module.exports = {
     signup,
     login,
@@ -320,5 +586,10 @@ module.exports = {
     resendVerificationCode,
     forgotPassword,
     verifyResetCode,
-    resetPassword
+    resetPassword,
+    refreshToken,
+    logout,
+    getSessions,
+    revokeSession,
+    revokeAllOtherSessions
 };

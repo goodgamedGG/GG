@@ -107,8 +107,11 @@ orderSchema.pre('save', function (next) {
 
 // Indexes for faster queries
 orderSchema.index({ user: 1, createdAt: -1 });
-orderSchema.index({ orderNumber: 1 });
+orderSchema.index({ orderNumber: 1 }); // Unique index
 orderSchema.index({ orderStatus: 1 });
 orderSchema.index({ paymentStatus: 1 });
+orderSchema.index({ orderStatus: 1, paymentStatus: 1 }); // Compound index for admin queries
+orderSchema.index({ user: 1, orderStatus: 1 }); // For user order filtering
+orderSchema.index({ createdAt: -1 }); // For sorting by date
 
 module.exports = mongoose.model('Order', orderSchema);

@@ -55,5 +55,8 @@ const paymentSchema = new mongoose.Schema(
 paymentSchema.index({ order: 1 });
 paymentSchema.index({ user: 1 });
 paymentSchema.index({ status: 1 });
+paymentSchema.index({ user: 1, status: 1 }); // Compound index for user payment queries
+paymentSchema.index({ status: 1, createdAt: -1 }); // For admin payment queries
+paymentSchema.index({ createdAt: -1 }); // For sorting by date
 
 module.exports = mongoose.model('Payment', paymentSchema);

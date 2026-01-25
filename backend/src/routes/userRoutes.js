@@ -9,6 +9,13 @@ const {
 } = require('../controllers/userController');
 const { protect } = require('../middleware/authMiddleware');
 const { requireAdmin } = require('../middleware/roleMiddleware');
+const { userApiLimiter, adminLimiter } = require('../middleware/rateLimitMiddleware');
+
+// Apply user-based rate limiting to all routes
+router.use(protect, userApiLimiter);
+
+// Admin routes use admin limiter
+router.use('/:id/role', adminLimiter);
 
 // @route   GET /api/users/profile
 router.get('/profile', protect, getProfile);

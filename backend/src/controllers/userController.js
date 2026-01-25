@@ -1,6 +1,7 @@
 const User = require('../models/User');
 const { AppError } = require('../middleware/errorMiddleware');
 const { HTTP_STATUS, USER_ROLES } = require('../utils/constants');
+const { validatePassword } = require('../utils/passwordSecurity');
 
 /**
  * @desc    Get current user profile
@@ -58,7 +59,7 @@ const changePassword = async (req, res, next) => {
     try {
         const { currentPassword, newPassword } = req.body;
 
-        const user = await User.findById(req.user._id).select('+password');
+        const user = await User.findById(req.user._id).select('+password +passwordHistory');
         if (!user) {
             return next(new AppError('User not found', HTTP_STATUS.NOT_FOUND));
         }
@@ -69,7 +70,25 @@ const changePassword = async (req, res, next) => {
             return next(new AppError('Current password is incorrect', HTTP_STATUS.BAD_REQUEST));
         }
 
-        // Update password
+        // Validate new password
+        const passwordValidation = validatePassword(newPassword);
+        if (!passwordValidation.valid) {
+            return next(new AppError(passwordValidation.errors.join(', '), HTTP_STATUS.BAD_REQUEST));
+        }
+
+        // Check if new password is same as current
+        const isSamePassword = await user.comparePassword(newPassword);
+        if (isSamePassword) {
+            return next(new AppError('New password must be different from current password', HTTP_STATUS.BAD_REQUEST));
+        }
+
+        // Check if password was recently used
+        const isInHistory = await user.isPasswordInHistory(newPassword);
+        if (isInHistory) {
+            return next(new AppError('You cannot reuse a recently used password. Please choose a different password', HTTP_STATUS.BAD_REQUEST));
+        }
+
+        // Update password (password history is handled in pre-save hook)
         user.password = newPassword;
         await user.save();
 
