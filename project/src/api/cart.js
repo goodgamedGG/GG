@@ -8,11 +8,12 @@ const cartAPI = {
     },
 
     // Add item to cart
-    addToCart: async (productId, quantity = 1) => {
-        const response = await client.post('/cart', {
-            productId,
-            quantity
-        });
+    // Add item to cart
+    addToCart: async (productId, quantity = 1, variant = null) => {
+        const payload = { productId, quantity };
+        if (variant) payload.variant = variant;
+
+        const response = await client.post('/cart', payload);
         return response.data.cart;
     },
 

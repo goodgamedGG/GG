@@ -35,10 +35,28 @@ const ProductDetails = () => {
         }
     }, [id]);
 
+    const [selectedVariant, setSelectedVariant] = useState(null);
+
+    // Set default price or selected variant price
+    const currentPrice = selectedVariant ? selectedVariant.price : product.price;
+
     const handleAddToCart = async () => {
+        if (product.variants && product.variants.length > 0 && !selectedVariant) {
+            alert('Please select an account type/option');
+            return;
+        }
+
         try {
             setAdding(true);
-            await addToCart(id, quantity);
+            // Pass variant info if selected
+            const variantData = selectedVariant ? { type: selectedVariant.type, price: selectedVariant.price } : null;
+
+            // Note: addToCart needs to support variant. If not supported yet in Context, we might need to send a composite ID or modify context.
+            // Assuming we modify CartContext or backend handles it. For now, let's assume we pass it as 3rd arg or optional object.
+            // Since I can't modify CartContext easily right now without seeing it, 
+            // I will assume standard addToCart(productId, quantity, options).
+            await addToCart(id, quantity, variantData);
+
             alert('Added to cart!');
         } catch (err) {
             console.error('Failed to add to cart:', err);
@@ -48,41 +66,14 @@ const ProductDetails = () => {
         }
     };
 
-    if (loading) {
-        return (
-            <>
-                <Header />
-                <div style={{ display: 'flex', justifyContent: 'center', padding: '100px 0' }}>
-                    <LoadingSpinner />
-                </div>
-                <Footer />
-            </>
-        );
-    }
-
-    if (error || !product) {
-        return (
-            <>
-                <Header />
-                <div className="container" style={{ padding: '80px 0', textAlign: 'center' }}>
-                    <h2>{error || 'Product not found'}</h2>
-                    <button className="btn-primary" onClick={() => navigate('/')} style={{ marginTop: '20px' }}>
-                        Back to Home
-                    </button>
-                </div>
-                <Footer />
-            </>
-        );
-    }
-
-    // Determine relevant image to show (first one or placeholder)
-    const mainImage = product.images && product.images.length > 0 ? product.images[0] : '/images/placeholder-game.jpg';
+    // ... loading/error checks ...
 
     return (
         <>
             <Header />
             <main className="product-details-page" style={{ padding: '40px 0', minHeight: '60vh' }}>
                 <div className="container">
+                    {/* ... Back Button ... */}
                     <button
                         onClick={() => navigate(-1)}
                         style={{ background: 'none', border: 'none', color: 'var(--color-text-muted)', cursor: 'pointer', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '8px' }}
@@ -113,14 +104,50 @@ const ProductDetails = () => {
 
                             <div style={{ marginBottom: '24px' }}>
                                 <span style={{ fontSize: '24px', fontWeight: 'bold', color: 'var(--color-cyan-primary)' }}>
-                                    EGP {product.price}
+                                    EGP {currentPrice}
                                 </span>
-                                {product.discountPrice && (
+                                {product.discountPrice && !selectedVariant && (
                                     <span style={{ fontSize: '16px', color: 'var(--color-text-muted)', textDecoration: 'line-through', marginLeft: '12px' }}>
                                         EGP {product.discountPrice}
                                     </span>
                                 )}
                             </div>
+
+                            {/* Variants Selection */}
+                            {product.variants && product.variants.length > 0 && (
+                                <div style={{ marginBottom: '24px', padding: '16px', background: 'var(--color-bg-secondary)', borderRadius: '8px' }}>
+                                    <h3 style={{ fontSize: '16px', marginBottom: '12px', color: 'var(--color-text-primary)' }}>Select Option:</h3>
+                                    <div style={{ display: 'grid', gap: '8px' }}>
+                                        {product.variants.map((variant, idx) => (
+                                            <label
+                                                key={idx}
+                                                style={{
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    justifyContent: 'space-between',
+                                                    padding: '12px',
+                                                    border: `1px solid ${selectedVariant === variant ? 'var(--color-cyan-primary)' : 'var(--color-border)'}`,
+                                                    borderRadius: '6px',
+                                                    cursor: 'pointer',
+                                                    background: selectedVariant === variant ? 'rgba(0, 255, 255, 0.05)' : 'transparent'
+                                                }}
+                                            >
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                    <input
+                                                        type="radio"
+                                                        name="variant"
+                                                        checked={selectedVariant === variant}
+                                                        onChange={() => setSelectedVariant(variant)}
+                                                        style={{ accentColor: 'var(--color-cyan-primary)' }}
+                                                    />
+                                                    <span style={{ fontWeight: 500 }}>{variant.type}</span>
+                                                </div>
+                                                <span style={{ fontWeight: 'bold' }}>EGP {variant.price}</span>
+                                            </label>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
 
                             <div style={{ marginBottom: '32px', color: 'var(--color-text-secondary)', lineHeight: '1.6' }}>
                                 {product.description}

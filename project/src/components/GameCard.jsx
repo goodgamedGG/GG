@@ -8,10 +8,21 @@ const GameCard = ({ id, image, title, publisher, price }) => {
     const { addToCart } = useCart();
     const { addToast } = useToast();
     const navigate = useNavigate();
-    const [adding, setAdding] = useState(false);
+    const hasVariants = price && price.includes && price.includes('-');
 
-    const handleAddToCart = async (e) => {
-        e.preventDefault(); // Prevent navigation if button is inside a link
+    const handleAction = async (e) => {
+        // If has variants, clicking the card navigates to details (GameCard component is wrapped in Link).
+        // But if there is an Add button, we need to handle it.
+        // User requested: "if it is ps have price range make hime view details to choose which account"
+        // AND "no button beside price like a small button creative or text as you like"
+
+        // So for variants, we hide the add button or show "View Options" text nearby.
+        if (hasVariants) {
+            // Navigate is handled by Link wrapper
+            return;
+        }
+
+        e.preventDefault();
         e.stopPropagation();
 
         try {
@@ -42,15 +53,24 @@ const GameCard = ({ id, image, title, publisher, price }) => {
                     <h3 className="game-card-title">{title}</h3>
                     <p className="game-card-publisher">{publisher}</p>
                     <div className="game-card-footer">
-                        <span className="game-card-price">EGP {price}</span>
-                        <button
-                            className="game-card-add"
-                            aria-label="Add to cart"
-                            onClick={handleAddToCart}
-                            disabled={adding}
-                        >
-                            {adding ? '...' : '+'}
-                        </button>
+                        <span className="game-card-price">
+                            {hasVariants ? price : `EGP ${price}`}
+                        </span>
+
+                        {!hasVariants ? (
+                            <button
+                                className="game-card-add"
+                                aria-label="Add to cart"
+                                onClick={handleAction}
+                                disabled={adding}
+                            >
+                                {adding ? '...' : '+'}
+                            </button>
+                        ) : (
+                            <span style={{ fontSize: '12px', color: 'var(--color-cyan-primary)', fontWeight: 'bold' }}>
+                                View Options
+                            </span>
+                        )}
                     </div>
                 </div>
             </Link>

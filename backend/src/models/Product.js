@@ -104,7 +104,23 @@ const productSchema = new mongoose.Schema(
         tags: {
             type: [String],
             default: []
-        }
+        },
+        variants: [
+            {
+                type: {
+                    type: String,
+                    required: true // e.g., 'Primary PS5', 'Secondary PS4'
+                },
+                price: {
+                    type: Number,
+                    required: true
+                },
+                stock: {
+                    type: Number,
+                    default: 0
+                }
+            }
+        ]
     },
     {
         timestamps: true
@@ -135,6 +151,22 @@ productSchema.virtual('discountPercentage').get(function () {
         return Math.round(((this.price - this.discountPrice) / this.price) * 100);
     }
     return 0;
+});
+
+// Virtuals for price range
+productSchema.virtual('priceRange').get(function () {
+    if (!this.variants || this.variants.length === 0) {
+        return null; // No variants, use standard price
+    }
+
+    // Calculate min and max from active variants (stock > 0 maybe? or all)
+    // User wants to see range.
+    const prices = this.variants.map(v => v.price);
+    const min = Math.min(...prices);
+    const max = Math.max(...prices);
+
+    if (min === max) return `${min}`;
+    return `${min} - ${max}`;
 });
 
 // Include virtuals in JSON

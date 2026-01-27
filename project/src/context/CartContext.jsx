@@ -31,9 +31,10 @@ export const CartProvider = ({ children }) => {
     };
 
     // Add to cart
-    const addToCart = async (productId, quantity = 1) => {
+    const addToCart = async (productId, quantity = 1, variant = null) => {
         try {
-            const data = await cartAPI.addToCart(productId, quantity);
+            // Updated to pass variant info. API key is generally body.
+            const data = await cartAPI.addToCart(productId, quantity, variant);
             setCart(data);
             return data;
         } catch (err) {

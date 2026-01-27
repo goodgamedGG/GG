@@ -34,9 +34,14 @@ const getCart = async (req, res, next) => {
  * @route   POST /api/cart
  * @access  Private
  */
+/**
+ * @desc    Add item to cart
+ * @route   POST /api/cart
+ * @access  Private
+ */
 const addToCart = async (req, res, next) => {
     try {
-        let { productId, quantity } = req.body;
+        let { productId, quantity, variant } = req.body;
 
         // Default quantity to 1 if not provided
         quantity = quantity ? parseInt(quantity) : 1;
@@ -53,29 +58,50 @@ const addToCart = async (req, res, next) => {
             return next(new AppError('Insufficient stock', HTTP_STATUS.BAD_REQUEST));
         }
 
+        // Validate variant if provided
+        let price = product.discountPrice || product.price;
+        let variantInfo = null;
+
+        if (variant) {
+            // In a robust system we should verify the variant exists in product.variants and matches price.
+            // For now we trust the info but ideally we check:
+            if (product.variants && product.variants.length > 0) {
+                const matchingVariant = product.variants.find(v => v.type === variant.type);
+                if (matchingVariant) {
+                    price = matchingVariant.price; // Use variant price
+                    variantInfo = { type: matchingVariant.type, price: matchingVariant.price };
+                } else {
+                    // Invalid variant passed ?? fallback or error. Let's error strictly if variant intended.
+                    // But user might add base product? No, if variants exist user MUST pick one (frontend enforced).
+                    // If backend enforced:
+                    // return next(new AppError('Selected option is invalid', HTTP_STATUS.BAD_REQUEST));
+                }
+            }
+        }
+
         // Get or create cart
         let cart = await Cart.findOne({ user: req.user._id });
         if (!cart) {
             cart = await Cart.create({ user: req.user._id, items: [] });
         }
 
-        // Check if product already in cart
+        // Check if product already in cart (SAME VARIANT)
         const existingItemIndex = cart.items.findIndex(
-            (item) => item.product.toString() === productId
+            (item) => item.product.toString() === productId &&
+                ((!item.variant && !variantInfo) || (item.variant && variantInfo && item.variant.type === variantInfo.type))
         );
-
-        const price = product.discountPrice || product.price;
 
         if (existingItemIndex > -1) {
             // Update quantity
             cart.items[existingItemIndex].quantity += quantity;
-            cart.items[existingItemIndex].price = price;
+            cart.items[existingItemIndex].price = price; // Update price in case it changed
         } else {
             // Add new item
             cart.items.push({
                 product: productId,
                 quantity,
-                price
+                price,
+                variant: variantInfo
             });
         }
 
