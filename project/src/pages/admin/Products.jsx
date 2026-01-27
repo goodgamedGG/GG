@@ -111,135 +111,182 @@ const Products = () => {
             image: null,
             variants: []
         });
+        setIsModalOpen(true);
+    };
 
-        // ... existing loadData ...
+    const handleAdd = () => {
+        setEditingProduct(null);
+        setFormData({
+            name: '',
+            description: '',
+            price: '',
+            discountPrice: '',
+            category: '',
+            type: 'game',
+            platform: '',
+            region: '',
+            stock: '100',
+            image: null,
+            variants: []
+        });
+        setIsModalOpen(true);
+    };
 
-        const handleEdit = (product) => {
-            setEditingProduct(product);
-            setFormData({
-                name: product.name || '',
-                description: product.description || '',
-                price: product.price || '',
-                discountPrice: product.discountPrice || '',
-                category: product.category?._id || product.category || '',
-                type: product.type || 'game',
-                platform: product.platform || '',
-                region: product.region || '',
-                stock: product.stock || '',
-                image: null,
-                variants: product.variants || []
-            });
-            setIsModalOpen(true);
-        };
+    const handleVariantChange = (index, key, value) => {
+        const newVariants = [...formData.variants];
+        newVariants[index][key] = value;
+        setFormData({ ...formData, variants: newVariants });
+    };
 
-        const handleAdd = () => {
-            setEditingProduct(null);
-            setFormData({
-                name: '',
-                description: '',
-                price: '',
-                discountPrice: '',
-                category: '',
-                type: 'game',
-                platform: '',
-                region: '',
-                stock: '100',
-                image: null,
-                variants: []
-            });
-            setIsModalOpen(true);
-        };
+    const addVariant = () => {
+        setFormData({
+            ...formData,
+            variants: [...formData.variants, { type: '', price: '', stock: 1 }]
+        });
+    };
 
-        // ... existing handlers ...
+    const removeVariant = (index) => {
+        const newVariants = formData.variants.filter((_, i) => i !== index);
+        setFormData({ ...formData, variants: newVariants });
+    };
 
-        const handleVariantChange = (index, key, value) => {
-            const newVariants = [...formData.variants];
-            newVariants[index][key] = value;
-            setFormData({ ...formData, variants: newVariants });
-        };
-
-        const addVariant = () => {
-            setFormData({
-                ...formData,
-                variants: [...formData.variants, { type: '', price: '', stock: 1 }]
-            });
-        };
-
-        const removeVariant = (index) => {
-            const newVariants = formData.variants.filter((_, i) => i !== index);
-            setFormData({ ...formData, variants: newVariants });
-        };
-
-        const handleSubmit = async (e) => {
-            e.preventDefault();
-            try {
-                const data = new FormData();
-                Object.keys(formData).forEach(key => {
-                    if (key === 'variants') {
-                        if (formData.variants.length > 0) {
-                            data.append('variants', JSON.stringify(formData.variants));
-                        }
-                    } else if (formData[key] !== null && formData[key] !== '') {
-                        const fieldName = key === 'image' ? 'images' : key;
-                        data.append(fieldName, formData[key]);
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        try {
+            const data = new FormData();
+            Object.keys(formData).forEach(key => {
+                if (key === 'variants') {
+                    if (formData.variants.length > 0) {
+                        data.append('variants', JSON.stringify(formData.variants));
                     }
-                });
-
-                if (editingProduct) {
-                    await adminAPI.updateProduct(editingProduct._id, data);
-                } else {
-                    await adminAPI.createProduct(data);
+                } else if (formData[key] !== null && formData[key] !== '') {
+                    const fieldName = key === 'image' ? 'images' : key;
+                    data.append(fieldName, formData[key]);
                 }
-                setIsModalOpen(false);
-                loadData();
-            } catch (error) {
-                alert('Failed to save product: ' + error.message);
-            }
-        };
-
-        const handleImageChange = (e) => {
-            if (e.target.files[0]) {
-                setFormData({ ...formData, image: e.target.files[0] });
-            }
-        };
-
-        const handleFilterChange = (key, value) => {
-            setFilters({ ...filters, [key]: value });
-            setPage(1);
-        };
-
-        const clearFilters = () => {
-            setFilters({
-                category: '',
-                type: '',
-                platform: '',
-                region: '',
-                isActive: '',
-                isFlashSale: '',
-                isFeatured: '',
-                minPrice: '',
-                maxPrice: '',
-                minStock: '',
-                search: ''
             });
-            setPage(1);
-        };
 
-        const toggleProductSelection = (productId) => {
-            if (selectedProducts.includes(productId)) {
-                setSelectedProducts(selectedProducts.filter(id => id !== productId));
+            if (editingProduct) {
+                await adminAPI.updateProduct(editingProduct._id, data);
             } else {
-                setSelectedProducts([...selectedProducts, productId]);
+                await adminAPI.createProduct(data);
             }
-        };
+            setIsModalOpen(false);
+            loadData();
+        } catch (error) {
+            alert('Failed to save product: ' + error.message);
+        }
+    };
 
-        const toggleSelectAll = () => {
-            if (selectedProducts.length === products.length) {
-                setSelectedProducts([]);
-            } else {
-                setSelectedProducts(products.map(p => p._id));
-            }
-        };
+    const handleImageChange = (e) => {
+        if (e.target.files[0]) {
+            setFormData({ ...formData, image: e.target.files[0] });
+        }
+    };
+
+    const handleFilterChange = (key, value) => {
+        setFilters({ ...filters, [key]: value });
+        setPage(1);
+    };
+
+    const clearFilters = () => {
+        setFilters({
+            category: '',
+            type: '',
+            platform: '',
+            region: '',
+            isActive: '',
+            isFlashSale: '',
+            isFeatured: '',
+            minPrice: '',
+            maxPrice: '',
+            minStock: '',
+            search: ''
+        });
+        setPage(1);
+    };
+
+    const toggleProductSelection = (productId) => {
+        if (selectedProducts.includes(productId)) {
+            setSelectedProducts(selectedProducts.filter(id => id !== productId));
+        } else {
+            setSelectedProducts([...selectedProducts, productId]);
+        }
+    };
+
+    const toggleSelectAll = () => {
+        if (selectedProducts.length === products.length) {
+            setSelectedProducts([]);
+        } else {
+            setSelectedProducts(products.map(p => p._id));
+        }
+    };
+
+    const handleEditTags = (product) => {
+        setEditingTagsProduct(product);
+        setTagsData(product.tags || []);
+        setIsTagsModalOpen(true);
+    };
+
+    const handleSaveTags = async () => {
+        try {
+            await adminAPI.updateProduct(editingTagsProduct._id, { tags: tagsData });
+            setIsTagsModalOpen(false);
+            loadData();
+        } catch (error) {
+            alert('Failed to update tags: ' + error.message);
+        }
+    };
+
+    const handleToggle = async (productId) => {
+        try {
+            const product = products.find(p => p._id === productId);
+            await adminAPI.updateProduct(productId, { isActive: !product.isActive });
+            loadData();
+        } catch (error) {
+            alert('Failed to toggle product: ' + error.message);
+        }
+    };
+
+    const handleToggleFeatured = async (productId) => {
+        try {
+            const product = products.find(p => p._id === productId);
+            await adminAPI.updateProduct(productId, { isFeatured: !product.isFeatured });
+            loadData();
+        } catch (error) {
+            alert('Failed to toggle featured: ' + error.message);
+        }
+    };
+
+    const handleDelete = async (productId) => {
+        if (!window.confirm('Are you sure you want to delete this product?')) return;
+        try {
+            await adminAPI.deleteProduct(productId);
+            loadData();
+        } catch (error) {
+            alert('Failed to delete product: ' + error.message);
+        }
+    };
+
+    const handleBulkUpdate = async () => {
+        if (selectedProducts.length === 0) {
+            alert('Please select products first');
+            return;
+        }
+        try {
+            const updateData = {};
+            if (bulkUpdates.isActive !== '') updateData.isActive = bulkUpdates.isActive === 'true';
+            if (bulkUpdates.isFeatured !== '') updateData.isFeatured = bulkUpdates.isFeatured === 'true';
+
+            await Promise.all(selectedProducts.map(id => 
+                adminAPI.updateProduct(id, updateData)
+            ));
+            setIsBulkModalOpen(false);
+            loadData();
+            setSelectedProducts([]);
+        } catch (error) {
+            alert('Failed to update products: ' + error.message);
+        }
+    };
 
         return (
             <div>
