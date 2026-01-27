@@ -27,7 +27,11 @@ const getProducts = async (req, res, next) => {
 
         // Build query
         const query = {};
-        if (active === 'true') query.isActive = true;
+
+        // Default to active only for public API, unless explicitly requested otherwise
+        if (active !== 'false') {
+            query.isActive = true;
+        }
         if (category) query.category = category;
         if (type) query.type = type;
         if (platform) query.platform = platform;

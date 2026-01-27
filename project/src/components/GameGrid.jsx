@@ -26,10 +26,11 @@ const GameGrid = () => {
                 <div className="games-grid">
                     {games.map(game => (
                         <GameCard
-                            key={game.id}
+                            key={game.id || game._id}
+                            id={game.id || game._id}
                             image={game.image}
                             title={game.title}
-                            publisher={game.publisher}
+                            publisher={game.publisher || game.category?.name || 'Unknown'} // Fallback for publisher if missing
                             price={game.price}
                         />
                     ))}

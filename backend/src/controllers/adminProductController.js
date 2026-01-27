@@ -44,7 +44,12 @@ const getAdminProducts = async (req, res, next) => {
             if (minPrice) query.price.$gte = parseFloat(minPrice);
             if (maxPrice) query.price.$lte = parseFloat(maxPrice);
         }
-        if (minStock !== undefined) query.stock = { $gte: parseInt(minStock) };
+        if (minStock !== undefined && minStock !== '') {
+            const stockVal = parseInt(minStock);
+            if (!isNaN(stockVal)) {
+                query.stock = { $gte: stockVal };
+            }
+        }
         if (search) {
             query.$text = { $search: search };
         }

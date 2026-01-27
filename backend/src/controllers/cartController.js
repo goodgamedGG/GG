@@ -36,7 +36,10 @@ const getCart = async (req, res, next) => {
  */
 const addToCart = async (req, res, next) => {
     try {
-        const { productId, quantity } = req.body;
+        let { productId, quantity } = req.body;
+
+        // Default quantity to 1 if not provided
+        quantity = quantity ? parseInt(quantity) : 1;
 
         // Check product exists and is active
         const product = await Product.findById(productId);
