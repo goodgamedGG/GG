@@ -27,6 +27,7 @@ import Cart from './pages/Cart';
 import Checkout from './pages/Checkout';
 import About from './pages/About';
 import PrivacyPolicy from './pages/PrivacyPolicy';
+import ProductDetails from './pages/ProductDetails';
 import Dashboard from './pages/admin/Dashboard';
 import Products from './pages/admin/Products';
 import Orders from './pages/admin/Orders';
@@ -87,6 +88,7 @@ function App() {
                                         <Route path="/checkout" element={<Checkout />} />
                                         <Route path="/about" element={<About />} />
                                         <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+                                        <Route path="/product/:id" element={<ProductDetails />} />
 
                                         {/* Auth Routes */}
                                         <Route element={<AuthLayout />}>

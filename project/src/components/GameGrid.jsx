@@ -28,9 +28,9 @@ const GameGrid = () => {
                         <GameCard
                             key={game.id || game._id}
                             id={game.id || game._id}
-                            image={game.image}
-                            title={game.title}
-                            publisher={game.publisher || game.category?.name || 'Unknown'} // Fallback for publisher if missing
+                            image={game.images?.[0]}
+                            title={game.name}
+                            publisher={game.category?.name || 'Unknown'} // Fallback for publisher if missing
                             price={game.price}
                         />
                     ))}

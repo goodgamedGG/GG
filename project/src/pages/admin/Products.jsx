@@ -21,7 +21,7 @@ const Products = () => {
         type: '',
         platform: '',
         region: '',
-        isActive: '',
+        isActive: 'false',
         isFlashSale: '',
         isFeatured: '',
         minPrice: '',
@@ -172,7 +172,7 @@ const Products = () => {
         const updates = {};
         if (bulkUpdates.isActive !== '') updates.isActive = bulkUpdates.isActive === 'true';
         if (bulkUpdates.isFeatured !== '') updates.isFeatured = bulkUpdates.isFeatured === 'true';
-        
+
         if (Object.keys(updates).length === 0) {
             alert('Please select at least one field to update');
             return;
@@ -257,7 +257,7 @@ const Products = () => {
             type: '',
             platform: '',
             region: '',
-            isActive: '',
+            isActive: 'false',
             isFlashSale: '',
             isFeatured: '',
             minPrice: '',
@@ -317,12 +317,12 @@ const Products = () => {
 
             {/* Filters Panel */}
             {showFilters && (
-                <div style={{ 
-                    background: 'var(--color-bg-card)', 
-                    border: '1px solid var(--color-border)', 
-                    borderRadius: 'var(--radius-md)', 
-                    padding: '20px', 
-                    marginBottom: '20px' 
+                <div style={{
+                    background: 'var(--color-bg-card)',
+                    border: '1px solid var(--color-border)',
+                    borderRadius: 'var(--radius-md)',
+                    padding: '20px',
+                    marginBottom: '20px'
                 }}>
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
                         <div>
@@ -506,10 +506,10 @@ const Products = () => {
                                                     {product.tags && product.tags.length > 0 && (
                                                         <div style={{ display: 'flex', gap: '4px', marginTop: '4px', flexWrap: 'wrap' }}>
                                                             {product.tags.slice(0, 3).map((tag, idx) => (
-                                                                <span key={idx} style={{ 
-                                                                    fontSize: '10px', 
-                                                                    padding: '2px 6px', 
-                                                                    background: 'rgba(0, 217, 255, 0.1)', 
+                                                                <span key={idx} style={{
+                                                                    fontSize: '10px',
+                                                                    padding: '2px 6px',
+                                                                    background: 'rgba(0, 217, 255, 0.1)',
                                                                     color: 'var(--color-cyan-primary)',
                                                                     borderRadius: '4px'
                                                                 }}>
@@ -574,8 +574,8 @@ const Products = () => {
                     {/* Pagination */}
                     {totalPages > 1 && (
                         <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', marginTop: '20px' }}>
-                            <button 
-                                onClick={() => setPage(p => Math.max(1, p - 1))} 
+                            <button
+                                onClick={() => setPage(p => Math.max(1, p - 1))}
                                 disabled={page === 1}
                                 className="btn-secondary"
                             >
@@ -584,8 +584,8 @@ const Products = () => {
                             <span style={{ display: 'flex', alignItems: 'center', padding: '0 16px' }}>
                                 Page {page} of {totalPages}
                             </span>
-                            <button 
-                                onClick={() => setPage(p => Math.min(totalPages, p + 1))} 
+                            <button
+                                onClick={() => setPage(p => Math.min(totalPages, p + 1))}
                                 disabled={page === totalPages}
                                 className="btn-secondary"
                             >
