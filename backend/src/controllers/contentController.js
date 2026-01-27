@@ -37,10 +37,18 @@ const getBanners = async (req, res, next) => {
  */
 const createBanner = async (req, res, next) => {
     try {
-        const { title, link, position, order } = req.body;
+        const { title, link, position, order, isActive } = req.body;
 
         if (!req.file) {
             return next(new AppError('Banner image is required', HTTP_STATUS.BAD_REQUEST));
+        }
+
+        // If making this banner active and it's for homepage, deactivate others
+        if (isActive === 'true' || isActive === true) {
+            await Banner.updateMany(
+                { position: position || 'homepage', isActive: true },
+                { isActive: false }
+            );
         }
 
         const banner = await Banner.create({
@@ -48,7 +56,8 @@ const createBanner = async (req, res, next) => {
             image: getFilePath(req.file),
             link,
             position,
-            order
+            order,
+            isActive: isActive === 'true' || isActive === true
         });
 
         res.status(HTTP_STATUS.CREATED).json({
@@ -74,6 +83,19 @@ const updateBanner = async (req, res, next) => {
         }
 
         const { title, link, position, order, isActive } = req.body;
+
+        // If setting to active, deactivate others in same position
+        if (isActive === 'true' || isActive === true) {
+            const targetPosition = position || banner.position;
+            await Banner.updateMany(
+                {
+                    _id: { $ne: banner._id },
+                    position: targetPosition,
+                    isActive: true
+                },
+                { isActive: false }
+            );
+        }
 
         if (title) banner.title = title;
         if (link !== undefined) banner.link = link;
