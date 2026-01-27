@@ -130,7 +130,7 @@ orderSchema.pre('save', function (next) {
     if (!this.orderNumber) {
         this.orderNumber = generateOrderNumber();
     }
-    
+
     // Track status changes
     if (this.isModified('orderStatus') && !this.isNew) {
         const statusMessages = {
@@ -139,26 +139,26 @@ orderSchema.pre('save', function (next) {
             [ORDER_STATUS.COMPLETED]: 'Order completed and delivered',
             [ORDER_STATUS.CANCELLED]: 'Order has been cancelled'
         };
-        
+
         this.trackingHistory.push({
             status: this.orderStatus,
             message: statusMessages[this.orderStatus] || 'Order status updated',
             updatedAt: new Date(),
             updatedBy: 'system'
         });
-        
+
         // Set deliveredAt when completed
         if (this.orderStatus === ORDER_STATUS.COMPLETED && !this.deliveredAt) {
             this.deliveredAt = new Date();
         }
     }
-    
+
     next();
 });
 
 // Indexes for faster queries
 orderSchema.index({ user: 1, createdAt: -1 });
-orderSchema.index({ orderNumber: 1 }); // Unique index
+
 orderSchema.index({ orderStatus: 1 });
 orderSchema.index({ paymentStatus: 1 });
 orderSchema.index({ orderStatus: 1, paymentStatus: 1 }); // Compound index for admin queries

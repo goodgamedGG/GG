@@ -80,7 +80,7 @@ promoCodeSchema.methods.calculateDiscount = function (amount) {
 };
 
 // Index for faster lookups
-promoCodeSchema.index({ code: 1 });
+
 promoCodeSchema.index({ isActive: 1, expirationDate: 1 });
 
 module.exports = mongoose.model('PromoCode', promoCodeSchema);

@@ -28,7 +28,7 @@ const categorySchema = new mongoose.Schema(
 
 // Indexes for faster queries
 categorySchema.index({ isActive: 1 });
-categorySchema.index({ name: 1 }); // Already unique, but explicit index
+
 categorySchema.index({ createdAt: -1 }); // For sorting by creation date
 
 module.exports = mongoose.model('Category', categorySchema);

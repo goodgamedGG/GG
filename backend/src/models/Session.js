@@ -41,8 +41,7 @@ const sessionSchema = new mongoose.Schema(
 
 // Indexes for faster queries
 sessionSchema.index({ user: 1, isActive: 1 });
-sessionSchema.index({ refreshToken: 1 });
-sessionSchema.index({ expiresAt: 1 });
+
 sessionSchema.index({ user: 1, expiresAt: 1 }); // Compound index
 
 module.exports = mongoose.model('Session', sessionSchema);

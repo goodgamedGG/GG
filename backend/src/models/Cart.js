@@ -66,7 +66,7 @@ cartSchema.methods.calculateTotals = function () {
 };
 
 // Indexes for faster queries
-cartSchema.index({ user: 1 }); // Unique index
+
 cartSchema.index({ updatedAt: -1 }); // For sorting by last update
 
 module.exports = mongoose.model('Cart', cartSchema);

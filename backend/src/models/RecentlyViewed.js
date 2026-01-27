@@ -26,7 +26,7 @@ const recentlyViewedSchema = new mongoose.Schema(
 );
 
 // Indexes
-recentlyViewedSchema.index({ user: 1 });
+
 recentlyViewedSchema.index({ 'products.viewedAt': -1 });
 
 module.exports = mongoose.model('RecentlyViewed', recentlyViewedSchema);

@@ -109,7 +109,7 @@ const envSchema = Joi.object({
         .default(5242880), // 5MB default
     UPLOAD_PATH: Joi.string()
         .default('./uploads')
-}).unknown(false); // Reject unknown environment variables
+}).unknown(true); // Allow system environment variables
 
 /**
  * Validate environment variables

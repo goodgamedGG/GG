@@ -82,7 +82,7 @@ const userSchema = new mongoose.Schema(
 );
 
 // Indexes for faster queries
-userSchema.index({ email: 1 }); // Already unique, but explicit index helps
+
 userSchema.index({ role: 1 });
 userSchema.index({ isEmailVerified: 1 });
 userSchema.index({ role: 1, isEmailVerified: 1 }); // Compound index for admin queries
@@ -105,7 +105,7 @@ userSchema.pre('save', async function (next) {
 
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(this.password, salt);
-    
+
     // Store previous password hash in history before updating
     if (!this.isNew && this.passwordHistory) {
         // Get the current password hash before it's changed
@@ -117,7 +117,7 @@ userSchema.pre('save', async function (next) {
             ];
         }
     }
-    
+
     this.password = hashedPassword;
     next();
 });
@@ -151,12 +151,12 @@ userSchema.methods.isAccountLocked = function () {
 // Lock account after failed attempts
 userSchema.methods.incrementFailedAttempts = async function () {
     this.failedLoginAttempts += 1;
-    
+
     // Lock account after 5 failed attempts for 30 minutes
     if (this.failedLoginAttempts >= 5) {
         this.accountLockedUntil = Date.now() + 30 * 60 * 1000; // 30 minutes
     }
-    
+
     await this.save();
 };
 
@@ -172,14 +172,14 @@ userSchema.methods.isPasswordInHistory = async function (newPassword) {
     if (!this.passwordHistory || this.passwordHistory.length === 0) {
         return false;
     }
-    
+
     for (const oldHash of this.passwordHistory) {
         const isMatch = await bcrypt.compare(newPassword, oldHash);
         if (isMatch) {
             return true;
         }
     }
-    
+
     return false;
 };
 
