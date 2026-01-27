@@ -96,7 +96,14 @@ const ProductDetails = () => {
                             <img
                                 src={mainImage}
                                 alt={product.name}
-                                style={{ width: '100%', height: 'auto', display: 'block' }}
+                                style={{
+                                    width: '100%',
+                                    height: '100%',
+                                    objectFit: 'contain',
+                                    maxHeight: '500px',
+                                    display: 'block',
+                                    margin: '0 auto'
+                                }}
                             />
                         </div>
 
