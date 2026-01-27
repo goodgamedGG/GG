@@ -3,9 +3,23 @@ import GameCard from './GameCard';
 import { useGames } from '../context/GameContext';
 import { useLanguage } from '../context/LanguageContext';
 
+import { useNavigate } from 'react-router-dom';
+import { useToast } from '../context/ToastContext';
+
 const GameGrid = () => {
     const { games, loading } = useGames();
     const { t, isRTL } = useLanguage();
+    const { addToast } = useToast();
+    const navigate = useNavigate();
+
+    // Use a custom handler wrapper for the game card component
+    // Note: Since GameCard handles the click internally, we might need to modify GameCard too
+    // But GameCard uses addToCart directly.
+    // Let's modify GameCard instead to accept an onAddToCartSuccess callback or verify how it works.
+    // Actually, looking at GameCard, it calls addToCart from context.
+    // I should modify GameCard to take useToast and navigate.
+    // Wait, GameCard is a child. It's better to modify GameCard.jsx directly.
+
 
     if (loading) {
         return (

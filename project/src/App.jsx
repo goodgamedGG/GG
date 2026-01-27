@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { LanguageProvider } from './context/LanguageContext';
+import { ToastProvider } from './context/ToastContext';
 import { CartProvider } from './context/CartContext';
 import { GameProvider } from './context/GameContext';
 import ErrorBoundary from './components/ErrorBoundary';
@@ -77,55 +78,57 @@ function App() {
         <ErrorBoundary>
             <LanguageProvider>
                 <AuthProvider>
-                    <CartProvider>
-                        <GameProvider>
-                            <Router>
-                                <ErrorBoundary>
-                                    <Routes>
-                                        {/* Public Routes */}
-                                        <Route path="/" element={<Home />} />
-                                        <Route path="/cart" element={<Cart />} />
-                                        <Route path="/checkout" element={<Checkout />} />
-                                        <Route path="/about" element={<About />} />
-                                        <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-                                        <Route path="/product/:id" element={<ProductDetails />} />
+                    <ToastProvider>
+                        <CartProvider>
+                            <GameProvider>
+                                <Router>
+                                    <ErrorBoundary>
+                                        <Routes>
+                                            {/* Public Routes */}
+                                            <Route path="/" element={<Home />} />
+                                            <Route path="/cart" element={<Cart />} />
+                                            <Route path="/checkout" element={<Checkout />} />
+                                            <Route path="/about" element={<About />} />
+                                            <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+                                            <Route path="/product/:id" element={<ProductDetails />} />
 
-                                        {/* Auth Routes */}
-                                        <Route element={<AuthLayout />}>
-                                            <Route path="/login" element={<Login />} />
-                                            <Route path="/signup" element={<SignUp />} />
-                                            <Route path="/verify-email" element={<VerifyEmail />} />
-                                            <Route path="/forgot-password" element={<ForgotPassword />} />
-                                        </Route>
+                                            {/* Auth Routes */}
+                                            <Route element={<AuthLayout />}>
+                                                <Route path="/login" element={<Login />} />
+                                                <Route path="/signup" element={<SignUp />} />
+                                                <Route path="/verify-email" element={<VerifyEmail />} />
+                                                <Route path="/forgot-password" element={<ForgotPassword />} />
+                                            </Route>
 
-                                        {/* Admin Routes */}
-                                        <Route path="/admin" element={
-                                            <ProtectedRoute requireAdmin>
-                                                <AdminLayout />
-                                            </ProtectedRoute>
-                                        }>
-                                            <Route index element={<Dashboard />} />
-                                            <Route path="products" element={<Products />} />
-                                            <Route path="orders" element={<Orders />} />
-                                            <Route path="payments" element={<Payments />} />
-                                            <Route path="categories" element={<Categories />} />
-                                            <Route path="promo-codes" element={<PromoCodes />} />
-                                            <Route path="users" element={<Users />} />
-                                            <Route path="reviews" element={<Reviews />} />
-                                            <Route path="content" element={<Content />} />
-                                            <Route path="flash-sales" element={<FlashSales />} />
-                                            <Route path="price-alerts" element={<PriceAlerts />} />
-                                            <Route path="loyalty" element={<Loyalty />} />
-                                            <Route path="settings" element={<Settings />} />
-                                            <Route path="analytics" element={<Analytics />} />
-                                            <Route path="email-queue" element={<EmailQueue />} />
-                                            <Route path="audit-logs" element={<AuditLogs />} />
-                                        </Route>
-                                    </Routes>
-                                </ErrorBoundary>
-                            </Router>
-                        </GameProvider>
-                    </CartProvider>
+                                            {/* Admin Routes */}
+                                            <Route path="/admin" element={
+                                                <ProtectedRoute requireAdmin>
+                                                    <AdminLayout />
+                                                </ProtectedRoute>
+                                            }>
+                                                <Route index element={<Dashboard />} />
+                                                <Route path="products" element={<Products />} />
+                                                <Route path="orders" element={<Orders />} />
+                                                <Route path="payments" element={<Payments />} />
+                                                <Route path="categories" element={<Categories />} />
+                                                <Route path="promo-codes" element={<PromoCodes />} />
+                                                <Route path="users" element={<Users />} />
+                                                <Route path="reviews" element={<Reviews />} />
+                                                <Route path="content" element={<Content />} />
+                                                <Route path="flash-sales" element={<FlashSales />} />
+                                                <Route path="price-alerts" element={<PriceAlerts />} />
+                                                <Route path="loyalty" element={<Loyalty />} />
+                                                <Route path="settings" element={<Settings />} />
+                                                <Route path="analytics" element={<Analytics />} />
+                                                <Route path="email-queue" element={<EmailQueue />} />
+                                                <Route path="audit-logs" element={<AuditLogs />} />
+                                            </Route>
+                                        </Routes>
+                                    </ErrorBoundary>
+                                </Router>
+                            </GameProvider>
+                        </CartProvider>
+                    </ToastProvider>
                 </AuthProvider>
             </LanguageProvider>
         </ErrorBoundary>

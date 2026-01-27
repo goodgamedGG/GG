@@ -1,13 +1,7 @@
-const Order = require('../models/Order');
-const Cart = require('../models/Cart');
-const Product = require('../models/Product');
-const PromoCode = require('../models/PromoCode');
-const { AppError } = require('../middleware/errorMiddleware');
-const { HTTP_STATUS, ORDER_STATUS } = require('../utils/constants');
-const { validateStock } = require('../services/calculationService');
-const { sendOrderConfirmationEmail } = require('../services/emailService');
-const { getPagination, createPaginationMeta } = require('../utils/helpers');
-const { awardPointsForOrder } = require('../controllers/loyaltyController');
+const Payment = require('../models/Payment');
+const { PAYMENT_STATUS, PAYMENT_METHODS } = require('../utils/constants');
+
+// ... existing imports
 
 /**
  * @desc    Create order from cart
@@ -16,7 +10,7 @@ const { awardPointsForOrder } = require('../controllers/loyaltyController');
  */
 const createOrder = async (req, res, next) => {
     try {
-        const { phone, paymentMethod } = req.body;
+        const { phone, paymentMethod, paymentProof, phoneNumber } = req.body;
 
         // Get cart
         const cart = await Cart.findOne({ user: req.user._id }).populate('items.product promoCode');
@@ -60,10 +54,26 @@ const createOrder = async (req, res, next) => {
             }]
         });
 
+        // Handle Payment creation if proof is provided (Manual Payment)
+        if (paymentProof && phoneNumber && [PAYMENT_METHODS.INSTAPAY, PAYMENT_METHODS.VODAFONE_CASH, PAYMENT_METHODS.TELDA].includes(paymentMethod)) {
+            const payment = await Payment.create({
+                order: order._id,
+                user: req.user._id,
+                method: paymentMethod,
+                phoneNumber: phoneNumber, // The number user sent money FROM
+                proofImage: paymentProof,
+                status: PAYMENT_STATUS.PENDING
+            });
+
+            order.payment = payment._id;
+            order.paymentStatus = PAYMENT_STATUS.PENDING;
+            await order.save();
+        }
+
         // Update product stock and purchase count
         for (const item of cart.items) {
             await Product.findByIdAndUpdate(item.product._id, {
-                $inc: { 
+                $inc: {
                     stock: -item.quantity,
                     purchaseCount: item.quantity
                 }
@@ -216,7 +226,7 @@ const updateOrderStatus = async (req, res, next) => {
 
         const oldStatus = order.orderStatus;
         order.orderStatus = status;
-        
+
         // Add tracking history entry
         const statusMessages = {
             [ORDER_STATUS.NEW]: 'Order placed successfully',
@@ -224,19 +234,19 @@ const updateOrderStatus = async (req, res, next) => {
             [ORDER_STATUS.COMPLETED]: 'Order completed and delivered',
             [ORDER_STATUS.CANCELLED]: 'Order has been cancelled'
         };
-        
+
         order.trackingHistory.push({
             status,
             message: message || statusMessages[status] || 'Order status updated',
             updatedAt: new Date(),
             updatedBy: 'admin'
         });
-        
+
         // Set deliveredAt when completed
         if (status === ORDER_STATUS.COMPLETED && !order.deliveredAt) {
             order.deliveredAt = new Date();
         }
-        
+
         await order.save();
 
         res.status(HTTP_STATUS.OK).json({

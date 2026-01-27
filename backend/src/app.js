@@ -124,7 +124,7 @@ app.use('/api', createCSRFToken);
 // CSRF verification for state-changing operations
 app.use('/api', (req, res, next) => {
     // Skip CSRF for auth endpoints (they have their own security)
-    if (req.path.startsWith('/auth/refresh-token') || 
+    if (req.path.startsWith('/auth/refresh-token') ||
         req.path.startsWith('/auth/logout')) {
         return next();
     }
@@ -135,7 +135,7 @@ app.use('/api', (req, res, next) => {
 app.get('/health', async (req, res) => {
     const mongoose = require('mongoose');
     const os = require('os');
-    
+
     const health = {
         success: true,
         status: 'healthy',
@@ -194,6 +194,7 @@ app.use('/api/compare', comparisonRoutes);
 app.use('/api/loyalty', loyaltyRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/admin/products', adminProductRoutes);
+app.use('/api/upload', require('./routes/uploadRoutes'));
 
 // 404 handler
 app.use(notFound);

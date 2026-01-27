@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
+import { useToast } from '../context/ToastContext';
 import { ShoppingCart } from 'lucide-react';
 
 const GameCard = ({ id, image, title, publisher, price }) => {
     const { addToCart } = useCart();
+    const { addToast } = useToast();
+    const navigate = useNavigate();
     const [adding, setAdding] = useState(false);
 
     const handleAddToCart = async (e) => {
@@ -14,11 +17,11 @@ const GameCard = ({ id, image, title, publisher, price }) => {
         try {
             setAdding(true);
             await addToCart(id, 1);
-            // Optional: Show success toast
-            alert('Added to cart!');
+            addToast('Added to cart successfully!', 'success');
+            navigate('/cart');
         } catch (error) {
             console.error('Failed to add to cart:', error);
-            alert('Failed to add to cart. Please log in first.');
+            addToast('Failed to add to cart. Please log in first.', 'error');
         } finally {
             setAdding(false);
         }
