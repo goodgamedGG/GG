@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const { PRODUCT_TYPES, PLATFORMS, REGIONS } = require('../utils/constants');
+const { formatImageUrl } = require('../utils/helpers');
 
 const productSchema = new mongoose.Schema(
     {
@@ -37,7 +38,7 @@ const productSchema = new mongoose.Schema(
         type: {
             type: String,
             enum: Object.values(PRODUCT_TYPES),
-            required: [true, 'Product type is required']
+            default: PRODUCT_TYPES.GAME
         },
         region: {
             type: String,
@@ -137,7 +138,18 @@ productSchema.virtual('discountPercentage').get(function () {
 });
 
 // Include virtuals in JSON
-productSchema.set('toJSON', { virtuals: true });
+productSchema.set('toJSON', {
+    virtuals: true,
+    transform: (doc, ret) => {
+        if (ret.images && Array.isArray(ret.images)) {
+            ret.images = ret.images.map(img => formatImageUrl(img));
+        }
+        if (ret.bannerImages && Array.isArray(ret.bannerImages)) {
+            ret.bannerImages = ret.bannerImages.map(img => formatImageUrl(img));
+        }
+        return ret;
+    }
+});
 productSchema.set('toObject', { virtuals: true });
 
 module.exports = mongoose.model('Product', productSchema);

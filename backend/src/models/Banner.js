@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const { BANNER_POSITIONS } = require('../utils/constants');
+const { formatImageUrl } = require('../utils/helpers');
 
 const bannerSchema = new mongoose.Schema(
     {
@@ -33,7 +34,23 @@ const bannerSchema = new mongoose.Schema(
         }
     },
     {
-        timestamps: true
+        timestamps: true,
+        toJSON: {
+            transform: (doc, ret) => {
+                if (ret.image) {
+                    ret.image = formatImageUrl(ret.image);
+                }
+                return ret;
+            }
+        },
+        toObject: {
+            transform: (doc, ret) => {
+                if (ret.image) {
+                    ret.image = formatImageUrl(ret.image);
+                }
+                return ret;
+            }
+        }
     }
 );
 
