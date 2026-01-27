@@ -4,22 +4,22 @@ const adminAPI = {
     // Dashboard Stats
     getStats: async () => {
         const response = await client.get('/admin/stats');
-        return response.data;
+        return response.data.data;
     },
     getAnalytics: async (period = 30) => {
         const response = await client.get(`/admin/analytics?period=${period}`);
-        return response.data;
+        return response.data.data;
     },
     getDashboardStats: async () => {
         const [products, users, orders] = await Promise.all([
-            client.get('/products').catch(() => ({ data: { products: [] } })),
-            client.get('/users').catch(() => ({ data: { users: [] } })),
-            client.get('/orders/admin/all').catch(() => ({ data: { orders: [] } }))
+            client.get('/products').catch(() => ({ data: { data: { products: [] } } })),
+            client.get('/users').catch(() => ({ data: { data: { users: [] } } })),
+            client.get('/orders/admin/all').catch(() => ({ data: { data: { orders: [] } } }))
         ]);
         return {
-            products: products.data?.products || [],
-            users: users.data?.users || [],
-            orders: orders.data?.orders || []
+            products: products.data?.data?.products || [],
+            users: users.data?.data?.users || [],
+            orders: orders.data?.data?.orders || []
         };
     },
 
@@ -28,19 +28,19 @@ const adminAPI = {
         let url = `/users?page=${page}&limit=${limit}`;
         if (role) url += `&role=${role}`;
         const response = await client.get(url);
-        return response.data;
+        return response.data.data;
     },
     getUserById: async (userId) => {
         const response = await client.get(`/users/${userId}`);
-        return response.data;
+        return response.data.data;
     },
     updateUser: async (userId, data) => {
         const response = await client.put(`/users/${userId}`, data);
-        return response.data;
+        return response.data.data;
     },
     updateUserRole: async (userId, role) => {
         const response = await client.put(`/users/${userId}/role`, { role });
-        return response.data;
+        return response.data.data;
     },
     deleteUser: async (userId) => {
         const response = await client.delete(`/users/${userId}`);
@@ -48,13 +48,13 @@ const adminAPI = {
     },
     bulkUpdateUsers: async (userIds, updates) => {
         const response = await client.post('/users/bulk', { userIds, updates });
-        return response.data;
+        return response.data.data;
     },
 
     // Products
     getProducts: async (page = 1, limit = 20) => {
         const response = await client.get(`/products?page=${page}&limit=${limit}`);
-        return response.data;
+        return response.data.data;
     },
     getAdminProducts: async (filters = {}) => {
         const params = new URLSearchParams();
@@ -68,7 +68,7 @@ const adminAPI = {
     },
     getProductById: async (productId) => {
         const response = await client.get(`/products/${productId}/admin`);
-        return response.data;
+        return response.data.data;
     },
     getProductStats: async () => {
         const response = await client.get('/admin/products/stats');
@@ -76,11 +76,11 @@ const adminAPI = {
     },
     createProduct: async (formData) => {
         const response = await client.post('/products', formData, true);
-        return response.data;
+        return response.data.data;
     },
     updateProduct: async (productId, formData) => {
         const response = await client.put(`/products/${productId}`, formData, true);
-        return response.data;
+        return response.data.data;
     },
     deleteProduct: async (productId) => {
         const response = await client.delete(`/products/${productId}`);
@@ -88,23 +88,23 @@ const adminAPI = {
     },
     toggleProduct: async (productId) => {
         const response = await client.patch(`/products/${productId}/toggle`);
-        return response.data;
+        return response.data.data;
     },
     toggleFeatured: async (productId) => {
         const response = await client.patch(`/admin/products/${productId}/feature`);
-        return response.data;
+        return response.data.data;
     },
     updateProductTags: async (productId, tags) => {
         const response = await client.patch(`/admin/products/${productId}/tags`, { tags });
-        return response.data;
+        return response.data.data;
     },
     bulkUpdateProducts: async (productIds, updates) => {
         const response = await client.post('/admin/products/bulk', { productIds, updates });
-        return response.data;
+        return response.data.data;
     },
     bulkDeleteProducts: async (productIds) => {
         const response = await client.delete('/admin/products/bulk', { productIds });
-        return response.data;
+        return response.data.data;
     },
 
     // Orders
@@ -113,19 +113,19 @@ const adminAPI = {
         if (status) url += `&status=${status}`;
         if (paymentStatus) url += `&paymentStatus=${paymentStatus}`;
         const response = await client.get(url);
-        return response.data;
+        return response.data.data;
     },
     getOrderStats: async (period = 30) => {
         const response = await client.get(`/orders/admin/stats?period=${period}`);
-        return response.data;
+        return response.data.data;
     },
     updateOrderStatus: async (orderId, status, message = '') => {
         const response = await client.patch(`/orders/${orderId}/status`, { status, message });
-        return response.data;
+        return response.data.data;
     },
     updateEstimatedDelivery: async (orderId, estimatedDelivery) => {
         const response = await client.patch(`/orders/${orderId}/delivery`, { estimatedDelivery });
-        return response.data;
+        return response.data.data;
     },
 
     // Payments
@@ -133,33 +133,33 @@ const adminAPI = {
         let url = `/payments?page=${page}&limit=${limit}`;
         if (status) url += `&status=${status}`;
         const response = await client.get(url);
-        return response.data;
+        return response.data.data;
     },
     confirmPayment: async (paymentId) => {
         const response = await client.patch(`/payments/${paymentId}/confirm`);
-        return response.data;
+        return response.data.data;
     },
     rejectPayment: async (paymentId, reason) => {
         const response = await client.patch(`/payments/${paymentId}/reject`, { rejectionReason: reason });
-        return response.data;
+        return response.data.data;
     },
 
     // Categories
     getCategories: async () => {
         const response = await client.get('/categories');
-        return response.data;
+        return response.data.data;
     },
     getCategoryStats: async () => {
         const response = await client.get('/admin/categories/stats');
-        return response.data;
+        return response.data.data;
     },
     createCategory: async (formData) => {
         const response = await client.post('/categories', formData, true);
-        return response.data;
+        return response.data.data;
     },
     updateCategory: async (categoryId, formData) => {
         const response = await client.put(`/categories/${categoryId}`, formData, true);
-        return response.data;
+        return response.data.data;
     },
     deleteCategory: async (categoryId) => {
         const response = await client.delete(`/categories/${categoryId}`);
@@ -167,30 +167,30 @@ const adminAPI = {
     },
     toggleCategory: async (categoryId) => {
         const response = await client.patch(`/categories/${categoryId}/toggle`);
-        return response.data;
+        return response.data.data;
     },
     bulkUpdateCategories: async (categoryIds, updates) => {
         const response = await client.post('/admin/categories/bulk', { categoryIds, updates });
-        return response.data;
+        return response.data.data;
     },
 
     // Promo Codes
     getPromoCodes: async () => {
         const response = await client.get('/promo-codes');
-        return response.data;
+        return response.data.data;
     },
     getPromoCodeStats: async (promoId = null) => {
         const url = promoId ? `/admin/promo-codes/stats/${promoId}` : '/admin/promo-codes/stats';
         const response = await client.get(url);
-        return response.data;
+        return response.data.data;
     },
     createPromoCode: async (data) => {
         const response = await client.post('/promo-codes', data);
-        return response.data;
+        return response.data.data;
     },
     updatePromoCode: async (promoId, data) => {
         const response = await client.put(`/promo-codes/${promoId}`, data);
-        return response.data;
+        return response.data.data;
     },
     deletePromoCode: async (promoId) => {
         const response = await client.delete(`/promo-codes/${promoId}`);
@@ -198,7 +198,7 @@ const adminAPI = {
     },
     togglePromoCode: async (promoId) => {
         const response = await client.patch(`/promo-codes/${promoId}/toggle`);
-        return response.data;
+        return response.data.data;
     },
 
     // Reviews
@@ -207,79 +207,79 @@ const adminAPI = {
         if (approved !== '') url += `&approved=${approved}`;
         if (rating) url += `&rating=${rating}`;
         const response = await client.get(url);
-        return response.data;
+        return response.data.data;
     },
     moderateReview: async (reviewId, isApproved) => {
         const response = await client.patch(`/admin/reviews/${reviewId}`, { isApproved });
-        return response.data;
+        return response.data.data;
     },
 
     // Content Management
     getBanners: async () => {
         const response = await client.get('/content/banners');
-        return response.data;
+        return response.data.data;
     },
     getAllBannersAdmin: async () => {
         const response = await client.get('/admin/content/banners');
-        return response.data;
+        return response.data.data;
     },
     createBanner: async (formData) => {
         const response = await client.post('/content/banners', formData, true);
-        return response.data;
+        return response.data.data;
     },
     updateBanner: async (bannerId, formData) => {
         const response = await client.put(`/content/banners/${bannerId}`, formData, true);
-        return response.data;
+        return response.data.data;
     },
     deleteBanner: async (bannerId) => {
         const response = await client.delete(`/content/banners/${bannerId}`);
-        return response.data;
+        return response.data.data;
     },
     reorderBanners: async (bannerOrders) => {
         const response = await client.patch('/admin/content/banners/reorder', { bannerOrders });
-        return response.data;
+        return response.data.data;
     },
     getFeaturedProducts: async (section = '') => {
         let url = '/content/featured';
         if (section) url += `?section=${section}`;
         const response = await client.get(url);
-        return response.data;
+        return response.data.data;
     },
     getAllFeaturedAdmin: async (section = '') => {
         let url = '/admin/content/featured';
         if (section) url += `?section=${section}`;
         const response = await client.get(url);
-        return response.data;
+        return response.data.data;
     },
     addFeaturedProduct: async (data) => {
         const response = await client.post('/content/featured', data);
-        return response.data;
+        return response.data.data;
     },
     updateFeaturedProduct: async (featuredId, data) => {
         const response = await client.put(`/content/featured/${featuredId}`, data);
-        return response.data;
+        return response.data.data;
     },
     removeFeaturedProduct: async (featuredId) => {
         const response = await client.delete(`/content/featured/${featuredId}`);
-        return response.data;
+        return response.data.data;
     },
     reorderFeatured: async (featuredOrders) => {
         const response = await client.patch('/admin/content/featured/reorder', { featuredOrders });
-        return response.data;
+        return response.data.data;
     },
 
     // Flash Sales
     getFlashSales: async () => {
         const response = await client.get('/flash-sales');
-        return response.data;
+        return response.data.data;
     },
     createFlashSale: async (data) => {
         const response = await client.post('/flash-sales', data);
-        return response.data;
+        return response.data.data;
     },
     endFlashSale: async (productId) => {
         const response = await client.delete(`/flash-sales/${productId}`);
-        return response.data;
+        return response.data.data;
     },
 
     // Price Alerts
@@ -287,11 +287,11 @@ const adminAPI = {
         let url = `/admin/price-alerts?page=${page}&limit=${limit}`;
         if (status) url += `&status=${status}`;
         const response = await client.get(url);
-        return response.data;
+        return response.data.data;
     },
     checkPriceDrops: async () => {
         const response = await client.post('/price-alerts/check');
-        return response.data;
+        return response.data.data;
     },
 
     // Loyalty Points
@@ -300,15 +300,15 @@ const adminAPI = {
         if (tier) url += `&tier=${tier}`;
         if (minPoints) url += `&minPoints=${minPoints}`;
         const response = await client.get(url);
-        return response.data;
+        return response.data.data;
     },
     adjustLoyaltyPoints: async (userId, points, reason = '') => {
         const response = await client.patch(`/admin/loyalty/${userId}`, { points, reason });
-        return response.data;
+        return response.data.data;
     },
     getLeaderboard: async (limit = 10) => {
         const response = await client.get(`/loyalty/leaderboard?limit=${limit}`);
-        return response.data;
+        return response.data.data;
     },
 
     // Settings
@@ -316,11 +316,11 @@ const adminAPI = {
         let url = '/admin/settings';
         if (category) url += `?category=${category}`;
         const response = await client.get(url);
-        return response.data;
+        return response.data.data;
     },
     updateSetting: async (key, value, description = '', isPublic = false) => {
         const response = await client.put(`/admin/settings/${key}`, { value, description, isPublic });
-        return response.data;
+        return response.data.data;
     },
 
     // Email Queue
@@ -328,15 +328,15 @@ const adminAPI = {
         let url = `/admin/emails?page=${page}&limit=${limit}`;
         if (status) url += `&status=${status}`;
         const response = await client.get(url);
-        return response.data;
+        return response.data.data;
     },
     retryEmails: async () => {
         const response = await client.post('/admin/emails/retry');
-        return response.data;
+        return response.data.data;
     },
     deleteEmailFromQueue: async (emailId) => {
         const response = await client.delete(`/admin/emails/${emailId}`);
-        return response.data;
+        return response.data.data;
     },
 
     // Audit Logs
@@ -346,21 +346,21 @@ const adminAPI = {
             if (filters[key]) params.append(key, filters[key]);
         });
         const response = await client.get(`/audit-logs?${params.toString()}`);
-        return response.data;
+        return response.data.data;
     },
     getAuditLogById: async (logId) => {
         const response = await client.get(`/audit-logs/${logId}`);
-        return response.data;
+        return response.data.data;
     },
 
     // Wishlists & Recently Viewed
     getWishlists: async (page = 1, limit = 50) => {
         const response = await client.get(`/admin/wishlists?page=${page}&limit=${limit}`);
-        return response.data;
+        return response.data.data;
     },
     getRecentlyViewed: async (page = 1, limit = 50) => {
         const response = await client.get(`/admin/recently-viewed?page=${page}&limit=${limit}`);
-        return response.data;
+        return response.data.data;
     }
 };
 

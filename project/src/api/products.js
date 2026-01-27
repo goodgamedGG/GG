@@ -15,13 +15,13 @@ const productsAPI = {
         const endpoint = queryString ? `/products?${queryString}` : '/products';
 
         const response = await client.get(endpoint);
-        return response.data;
+        return response.data.data;
     },
 
     // Get product by ID
     getProductById: async (id) => {
         const response = await client.get(`/products/${id}`);
-        return response.data.product;
+        return response.data.data.product;
     },
 
     // Create product (Admin)
@@ -50,7 +50,7 @@ const productsAPI = {
         }
 
         const response = await client.post('/products', formData, true);
-        return response.data.product;
+        return response.data.data.product;
     },
 
     // Update product (Admin)
@@ -83,7 +83,7 @@ const productsAPI = {
         }
 
         const response = await client.put(`/products/${id}`, formData, true);
-        return response.data.product;
+        return response.data.data.product;
     },
 
     // Delete product (Admin)
@@ -95,7 +95,7 @@ const productsAPI = {
     // Toggle product status (Admin)
     toggleProductStatus: async (id) => {
         const response = await client.patch(`/products/${id}/toggle`);
-        return response.data.product;
+        return response.data.data.product;
     }
 };
 
