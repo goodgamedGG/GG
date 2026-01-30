@@ -6,7 +6,15 @@ const logger = require('../utils/logger');
  */
 const connectDB = async () => {
     try {
-        const conn = await mongoose.connect(process.env.MONGO_URI);
+        // Connection options to handle DNS issues
+        const options = {
+            serverSelectionTimeoutMS: 10000,
+            socketTimeoutMS: 45000,
+            family: 4, // Use IPv4, skip trying IPv6
+        };
+
+        logger.info('Attempting MongoDB connection...');
+        const conn = await mongoose.connect(process.env.MONGO_URI, options);
 
         logger.info('MongoDB Connected', {
             host: conn.connection.host,
