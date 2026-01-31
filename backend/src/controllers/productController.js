@@ -165,11 +165,14 @@ const updateProduct = async (req, res, next) => {
 
         // Handle file uploads
         if (req.files) {
-            if (req.files.images) {
-                product.images = [...product.images, ...getFilePaths(req.files.images)];
+            if (req.files.images && req.files.images.length > 0) {
+                // If the user uploads new images, we replace the old ones
+                // OR we could check a flag to append. For now, let's treat new uploads as the new set of images
+                // to match common admin UI behavior unless "append" is intended.
+                product.images = getFilePaths(req.files.images);
             }
-            if (req.files.bannerImages) {
-                product.bannerImages = [...product.bannerImages, ...getFilePaths(req.files.bannerImages)];
+            if (req.files.bannerImages && req.files.bannerImages.length > 0) {
+                product.bannerImages = getFilePaths(req.files.bannerImages);
             }
         }
 

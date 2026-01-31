@@ -126,7 +126,7 @@ const processImage = async (buffer, outputPath, options = {}) => {
         // Resize if needed (max dimensions)
         const maxWidth = options.maxWidth || 2000;
         const maxHeight = options.maxHeight || 2000;
-        
+
         if (metadata.width > maxWidth || metadata.height > maxHeight) {
             image = image.resize(maxWidth, maxHeight, {
                 fit: 'inside',
@@ -165,7 +165,7 @@ const processUploadedImages = async (req, res, next) => {
         }
 
         const files = req.files ? (Array.isArray(req.files) ? req.files : Object.values(req.files).flat()) : [req.file];
-        
+
         for (const file of files) {
             if (!file) continue;
 
@@ -204,8 +204,10 @@ const processUploadedImages = async (req, res, next) => {
                 format: 'jpeg' // Convert all to JPEG for consistency (except SVGs)
             });
 
-            // Update file path in request
-            file.path = outputPath.replace(/\\/g, '/');
+            // Update file path in request - ensure it's relative and uses forward slashes
+            // We want 'uploads/products/filename.jpg'
+            const relativePath = outputPath.replace(/\\/g, '/');
+            file.path = relativePath.startsWith('./') ? relativePath.substring(2) : relativePath;
         }
 
         next();

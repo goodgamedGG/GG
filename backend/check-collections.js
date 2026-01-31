@@ -53,11 +53,36 @@ const checkDB = async () => {
             for (const coll of testColls) {
                 const count = await conn.db.collection(coll.name).countDocuments();
                 console.log(`${coll.name}: ${count}`);
-                if (coll.name === 'products' && count > 0) {
-                    const docs = await conn.db.collection(coll.name).find({}).limit(1).toArray();
-                    console.log(`  Sample Product:`, JSON.stringify(docs[0], null, 2).substring(0, 300));
+                // Check for product 'k' to see its image path
+                if (coll.name === 'products') {
+                    const kProduct = await conn.db.collection(coll.name).findOne({ name: 'k' });
+                    if (kProduct) {
+                        console.log(`\n=== Product 'k' ===`);
+                        console.log(JSON.stringify(kProduct, null, 2));
+                    }
                 }
             }
+
+            // Create a test product to prove system is dynamic
+            console.log('\n=== Creating Test Product ===');
+            try {
+                const testProduct = {
+                    name: "Dynamic Test Product",
+                    description: "This product was created programmatically to prove the system fetches from DB.",
+                    price: 999,
+                    category: new mongoose.Types.ObjectId("697919a1379258aa355451e2"), // Using FC24's category ID
+                    stock: 5,
+                    images: ["uploads/products/fc25-1769544965528-5503.jpg"], // Use the known working image
+                    isActive: true,
+                    createdAt: new Date(),
+                    updatedAt: new Date()
+                };
+                const result = await conn.db.collection('products').insertOne(testProduct);
+                console.log('Test Product Created:', result.insertedId);
+            } catch (e) {
+                console.log('Error creating test product:', e.message);
+            }
+
             await conn.close();
         }
 

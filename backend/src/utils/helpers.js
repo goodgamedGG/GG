@@ -136,15 +136,14 @@ module.exports = {
         if (!path) return null;
         if (path.startsWith('http')) return path;
 
-        // Clean path separators
-        const cleanPath = path.replace(/\\/g, '/');
+        // Clean path separators and double slashes
+        const cleanPath = path.replace(/\\/g, '/').replace(/\/+/g, '/');
 
         // Remove leading slash if present
         const normalizedPath = cleanPath.startsWith('/') ? cleanPath.substring(1) : cleanPath;
 
         // Get base URL
-        const port = process.env.PORT || 5000;
-        const host = process.env.BACKEND_URL || `http://localhost:${port}`;
+        const host = process.env.BACKEND_URL || `http://localhost:${process.env.PORT || 5000}`;
 
         return `${host}/${normalizedPath}`;
     }

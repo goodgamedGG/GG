@@ -45,7 +45,8 @@ const GameGrid = () => {
                             image={game.images?.[0]}
                             title={game.name}
                             publisher={game.category?.name || 'Unknown'} // Fallback for publisher if missing
-                            price={game.price}
+                            price={game.effectivePrice}
+                            regularPrice={game.price}
                         />
                     ))}
                 </div>

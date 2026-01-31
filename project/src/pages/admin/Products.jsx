@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Pencil, Trash2, Plus, X, Save, Eye, EyeOff, Star, Filter, BarChart3, Tag as TagIcon, CheckSquare } from 'lucide-react';
+import { Pencil, Trash2, Edit2, Play, Pause, Save, X, Plus, Filter, Search, Eye, EyeOff, Star, Tag as TagIcon, BarChart3, BarChart2, CheckSquare, Square, RefreshCw } from 'lucide-react';
 import adminAPI from '../../api/admin';
+import { useGames } from '../../context/GameContext';
+import { useLanguage } from '../../context/LanguageContext';
 
 const Products = () => {
     const [products, setProducts] = useState([]);
@@ -162,25 +164,28 @@ const Products = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const data = new FormData();
+            const productFormData = new FormData();
             Object.keys(formData).forEach(key => {
                 if (key === 'variants') {
                     if (formData.variants.length > 0) {
-                        data.append('variants', JSON.stringify(formData.variants));
+                        productFormData.append('variants', JSON.stringify(formData.variants));
                     }
                 } else if (formData[key] !== null && formData[key] !== '') {
                     const fieldName = key === 'image' ? 'images' : key;
-                    data.append(fieldName, formData[key]);
+                    productFormData.append(fieldName, formData[key]);
                 }
             });
 
             if (editingProduct) {
-                await adminAPI.updateProduct(editingProduct._id, data);
+                await adminAPI.updateProduct(editingProduct._id, productFormData);
+                alert('Product updated successfully');
             } else {
-                await adminAPI.createProduct(data);
+                await adminAPI.createProduct(productFormData);
+                alert('Product created successfully');
             }
             setIsModalOpen(false);
             loadData();
+            refreshGames();
         } catch (error) {
             alert('Failed to save product: ' + error.message);
         }
@@ -251,8 +256,10 @@ const Products = () => {
             const product = products.find(p => p._id === productId);
             await adminAPI.updateProduct(productId, { isActive: !product.isActive });
             loadData();
+            refreshGames();
         } catch (error) {
-            alert('Failed to toggle product: ' + error.message);
+            console.error('Toggle error:', error);
+            alert('Failed to toggle product: ' + (error.response?.data?.message || error.message));
         }
     };
 
@@ -261,8 +268,10 @@ const Products = () => {
             const product = products.find(p => p._id === productId);
             await adminAPI.updateProduct(productId, { isFeatured: !product.isFeatured });
             loadData();
+            refreshGames();
         } catch (error) {
-            alert('Failed to toggle featured: ' + error.message);
+            console.error('Feature error:', error);
+            alert('Failed to toggle featured: ' + (error.response?.data?.message || error.message));
         }
     };
 
@@ -271,6 +280,7 @@ const Products = () => {
         try {
             await adminAPI.deleteProduct(productId);
             loadData();
+            refreshGames();
         } catch (error) {
             alert('Failed to delete product: ' + error.message);
         }
@@ -497,13 +507,19 @@ const Products = () => {
                                         </td>
                                         <td>
                                             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                                                <div style={{ width: '50px', height: '50px', background: 'var(--color-bg-secondary)', borderRadius: '8px', overflow: 'hidden' }}>
-                                                    {product.images?.[0] && (
+                                                <div style={{ width: '50px', height: '50px', background: 'var(--color-bg-secondary)', borderRadius: '8px', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                                    {product.images?.[0] ? (
                                                         <img
                                                             src={product.images[0]}
                                                             alt=""
                                                             style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                                            onError={(e) => {
+                                                                e.target.onerror = null;
+                                                                e.target.src = 'https://placehold.co/50x50/1a1a1a/00d9ff?text=No+Img';
+                                                            }}
                                                         />
+                                                    ) : (
+                                                        <div style={{ fontSize: '10px', color: 'var(--color-text-muted)' }}>No Img</div>
                                                     )}
                                                 </div>
                                                 <div>
@@ -538,11 +554,11 @@ const Products = () => {
                                         <td>
                                             <div>
                                                 <span style={{ color: 'var(--color-cyan-primary)', fontWeight: 'bold' }}>
-                                                    ${product.price}
+                                                    ${product.discountPrice ? product.discountPrice : product.price}
                                                 </span>
                                                 {product.discountPrice && (
                                                     <span style={{ fontSize: '12px', color: 'var(--color-text-muted)', textDecoration: 'line-through', marginLeft: '8px' }}>
-                                                        ${product.discountPrice}
+                                                        ${product.price}
                                                     </span>
                                                 )}
                                             </div>

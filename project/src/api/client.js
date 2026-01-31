@@ -141,11 +141,12 @@ const makeRequest = async (endpoint, options = {}) => {
         }
     }
 
+    const isActuallyFormData = body instanceof FormData;
     const fetchOptions = {
         method,
         credentials: 'include', // Include cookies for refresh token
-        headers: createHeaders(isFormData),
-        body: isFormData ? body : (body ? JSON.stringify(body) : undefined)
+        headers: createHeaders(isActuallyFormData || isFormData),
+        body: (isActuallyFormData || isFormData) ? body : (body ? JSON.stringify(body) : undefined)
     };
 
     const res = await fetch(`${API_URL}${endpoint}`, fetchOptions);

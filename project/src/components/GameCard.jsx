@@ -4,23 +4,17 @@ import { useCart } from '../context/CartContext';
 import { useToast } from '../context/ToastContext';
 import { ShoppingCart } from 'lucide-react';
 
-const GameCard = ({ id, image, title, publisher, price }) => {
+const GameCard = ({ id, image, title, publisher, price, regularPrice }) => {
     const { addToCart } = useCart();
     const { addToast } = useToast();
     const navigate = useNavigate();
-    const hasVariants = price && price.includes && price.includes('-');
+    const [adding, setAdding] = useState(false);
+    const hasVariants = typeof price === 'string' && price.includes && price.includes('-');
+    const hasDiscount = regularPrice && price < regularPrice;
 
     const handleAction = async (e) => {
-        // If has variants, clicking the card navigates to details (GameCard component is wrapped in Link).
-        // But if there is an Add button, we need to handle it.
-        // User requested: "if it is ps have price range make hime view details to choose which account"
-        // AND "no button beside price like a small button creative or text as you like"
-
-        // So for variants, we hide the add button or show "View Options" text nearby.
-        if (hasVariants) {
-            // Navigate is handled by Link wrapper
-            return;
-        }
+        // ... same logic ...
+        if (hasVariants) return;
 
         e.preventDefault();
         e.stopPropagation();
@@ -47,15 +41,42 @@ const GameCard = ({ id, image, title, publisher, price }) => {
                         alt={title}
                         className="game-card-image"
                         loading="lazy"
+                        onError={(e) => {
+                            e.target.onerror = null;
+                            e.target.src = 'https://placehold.co/300x400/1a1a1a/00d9ff?text=No+Image';
+                        }}
                     />
+                    {hasDiscount && !hasVariants && (
+                        <div style={{
+                            position: 'absolute',
+                            top: '10px',
+                            right: '10px',
+                            background: '#ff4757',
+                            color: 'white',
+                            padding: '4px 8px',
+                            borderRadius: '4px',
+                            fontSize: '12px',
+                            fontWeight: 'bold',
+                            zIndex: 2
+                        }}>
+                            -{Math.round(((regularPrice - price) / regularPrice) * 100)}%
+                        </div>
+                    )}
                 </div>
                 <div className="game-card-content">
                     <h3 className="game-card-title">{title}</h3>
                     <p className="game-card-publisher">{publisher}</p>
                     <div className="game-card-footer">
-                        <span className="game-card-price">
-                            {hasVariants ? price : `EGP ${price}`}
-                        </span>
+                        <div style={{ display: 'flex', flexDirection: 'column' }}>
+                            <span className="game-card-price">
+                                {hasVariants ? price : `EGP ${price}`}
+                            </span>
+                            {hasDiscount && !hasVariants && (
+                                <span style={{ fontSize: '11px', color: 'var(--color-text-muted)', textDecoration: 'line-through' }}>
+                                    EGP {regularPrice}
+                                </span>
+                            )}
+                        </div>
 
                         {!hasVariants ? (
                             <button

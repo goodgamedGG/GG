@@ -75,11 +75,11 @@ const adminAPI = {
         return response.data;
     },
     createProduct: async (formData) => {
-        const response = await client.post('/products', formData, true);
+        const response = await client.post('/products', formData);
         return response.data.data;
     },
     updateProduct: async (productId, formData) => {
-        const response = await client.put(`/products/${productId}`, formData, true);
+        const response = await client.put(`/products/${productId}`, formData);
         return response.data.data;
     },
     deleteProduct: async (productId) => {
