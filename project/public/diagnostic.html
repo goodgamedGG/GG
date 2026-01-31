@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>API Diagnostic</title>
+</head>
+<body>
+    <h1>Admin Products API Diagnostic</h1>
+    <div id="output"></div>
+    
+    <script>
+        const log = (msg) => {
+            const output = document.getElementById('output');
+            output.innerHTML += `<p>${msg}</p>`;
+            console.log(msg);
+        };
+        
+        (async () => {
+            log('=== Checking Authentication ===');
+            
+            // Check if token exists in sessionStorage
+            const token = sessionStorage.getItem('token');
+            log(`Token in sessionStorage: ${token ? 'EXISTS' : 'MISSING'}`);
+            if (token) {
+                log(`Token preview: ${token.substring(0, 20)}...`);
+            }
+            
+            // Check CSRF token
+            const csrfToken = document.cookie.split('; ').find(row => row.startsWith('csrf-token='));
+            log(`CSRF Token: ${csrfToken ? 'EXISTS' : 'MISSING'}`);
+            
+            log('\n=== Testing CSRF Endpoint ===');
+            try {
+                const csrfResponse = await fetch('http://localhost:5000/api/auth/csrf-token', {
+                    credentials: 'include'
+                });
+                log(`CSRF Status: ${csrfResponse.status}`);
+                const csrfData = await csrfResponse.json();
+                log(`CSRF Response: ${JSON.stringify(csrfData)}`);
+            } catch (error) {
+                log(`CSRF Error: ${error.message}`);
+            }
+            
+            log('\n=== Testing Admin Products Endpoint ===');
+            try {
+                const headers = {
+                    'Content-Type': 'application/json'
+                };
+                
+                if (token) {
+                    headers['Authorization'] = `Bearer ${token}`;
+                }
+                
+                const response = await fetch('http://localhost:5000/api/admin/products?page=1&limit=20', {
+                    credentials: 'include',
+                    headers: headers
+                });
+                
+                log(`Products Status: ${response.status}`);
+                const data = await response.json();
+                log(`Products Response: ${JSON.stringify(data, null, 2)}`);
+                
+                if (data.data && data.data.products) {
+                    log(`✅ Found ${data.data.products.length} products`);
+                } else if (data.error) {
+                    log(`❌ Error: ${data.error}`);
+                }
+            } catch (error) {
+                log(`Products Error: ${error.message}`);
+            }
+        })();
+    </script>
+</body>
+</html>

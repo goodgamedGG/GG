@@ -12,7 +12,8 @@ const {
     logout,
     getSessions,
     revokeSession,
-    revokeAllOtherSessions
+    revokeAllOtherSessions,
+    getCsrfToken
 } = require('../controllers/authController');
 const validate = require('../middleware/validateMiddleware');
 const {
@@ -25,6 +26,9 @@ const { protect } = require('../middleware/authMiddleware');
 
 // Apply rate limiting to auth routes
 router.use(authLimiter);
+
+// @route   GET /api/auth/csrf-token
+router.get('/csrf-token', getCsrfToken);
 
 // @route   POST /api/auth/signup
 router.post('/signup', signupValidator, validate, signup);

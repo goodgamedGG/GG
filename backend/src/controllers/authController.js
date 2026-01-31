@@ -91,7 +91,7 @@ const login = async (req, res, next) => {
         const accessToken = generateAccessToken(user._id);
         const refreshToken = generateRefreshToken();
         const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
-        
+
         // Store refresh token in database (expires in 7 days)
         user.refreshToken = refreshToken;
         user.refreshTokenExpires = expiresAt;
@@ -177,7 +177,7 @@ const verifyEmail = async (req, res, next) => {
         const accessToken = generateAccessToken(user._id);
         const refreshToken = generateRefreshToken();
         const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
-        
+
         // Store refresh token in database
         user.refreshToken = refreshToken;
         user.refreshTokenExpires = expiresAt;
@@ -382,14 +382,14 @@ const refreshToken = async (req, res, next) => {
     try {
         // Get refresh token from cookie or body
         const refreshTokenValue = req.cookies.refreshToken || req.body.refreshToken;
-        
+
         if (!refreshTokenValue) {
             return next(new AppError('Refresh token is required', HTTP_STATUS.UNAUTHORIZED));
         }
 
         // Find user with this refresh token
         const user = await User.findOne({ refreshToken: refreshTokenValue }).select('+refreshToken +refreshTokenExpires');
-        
+
         if (!user) {
             return next(new AppError('Invalid refresh token', HTTP_STATUS.UNAUTHORIZED));
         }
@@ -400,17 +400,17 @@ const refreshToken = async (req, res, next) => {
             user.refreshToken = undefined;
             user.refreshTokenExpires = undefined;
             await user.save({ validateBeforeSave: false });
-            
+
             return next(new AppError('Refresh token expired or invalid', HTTP_STATUS.UNAUTHORIZED));
         }
 
         // Generate new access token
         const accessToken = generateAccessToken(user._id);
-        
+
         // Rotate refresh token (for better security)
         const newRefreshToken = generateRefreshToken();
         const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
-        
+
         user.refreshToken = newRefreshToken;
         user.refreshTokenExpires = expiresAt;
         await user.save({ validateBeforeSave: false });
@@ -454,7 +454,7 @@ const logout = async (req, res, next) => {
     try {
         const refreshToken = req.cookies.refreshToken;
         const user = await User.findById(req.user._id);
-        
+
         if (user) {
             // Clear refresh token
             user.refreshToken = undefined;
@@ -494,8 +494,8 @@ const getSessions = async (req, res, next) => {
             isActive: true,
             expiresAt: { $gt: new Date() }
         })
-        .sort({ lastActivity: -1 })
-        .select('-refreshToken'); // Don't expose refresh tokens
+            .sort({ lastActivity: -1 })
+            .select('-refreshToken'); // Don't expose refresh tokens
 
         res.status(HTTP_STATUS.OK).json({
             success: true,
@@ -579,6 +579,18 @@ const revokeAllOtherSessions = async (req, res, next) => {
     }
 };
 
+/**
+ * @desc    Get CSRF token (sets cookie)
+ * @route   GET /api/auth/csrf-token
+ * @access  Public
+ */
+const getCsrfToken = async (req, res, next) => {
+    res.status(HTTP_STATUS.OK).json({
+        success: true,
+        message: 'CSRF token set'
+    });
+};
+
 module.exports = {
     signup,
     login,
@@ -591,5 +603,6 @@ module.exports = {
     logout,
     getSessions,
     revokeSession,
-    revokeAllOtherSessions
+    revokeAllOtherSessions,
+    getCsrfToken
 };

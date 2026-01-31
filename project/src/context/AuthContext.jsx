@@ -13,6 +13,12 @@ export const AuthProvider = ({ children }) => {
     }, []);
 
     const loadUser = async () => {
+        try {
+            await client.initializeCsrf();
+        } catch (error) {
+            // Ignore error, will try again on next request or just fail later
+        }
+
         const token = authAPI.getAuthToken?.();
         if (token) {
             try {

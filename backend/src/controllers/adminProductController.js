@@ -54,13 +54,20 @@ const getAdminProducts = async (req, res, next) => {
             query.$text = { $search: search };
         }
 
+        console.log('Admin Products Query:', JSON.stringify(query));
+        console.log('Pagination:', { skip, limitNum, pageNum });
+
         const products = await Product.find(query)
             .populate('category', 'name')
             .sort(sort)
             .skip(skip)
             .limit(limitNum);
 
+        console.log('Products found:', products.length);
+        console.log('Products:', JSON.stringify(products, null, 2));
+
         const total = await Product.countDocuments(query);
+        console.log('Total count:', total);
 
         res.status(HTTP_STATUS.OK).json({
             success: true,
@@ -70,6 +77,7 @@ const getAdminProducts = async (req, res, next) => {
             }
         });
     } catch (error) {
+        console.error('Admin Products Error:', error);
         next(error);
     }
 };

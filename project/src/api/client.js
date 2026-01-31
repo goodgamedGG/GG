@@ -36,7 +36,7 @@ const refreshAccessToken = async () => {
                 return data.data.token;
             }
         }
-        
+
         // Refresh failed, clear token and redirect to login
         removeToken();
         if (window.location.pathname !== '/login') {
@@ -50,6 +50,21 @@ const refreshAccessToken = async () => {
             window.location.href = '/login';
         }
         return null;
+    }
+};
+
+// Initialize CSRF token
+const initializeCsrf = async () => {
+    if (!getCSRFToken()) {
+        try {
+            // Use fetch directly to avoid circular dependency or interceptor issues
+            const response = await fetch(`${API_URL}/auth/csrf-token`, {
+                credentials: 'include'
+            });
+            // The cookie is set by the browser automatically
+        } catch (error) {
+            console.error('Failed to initialize CSRF token:', error);
+        }
     }
 };
 
@@ -82,7 +97,7 @@ const handleResponse = async (res, endpoint, options = {}) => {
         // Handle unauthorized errors - try to refresh token
         if (res.status === 401 && !options.skipRefresh) {
             const newToken = await refreshAccessToken();
-            
+
             if (newToken && options.retry) {
                 // Retry the original request with new token
                 const retryOptions = {
@@ -92,7 +107,7 @@ const handleResponse = async (res, endpoint, options = {}) => {
                 };
                 return makeRequest(endpoint, retryOptions);
             }
-            
+
             // If refresh failed or no retry, redirect to login
             if (!newToken) {
                 removeToken();
@@ -105,13 +120,27 @@ const handleResponse = async (res, endpoint, options = {}) => {
         throw new Error(data.error || data.message || 'API Error');
     }
 
-    return data;
+    return {
+        data,
+        status: res.status,
+        statusText: res.statusText,
+        headers: res.headers,
+        ok: res.ok,
+        url: res.url
+    };
 };
 
 // Make request with automatic retry on 401
 const makeRequest = async (endpoint, options = {}) => {
     const { method = 'GET', body, isFormData = false, skipRefresh = false, retry = true } = options;
-    
+
+    // JIT CSRF Token Check for state-changing methods
+    if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(method.toUpperCase())) {
+        if (!getCSRFToken()) {
+            await initializeCsrf();
+        }
+    }
+
     const fetchOptions = {
         method,
         credentials: 'include', // Include cookies for refresh token
@@ -153,7 +182,7 @@ const client = {
     setAuthToken: setToken,
     getAuthToken: getToken,
     removeAuthToken: removeToken,
-    
+
     // Logout - clear token and call logout endpoint
     logout: async () => {
         try {
@@ -163,7 +192,13 @@ const client = {
         } finally {
             removeToken();
         }
-    }
+    },
+
+    // Get current CSRF token
+    getCSRFToken: () => getCSRFToken(),
+
+    // Initialize CSRF token
+    initializeCsrf: initializeCsrf
 };
 
 export default client;

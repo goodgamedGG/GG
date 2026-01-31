@@ -123,9 +123,10 @@ app.use('/api', createCSRFToken);
 
 // CSRF verification for state-changing operations
 app.use('/api', (req, res, next) => {
-    // Skip CSRF for auth endpoints (they have their own security)
+    // Skip CSRF for specific auth endpoints
     if (req.path.startsWith('/auth/refresh-token') ||
-        req.path.startsWith('/auth/logout')) {
+        req.path.startsWith('/auth/logout') ||
+        req.path.startsWith('/auth/csrf-token')) {  // CRITICAL: Skip CSRF check for token endpoint
         return next();
     }
     return verifyCSRFToken(req, res, next);
