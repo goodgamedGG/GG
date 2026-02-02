@@ -8,6 +8,8 @@ import LoadingSpinner from '../components/LoadingSpinner';
 import { ChevronLeft, ChevronRight, ShoppingCart } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 
+import { getImageUrl } from '../utils/imageUtils';
+
 const ProductDetails = () => {
     const { id } = useParams();
     const navigate = useNavigate();
@@ -87,7 +89,7 @@ const ProductDetails = () => {
     const hasDiscount = !selectedVariant && product.discountPrice && product.discountPrice < product.price;
     const currentPrice = selectedVariant ? selectedVariant.price : (product.discountPrice || product.price);
     const regularPrice = product.price;
-    const mainImage = product.images && product.images.length > 0 ? product.images[0] : 'https://placehold.co/600x400';
+    const mainImage = product.images && product.images.length > 0 ? getImageUrl(product.images[0]) : 'https://placehold.co/600x400';
 
     return (
         <div style={{ background: 'var(--color-bg-primary)', minHeight: '100vh', direction: isRTL ? 'rtl' : 'ltr' }}>

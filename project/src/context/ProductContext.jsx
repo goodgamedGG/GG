@@ -30,7 +30,7 @@ export const ProductProvider = ({ children }) => {
     // Fetch categories
     const fetchCategories = async (activeOnly = true) => {
         try {
-            const data = await categoriesAPI.getCategories(activeOnly);
+            const data = await categoriesAPI.getCategories({ active: activeOnly });
             setCategories(data);
         } catch (err) {
             console.error('Error fetching categories:', err);
