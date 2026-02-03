@@ -1,16 +1,12 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ShoppingCart, User, Search, Menu, X, LogOut, Heart } from 'lucide-react';
+import { User, Menu, LogOut, LayoutDashboard } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import { useCart } from '../context/CartContext';
-import SearchBar from './SearchBar';
 
 const Header = () => {
     const { user, logout, isAuthenticated, isAdmin } = useAuth();
-    const { itemCount } = useCart();
     const navigate = useNavigate();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
-    const [isSearchOpen, setIsSearchOpen] = useState(false);
 
     const handleLogout = async () => {
         await logout();
@@ -35,9 +31,21 @@ const Header = () => {
                     margin: 0 auto;
                     padding: 0 24px;
                     height: 100%;
+                    display: grid;
+                    grid-template-columns: 1fr auto 1fr;
+                    align-items: center;
+                    gap: 24px;
+                }
+
+                .header-left {
                     display: flex;
                     align-items: center;
-                    justify-content: space-between;
+                    justify-content: flex-start;
+                }
+
+                .header-center {
+                    display: flex;
+                    justify-content: center;
                 }
 
                 .logo {
@@ -74,6 +82,7 @@ const Header = () => {
                     display: flex;
                     align-items: center;
                     gap: 20px;
+                    justify-content: flex-end;
                 }
 
                 .icon-btn {
@@ -92,28 +101,38 @@ const Header = () => {
                     color: var(--color-cyan-primary);
                 }
 
-                .badge {
-                    position: absolute;
-                    top: -8px;
-                    right: -8px;
-                    background: var(--color-cyan-primary);
-                    color: var(--color-bg-primary);
-                    font-size: 10px;
-                    font-weight: bold;
-                    min-width: 18px;
-                    height: 18px;
-                    border-radius: 9px;
+                .user-profile {
                     display: flex;
                     align-items: center;
-                    justify-content: center;
-                    padding: 0 4px;
+                    gap: 16px;
+                    padding-left: 16px;
+                    border-left: 1px solid var(--color-border);
                 }
 
-                .user-menu {
-                    position: relative;
+                .user-info {
                     display: flex;
                     align-items: center;
                     gap: 8px;
+                    color: var(--color-text-primary);
+                    font-weight: 500;
+                    font-size: 14px;
+                }
+
+                .user-name {
+                    max-width: 150px;
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                }
+
+                .admin-badge {
+                    background: var(--color-cyan-primary);
+                    color: var(--color-bg-primary);
+                    font-size: 10px;
+                    padding: 2px 6px;
+                    border-radius: 4px;
+                    font-weight: 700;
+                    text-transform: uppercase;
                 }
 
                 .auth-buttons {
@@ -143,6 +162,9 @@ const Header = () => {
                 }
 
                 @media (max-width: 768px) {
+                    .header-container {
+                        grid-template-columns: auto 1fr auto;
+                    }
                     .nav-links {
                         display: none;
                     }
@@ -150,39 +172,40 @@ const Header = () => {
             `}</style>
 
             <div className="header-container">
-                {/* Logo */}
-                <Link to="/" className="logo">
-                    SUB HUB
-                </Link>
-
-                {/* Navigation */}
-                <nav className="nav-links">
-                    <Link to="/" className="nav-link">Home</Link>
-                    <Link to="/games" className="nav-link">Games</Link>
-                    <Link to="/categories" className="nav-link">Categories</Link>
-                    <Link to="/about" className="nav-link">About</Link>
-                </nav>
-
-                {/* Actions */}
-                <div className="header-actions">
-                    <button className="icon-btn" onClick={() => setIsSearchOpen(!isSearchOpen)}>
-                        <Search size={22} />
-                    </button>
-
-                    <Link to="/cart" className="icon-btn">
-                        <ShoppingCart size={22} />
-                        {itemCount > 0 && <span className="badge">{itemCount}</span>}
+                {/* Left: Brand */}
+                <div className="header-left">
+                    <Link to="/" className="logo">
+                        SUB HUB
                     </Link>
+                </div>
 
+                {/* Center: Navigation */}
+                <div className="header-center">
+                    <nav className="nav-links">
+                        <Link to="/" className="nav-link">Home</Link>
+                        <Link to="/games" className="nav-link">Games</Link>
+                        <Link to="/categories" className="nav-link">Categories</Link>
+                        <Link to="/about" className="nav-link">About</Link>
+                    </nav>
+                </div>
+
+                {/* Right: User Actions */}
+                <div className="header-actions">
                     {isAuthenticated ? (
-                        <div className="user-menu">
+                        <div className="user-profile">
                             {isAdmin && (
-                                <Link to="/admin" className="nav-link" style={{ marginRight: '10px' }}>
-                                    Admin
+                                <Link to="/admin" className="icon-btn" title="Admin Dashboard">
+                                    <LayoutDashboard size={20} />
                                 </Link>
                             )}
+
+                            <div className="user-info">
+                                <User size={20} className="text-cyan-primary" />
+                                <span className="user-name">{user?.name || 'User'}</span>
+                            </div>
+
                             <button className="icon-btn" onClick={handleLogout} title="Logout">
-                                <LogOut size={22} />
+                                <LogOut size={20} />
                             </button>
                         </div>
                     ) : (
@@ -193,8 +216,6 @@ const Header = () => {
                     )}
                 </div>
             </div>
-
-            {/* Mobile Menu & Search Overlay could go here */}
         </header>
     );
 };
