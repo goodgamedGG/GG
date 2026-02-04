@@ -7,10 +7,12 @@ import { useProducts } from '../context/ProductContext';
 import { Filter, ChevronDown } from 'lucide-react';
 
 const Games = () => {
-    const { products, loading, fetchProducts, categories } = useProducts();
+    const { products, loading, fetchProducts, categories, pagination } = useProducts();
     const location = useLocation();
     const [activeCategory, setActiveCategory] = useState('');
     const [sortBy, setSortBy] = useState('newest');
+    const [priceRange, setPriceRange] = useState({ min: 0, max: 200 });
+    const [page, setPage] = useState(1);
 
     useEffect(() => {
         const params = new URLSearchParams(location.search);
@@ -24,9 +26,29 @@ const Games = () => {
         fetchProducts({
             search,
             category: category || activeCategory,
-            sort: sortBy
+            sort: sortBy,
+            minPrice: priceRange.min,
+            maxPrice: priceRange.max,
+            page: page,
+            limit: 12
         });
-    }, [location.search, activeCategory, sortBy]);
+
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }, [location.search, activeCategory, sortBy, priceRange, page]);
+
+    const handleCategoryChange = (value) => {
+        setActiveCategory(value);
+        setPage(1);
+    };
+
+    const handlePriceChange = (e, type) => {
+        const value = parseInt(e.target.value) || 0;
+        setPriceRange(prev => ({
+            ...prev,
+            [type]: value
+        }));
+        setPage(1);
+    };
 
     return (
         <div className="games-page">
@@ -129,6 +151,34 @@ const Games = () => {
                     outline: none;
                 }
 
+                .price-inputs {
+                    display: flex;
+                    gap: 10px;
+                    align-items: center;
+                }
+
+                .price-item {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 5px;
+                }
+
+                .price-label {
+                    font-size: 12px;
+                    color: var(--color-text-secondary);
+                }
+
+                .price-input {
+                    width: 100%;
+                    background: rgba(10, 10, 20, 0.8);
+                    color: white;
+                    border: 1px solid rgba(255, 255, 255, 0.1);
+                    padding: 8px;
+                    border-radius: 6px;
+                    font-family: 'Inter', sans-serif;
+                    outline: none;
+                }
+
                 .main-content {
                     width: 100%;
                 }
@@ -143,6 +193,42 @@ const Games = () => {
                 .results-count {
                     color: var(--color-text-secondary);
                     font-size: 14px;
+                }
+                
+                .pagination-container {
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    margin-top: 40px;
+                    gap: 20px;
+                    color: white;
+                }
+
+                .pagination-btn {
+                    background: rgba(20, 20, 30, 0.6);
+                    border: 1px solid rgba(255, 255, 255, 0.1);
+                    color: white;
+                    padding: 8px 16px;
+                    border-radius: 8px;
+                    cursor: pointer;
+                    transition: all 0.2s;
+                    font-family: 'Orbitron', sans-serif;
+                    font-size: 14px;
+                }
+
+                .pagination-btn:hover:not(:disabled) {
+                    border-color: var(--color-cyan-primary);
+                    color: var(--color-cyan-primary);
+                }
+
+                .pagination-btn:disabled {
+                    opacity: 0.5;
+                    cursor: not-allowed;
+                }
+
+                .page-info {
+                    font-family: 'Orbitron', sans-serif;
+                    color: var(--color-cyan-primary);
                 }
 
                 @media (max-width: 1024px) {
@@ -172,7 +258,7 @@ const Games = () => {
                         <div className="category-list">
                             <button
                                 className={`category-btn ${activeCategory === '' ? 'active' : ''}`}
-                                onClick={() => setActiveCategory('')}
+                                onClick={() => { setActiveCategory(''); setPage(1); }}
                             >
                                 All Games
                                 <ChevronDown size={16} style={{ transform: activeCategory === '' ? 'rotate(-90deg)' : 'rotate(0)', opacity: 0.5 }} />
@@ -181,11 +267,38 @@ const Games = () => {
                                 <button
                                     key={cat._id}
                                     className={`category-btn ${activeCategory === cat._id ? 'active' : ''}`}
-                                    onClick={() => setActiveCategory(cat._id)}
+                                    onClick={() => { setActiveCategory(cat._id); setPage(1); }}
                                 >
                                     {cat.name}
                                 </button>
                             ))}
+                        </div>
+                    </div>
+
+                    {/* Price Range Section */}
+                    <div className="sidebar-section">
+                        <div className="sidebar-title">PRICE RANGE</div>
+                        <div className="price-inputs">
+                            <div className="price-item">
+                                <label className="price-label">Min</label>
+                                <input
+                                    type="number"
+                                    className="price-input"
+                                    value={priceRange.min}
+                                    onChange={(e) => handlePriceChange(e, 'min')}
+                                    min="0"
+                                />
+                            </div>
+                            <div className="price-item">
+                                <label className="price-label">Max</label>
+                                <input
+                                    type="number"
+                                    className="price-input"
+                                    value={priceRange.max}
+                                    onChange={(e) => handlePriceChange(e, 'max')}
+                                    min="0"
+                                />
+                            </div>
                         </div>
                     </div>
 
@@ -209,10 +322,37 @@ const Games = () => {
                 <main className="main-content">
                     <div className="results-header">
                         <h2 className="text-2xl font-bold text-white font-orbitron">ALL GAMES</h2>
-                        <span className="results-count">Showing {products.length} results</span>
+                        {pagination?.totalDocs !== undefined && (
+                            <span className="results-count">Showing {products.length} of {pagination.totalDocs} results</span>
+                        )}
                     </div>
 
                     <GameGrid products={products} loading={loading} />
+
+                    {/* Pagination Controls */}
+                    {pagination && pagination.totalPages > 1 && (
+                        <div className="pagination-container">
+                            <button
+                                className="pagination-btn"
+                                disabled={!pagination.hasPrevPage}
+                                onClick={() => setPage(p => p - 1)}
+                            >
+                                Previous
+                            </button>
+
+                            <span className="page-info">
+                                Page {pagination.page} of {pagination.totalPages}
+                            </span>
+
+                            <button
+                                className="pagination-btn"
+                                disabled={!pagination.hasNextPage}
+                                onClick={() => setPage(p => p + 1)}
+                            >
+                                Next
+                            </button>
+                        </div>
+                    )}
                 </main>
             </div>
         </div>
