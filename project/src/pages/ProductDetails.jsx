@@ -2,8 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import productsAPI from '../api/products';
 import { useCart } from '../context/CartContext';
-import Header from '../components/Header';
-import Footer from '../components/Footer';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { ChevronLeft, ChevronRight, ShoppingCart } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
@@ -62,26 +60,18 @@ const ProductDetails = () => {
 
     if (loading) {
         return (
-            <>
-                <Header />
-                <div style={{ padding: '100px 0', textAlign: 'center' }}>
-                    <LoadingSpinner />
-                </div>
-                <Footer />
-            </>
+            <div style={{ padding: '100px 0', textAlign: 'center' }}>
+                <LoadingSpinner />
+            </div>
         );
     }
 
     if (error || !product) {
         return (
-            <>
-                <Header />
-                <div style={{ padding: '100px 0', textAlign: 'center' }}>
-                    <h2>{error || 'Product not found'}</h2>
-                    <button onClick={() => navigate('/games')} className="btn-secondary">Back to Games</button>
-                </div>
-                <Footer />
-            </>
+            <div style={{ padding: '100px 0', textAlign: 'center' }}>
+                <h2>{error || 'Product not found'}</h2>
+                <button onClick={() => navigate('/games')} className="btn-secondary">Back to Games</button>
+            </div>
         );
     }
 
@@ -93,7 +83,6 @@ const ProductDetails = () => {
 
     return (
         <div style={{ background: 'var(--color-bg-primary)', minHeight: '100vh', direction: isRTL ? 'rtl' : 'ltr' }}>
-            <Header />
             <main className="product-details-page" style={{ padding: 'clamp(20px, 5vw, 60px) 0' }}>
                 <div className="container">
                     {/* Back Button */}
@@ -355,7 +344,6 @@ const ProductDetails = () => {
                     </div>
                 </div>
             </main>
-            <Footer />
         </div>
     );
 };

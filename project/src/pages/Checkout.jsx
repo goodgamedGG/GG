@@ -4,8 +4,6 @@ import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 import { useToast } from '../context/ToastContext';
-import Header from '../components/Header';
-import Footer from '../components/Footer';
 import client from '../api/client'; // Import client for API calls
 
 const Checkout = () => {
@@ -102,175 +100,163 @@ const Checkout = () => {
 
     if (!isAuthenticated) {
         return (
-            <>
-                <Header />
-                <div className="container" style={{ minHeight: '60vh', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: '20px', direction: isRTL ? 'rtl' : 'ltr' }}>
-                    <h2 style={{ color: 'var(--color-text-primary)' }}>
-                        {isRTL ? 'يرجى تسجيل الدخول للمتابعة' : 'Please sign in to continue'}
-                    </h2>
-                    <Link to="/login" className="auth-btn" style={{ textDecoration: 'none', display: 'inline-block' }}>
-                        {t('signIn')}
-                    </Link>
-                </div>
-                <Footer />
-            </>
+            <div className="container" style={{ minHeight: '60vh', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: '20px', direction: isRTL ? 'rtl' : 'ltr' }}>
+                <h2 style={{ color: 'var(--color-text-primary)' }}>
+                    {isRTL ? 'يرجى تسجيل الدخول للمتابعة' : 'Please sign in to continue'}
+                </h2>
+                <Link to="/login" className="auth-btn" style={{ textDecoration: 'none', display: 'inline-block' }}>
+                    {t('signIn')}
+                </Link>
+            </div>
         );
     }
 
     if (!cart || cart.items.length === 0) {
         return (
-            <>
-                <Header />
-                <div className="container" style={{ minHeight: '60vh', padding: 'var(--spacing-xl) 0', maxWidth: '800px', direction: isRTL ? 'rtl' : 'ltr' }}>
-                    <div style={{
-                        background: 'var(--color-bg-card)',
-                        borderRadius: 'var(--radius-lg)',
-                        border: '1px solid var(--color-border)',
-                        padding: 'var(--spacing-xl)',
-                        textAlign: 'center',
-                        color: 'var(--color-text-muted)'
-                    }}>
-                        <p style={{ marginBottom: 'var(--spacing-md)' }}>
-                            {isRTL ? 'سلة التسوق فارغة' : 'Your cart is empty'}
-                        </p>
-                        <Link to="/products" className="auth-btn" style={{ textDecoration: 'none', display: 'inline-block' }}>
-                            Browse Products
-                        </Link>
-                    </div>
-                </div>
-                <Footer />
-            </>
-        );
-    }
-
-    return (
-        <>
-            <Header />
             <div className="container" style={{ minHeight: '60vh', padding: 'var(--spacing-xl) 0', maxWidth: '800px', direction: isRTL ? 'rtl' : 'ltr' }}>
-                <h1 style={{
-                    fontFamily: 'Orbitron, sans-serif',
-                    fontSize: '32px',
-                    color: 'var(--color-cyan-primary)',
-                    marginBottom: 'var(--spacing-xl)'
-                }}>
-                    {t('checkoutTitle')}
-                </h1>
-
                 <div style={{
                     background: 'var(--color-bg-card)',
                     borderRadius: 'var(--radius-lg)',
                     border: '1px solid var(--color-border)',
-                    padding: 'var(--spacing-xl)'
+                    padding: 'var(--spacing-xl)',
+                    textAlign: 'center',
+                    color: 'var(--color-text-muted)'
                 }}>
-                    <form onSubmit={handleSubmit}>
-                        {/* Contact Info */}
-                        <div style={{ marginBottom: '24px' }}>
-                            <label style={{ display: 'block', marginBottom: '8px', color: 'var(--color-text-primary)' }}>Contact Phone</label>
-                            <input
-                                type="text"
-                                value={contactPhone}
-                                onChange={(e) => setContactPhone(e.target.value)}
-                                className="form-input"
-                                placeholder="01xxxxxxxxx"
-                                required
-                                style={{ width: '100%', padding: '12px', background: 'var(--color-bg-secondary)', border: '1px solid var(--color-border)', borderRadius: '8px', color: 'white' }}
-                            />
-                        </div>
-
-                        {/* Payment Methods */}
-                        <div style={{ marginBottom: '32px' }}>
-                            <h3 style={{ marginBottom: '16px', color: 'var(--color-text-primary)' }}>Payment Method</h3>
-                            <div style={{ display: 'grid', gap: '12px' }}>
-                                {Object.values(PAYMENT_METHODS).map(method => (
-                                    <label key={method.id} style={{
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        gap: '12px',
-                                        padding: '16px',
-                                        background: paymentMethod === method.id ? 'rgba(0, 255, 255, 0.1)' : 'var(--color-bg-secondary)',
-                                        border: `1px solid ${paymentMethod === method.id ? 'var(--color-cyan-primary)' : 'var(--color-border)'}`,
-                                        borderRadius: '8px',
-                                        cursor: 'pointer'
-                                    }}>
-                                        <input
-                                            type="radio"
-                                            name="paymentMethod"
-                                            value={method.id}
-                                            checked={paymentMethod === method.id}
-                                            onChange={(e) => setPaymentMethod(e.target.value)}
-                                            style={{ accentColor: 'var(--color-cyan-primary)' }}
-                                        />
-                                        <span style={{ color: 'white', fontWeight: '500' }}>{method.name}</span>
-                                    </label>
-                                ))}
-                            </div>
-                        </div>
-
-                        {/* Manual Payment Details */}
-                        {paymentMethod && PAYMENT_METHODS[Object.keys(PAYMENT_METHODS).find(k => PAYMENT_METHODS[k].id === paymentMethod)] && (
-                            <div style={{
-                                padding: '20px',
-                                background: 'rgba(0, 255, 255, 0.05)',
-                                borderRadius: '8px',
-                                border: '1px solid rgba(0, 255, 255, 0.2)',
-                                marginBottom: '24px'
-                            }}>
-                                <p style={{ marginBottom: '16px', color: 'var(--color-text-secondary)' }}>
-                                    Please transfer <strong>EGP {cart.total}</strong> to:
-                                    <br />
-                                    <span style={{ fontSize: '18px', color: 'var(--color-cyan-primary)', fontWeight: 'bold' }}>
-                                        {Object.values(PAYMENT_METHODS).find(m => m.id === paymentMethod).number}
-                                    </span>
-                                </p>
-
-                                <div style={{ marginBottom: '16px' }}>
-                                    <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', color: 'var(--color-text-muted)' }}>
-                                        Sender Phone Number (Your wallet number)
-                                    </label>
-                                    <input
-                                        type="text"
-                                        value={phoneNumber}
-                                        onChange={(e) => setPhoneNumber(e.target.value)}
-                                        placeholder="01xxxxxxxxx"
-                                        className="form-input"
-                                        style={{ width: '100%', padding: '10px', background: 'var(--color-bg-primary)', border: '1px solid var(--color-border)', borderRadius: '6px', color: 'white' }}
-                                    />
-                                </div>
-
-                                <div>
-                                    <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', color: 'var(--color-text-muted)' }}>
-                                        Upload Transfer Receipt
-                                    </label>
-                                    <input
-                                        type="file"
-                                        accept="image/*"
-                                        onChange={handleFileChange}
-                                        style={{ color: 'var(--color-text-muted)' }}
-                                    />
-                                </div>
-                            </div>
-                        )}
-
-                        <div style={{ marginTop: '32px', borderTop: '1px solid var(--color-border)', paddingTop: '20px' }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px', fontSize: '18px', fontWeight: 'bold' }}>
-                                <span>Total</span>
-                                <span style={{ color: 'var(--color-cyan-primary)' }}>EGP {cart.total}</span>
-                            </div>
-
-                            <button
-                                type="submit"
-                                disabled={loading}
-                                className="btn-primary"
-                                style={{ width: '100%', padding: '16px', fontSize: '16px', opacity: loading ? 0.7 : 1 }}
-                            >
-                                {loading ? 'Processing...' : 'Place Order'}
-                            </button>
-                        </div>
-                    </form>
+                    <p style={{ marginBottom: 'var(--spacing-md)' }}>
+                        {isRTL ? 'سلة التسوق فارغة' : 'Your cart is empty'}
+                    </p>
+                    <Link to="/products" className="auth-btn" style={{ textDecoration: 'none', display: 'inline-block' }}>
+                        Browse Products
+                    </Link>
                 </div>
             </div>
-            <Footer />
-        </>
+        );
+    }
+
+    return (
+        <div className="container" style={{ minHeight: '60vh', padding: 'var(--spacing-xl) 0', maxWidth: '800px', direction: isRTL ? 'rtl' : 'ltr' }}>
+            <h1 style={{
+                fontFamily: 'Orbitron, sans-serif',
+                fontSize: '32px',
+                color: 'var(--color-cyan-primary)',
+                marginBottom: 'var(--spacing-xl)'
+            }}>
+                {t('checkoutTitle')}
+            </h1>
+
+            <div style={{
+                background: 'var(--color-bg-card)',
+                borderRadius: 'var(--radius-lg)',
+                border: '1px solid var(--color-border)',
+                padding: 'var(--spacing-xl)'
+            }}>
+                <form onSubmit={handleSubmit}>
+                    {/* Contact Info */}
+                    <div style={{ marginBottom: '24px' }}>
+                        <label style={{ display: 'block', marginBottom: '8px', color: 'var(--color-text-primary)' }}>Contact Phone</label>
+                        <input
+                            type="text"
+                            value={contactPhone}
+                            onChange={(e) => setContactPhone(e.target.value)}
+                            className="form-input"
+                            placeholder="01xxxxxxxxx"
+                            required
+                            style={{ width: '100%', padding: '12px', background: 'var(--color-bg-secondary)', border: '1px solid var(--color-border)', borderRadius: '8px', color: 'white' }}
+                        />
+                    </div>
+
+                    {/* Payment Methods */}
+                    <div style={{ marginBottom: '32px' }}>
+                        <h3 style={{ marginBottom: '16px', color: 'var(--color-text-primary)' }}>Payment Method</h3>
+                        <div style={{ display: 'grid', gap: '12px' }}>
+                            {Object.values(PAYMENT_METHODS).map(method => (
+                                <label key={method.id} style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '12px',
+                                    padding: '16px',
+                                    background: paymentMethod === method.id ? 'rgba(0, 255, 255, 0.1)' : 'var(--color-bg-secondary)',
+                                    border: `1px solid ${paymentMethod === method.id ? 'var(--color-cyan-primary)' : 'var(--color-border)'}`,
+                                    borderRadius: '8px',
+                                    cursor: 'pointer'
+                                }}>
+                                    <input
+                                        type="radio"
+                                        name="paymentMethod"
+                                        value={method.id}
+                                        checked={paymentMethod === method.id}
+                                        onChange={(e) => setPaymentMethod(e.target.value)}
+                                        style={{ accentColor: 'var(--color-cyan-primary)' }}
+                                    />
+                                    <span style={{ color: 'white', fontWeight: '500' }}>{method.name}</span>
+                                </label>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Manual Payment Details */}
+                    {paymentMethod && PAYMENT_METHODS[Object.keys(PAYMENT_METHODS).find(k => PAYMENT_METHODS[k].id === paymentMethod)] && (
+                        <div style={{
+                            padding: '20px',
+                            background: 'rgba(0, 255, 255, 0.05)',
+                            borderRadius: '8px',
+                            border: '1px solid rgba(0, 255, 255, 0.2)',
+                            marginBottom: '24px'
+                        }}>
+                            <p style={{ marginBottom: '16px', color: 'var(--color-text-secondary)' }}>
+                                Please transfer <strong>EGP {cart.total}</strong> to:
+                                <br />
+                                <span style={{ fontSize: '18px', color: 'var(--color-cyan-primary)', fontWeight: 'bold' }}>
+                                    {Object.values(PAYMENT_METHODS).find(m => m.id === paymentMethod).number}
+                                </span>
+                            </p>
+
+                            <div style={{ marginBottom: '16px' }}>
+                                <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', color: 'var(--color-text-muted)' }}>
+                                    Sender Phone Number (Your wallet number)
+                                </label>
+                                <input
+                                    type="text"
+                                    value={phoneNumber}
+                                    onChange={(e) => setPhoneNumber(e.target.value)}
+                                    placeholder="01xxxxxxxxx"
+                                    className="form-input"
+                                    style={{ width: '100%', padding: '10px', background: 'var(--color-bg-primary)', border: '1px solid var(--color-border)', borderRadius: '6px', color: 'white' }}
+                                />
+                            </div>
+
+                            <div>
+                                <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', color: 'var(--color-text-muted)' }}>
+                                    Upload Transfer Receipt
+                                </label>
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={handleFileChange}
+                                    style={{ color: 'var(--color-text-muted)' }}
+                                />
+                            </div>
+                        </div>
+                    )}
+
+                    <div style={{ marginTop: '32px', borderTop: '1px solid var(--color-border)', paddingTop: '20px' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px', fontSize: '18px', fontWeight: 'bold' }}>
+                            <span>Total</span>
+                            <span style={{ color: 'var(--color-cyan-primary)' }}>EGP {cart.total}</span>
+                        </div>
+
+                        <button
+                            type="submit"
+                            disabled={loading}
+                            className="btn-primary"
+                            style={{ width: '100%', padding: '16px', fontSize: '16px', opacity: loading ? 0.7 : 1 }}
+                        >
+                            {loading ? 'Processing...' : 'Place Order'}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
     );
 };
 
