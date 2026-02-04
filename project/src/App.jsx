@@ -19,6 +19,7 @@ import Footer from './components/Footer';
 
 // Pages - Public
 import Games from './pages/Games';
+import Home from './pages/Home';
 import ProductDetails from './pages/ProductDetails';
 import Cart from './pages/Cart';
 import Checkout from './pages/Checkout';
@@ -122,7 +123,7 @@ const App = () => {
                                         {/* Public Routes */}
                                         <Route path="/" element={
                                             <PublicLayout>
-                                                <Games />
+                                                <Home />
                                             </PublicLayout>
                                         } />
                                         <Route path="/games" element={
