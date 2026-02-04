@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import productsAPI from '../api/products';
 import { useCart } from '../context/CartContext';
 import LoadingSpinner from '../components/LoadingSpinner';
-import { ChevronLeft, ChevronRight, ShoppingCart } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ShoppingCart, Gamepad2, Globe, Tag, Home, Shield, Zap, CheckCircle, MessageCircle, AlertTriangle, Download, CreditCard, Clock } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 
 import { getImageUrl } from '../utils/imageUtils';
@@ -86,81 +86,71 @@ const ProductDetails = () => {
             <main className="product-details-page" style={{ padding: 'clamp(20px, 5vw, 60px) 0' }}>
                 <div className="container">
                     {/* Back Button */}
-                    <button
-                        onClick={() => navigate(-1)}
-                        style={{
-                            background: 'rgba(255, 255, 255, 0.05)',
-                            border: '1px solid rgba(255, 255, 255, 0.1)',
-                            color: 'var(--color-text-primary)',
-                            cursor: 'pointer',
-                            marginBottom: '30px',
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            gap: '10px',
-                            padding: '10px 20px',
-                            borderRadius: '12px',
-                            fontSize: '0.9rem',
-                            fontWeight: '600',
-                            transition: 'all 0.3s ease',
-                            backdropFilter: 'blur(10px)'
-                        }}
-                        onMouseOver={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)'}
-                        onMouseOut={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)'}
-                    >
-                        {isRTL ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
-                        {t('back')}
-                    </button>
+                    {/* Breadcrumbs */}
+                    <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '10px',
+                        marginBottom: '30px',
+                        fontSize: '0.9rem',
+                        color: 'var(--color-text-muted)'
+                    }}>
+                        <span onClick={() => navigate('/')} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                            <Home size={14} /> Home
+                        </span>
+                        <ChevronRight size={14} />
+                        <span onClick={() => navigate('/games')} style={{ cursor: 'pointer' }}>
+                            {t('games')}
+                        </span>
+                        <ChevronRight size={14} />
+                        <span style={{ color: 'var(--color-cyan-primary)', fontWeight: '600' }}>
+                            {product.name}
+                        </span>
+                    </div>
 
                     <div style={{
                         display: 'grid',
-                        gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 400px), 1fr))',
-                        gap: 'clamp(30px, 6vw, 60px)',
-                        alignItems: 'start'
+                        gridTemplateColumns: 'minmax(300px, 350px) 1fr', // 30/70 split roughly
+                        gap: 'clamp(40px, 8vw, 80px)',
+                        alignItems: 'start',
+                        maxWidth: '1200px',
+                        margin: '0 auto'
                     }}>
                         {/* Image Section */}
                         <div style={{
                             position: 'sticky',
                             top: '100px',
                             borderRadius: '24px',
-                            overflow: 'hidden',
-                            background: 'rgba(255, 255, 255, 0.02)',
-                            border: '1px solid rgba(255, 255, 255, 0.05)',
-                            aspectRatio: '1',
+                            // overflow: 'hidden', // Allowed for glow overlap
+                            aspectRatio: '0.8', // Taller aspect ratio
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
-                            padding: '20px',
-                            boxShadow: '0 20px 40px rgba(0,0,0,0.3)',
-                            backdropFilter: 'blur(5px)'
+                            // boxShadow: '0 0 100px rgba(0, 217, 255, 0.1)', // Moved to img for "Physicality"
                         }}>
+                            <div style={{
+                                position: 'absolute',
+                                inset: -20, // Extended glow
+                                background: 'radial-gradient(circle at center, rgba(0, 217, 255, 0.2) 0%, transparent 70%)',
+                                zIndex: 0,
+                                filter: 'blur(30px)'
+                            }} />
                             <img
                                 src={mainImage}
                                 alt={product.name}
                                 style={{
-                                    maxWidth: '100%',
-                                    maxHeight: '100%',
-                                    objectFit: 'contain',
-                                    filter: 'drop-shadow(0 0 30px rgba(0, 217, 255, 0.2))'
+                                    width: '100%',
+                                    height: 'auto',
+                                    aspectRatio: '2/3', // Portrait orientation
+                                    objectFit: 'cover',
+                                    zIndex: 1,
+                                    borderRadius: '16px', // Rounded corners
+                                    boxShadow: '0 20px 50px rgba(0,0,0,0.5)', // Deep shadow
+                                    transition: 'transform 0.4s ease'
                                 }}
+                                onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.02) translateY(-5px)'}
+                                onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1) translateY(0)'}
                             />
-                            {hasDiscount && (
-                                <div style={{
-                                    position: 'absolute',
-                                    top: '20px',
-                                    right: isRTL ? 'auto' : '20px',
-                                    left: isRTL ? '20px' : 'auto',
-                                    background: 'linear-gradient(135deg, #ff4757, #ff6b81)',
-                                    color: 'white',
-                                    padding: '8px 16px',
-                                    borderRadius: '12px',
-                                    fontSize: '1rem',
-                                    fontWeight: '800',
-                                    boxShadow: '0 4px 15px rgba(255, 71, 87, 0.4)',
-                                    zIndex: 2
-                                }}>
-                                    -{Math.round(((regularPrice - currentPrice) / regularPrice) * 100)}%
-                                </div>
-                            )}
                         </div>
 
                         {/* Info Section */}
@@ -172,25 +162,90 @@ const ProductDetails = () => {
                             backdropFilter: 'blur(20px)',
                             boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)'
                         }}>
-                            <h1 className="text-responsive-h1" style={{ marginBottom: '10px', color: 'white' }}>{product.name}</h1>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '15px', marginBottom: '30px' }}>
+                            <h1 style={{
+                                marginBottom: '20px',
+                                color: 'white',
+                                fontFamily: '"Inter", sans-serif',
+                                fontSize: 'clamp(2rem, 5vw, 3.5rem)',
+                                fontWeight: '800',
+                                lineHeight: '1.1',
+                                letterSpacing: '-0.02em'
+                            }}>{product.name}</h1>
+
+                            <div style={{
+                                marginBottom: '25px',
+                                color: 'var(--color-text-secondary)',
+                                fontSize: '1rem',
+                                lineHeight: '1.6',
+                                whiteSpace: 'pre-line'
+                            }}>
+                                {product.description}
+                            </div>
+
+                            {/* Attributes Row */}
+                            <div style={{
+                                display: 'flex',
+                                flexWrap: 'wrap',
+                                gap: '20px',
+                                borderBottom: '1px solid rgba(255,255,255,0.1)',
+                                paddingBottom: '20px',
+                                marginBottom: '25px'
+                            }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                    <Gamepad2 size={18} color="var(--color-text-muted)" />
+                                    <span style={{ color: 'var(--color-text-secondary)', fontSize: '0.95rem' }}>{product.platform}</span>
+                                </div>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                    <Globe size={18} color="var(--color-text-muted)" />
+                                    <span style={{ color: 'var(--color-text-secondary)', fontSize: '0.95rem' }}>{product.region}</span>
+                                </div>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                    <Tag size={18} color="var(--color-text-muted)" />
+                                    <span style={{ color: 'var(--color-text-secondary)', fontSize: '0.95rem' }}>{product.type}</span>
+                                </div>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginLeft: 'auto' }}>
+                                    <span style={{
+                                        width: '8px',
+                                        height: '8px',
+                                        borderRadius: '50%',
+                                        background: product.stock > 0 ? '#00ff88' : '#ff4757',
+                                        boxShadow: product.stock > 0 ? '0 0 10px #00ff88' : 'none'
+                                    }} />
+                                    <span style={{ color: product.stock > 0 ? '#00ff88' : '#ff4757', fontSize: '0.95rem', fontWeight: '600' }}>
+                                        {product.stock > 0 ? 'In Stock' : 'Out of Stock'}
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '20px', marginBottom: '35px' }}>
                                 <span style={{
-                                    fontSize: 'clamp(1.8rem, 4vw, 2.5rem)',
-                                    fontWeight: '900',
-                                    color: 'var(--color-cyan-primary)',
-                                    textShadow: '0 0 20px rgba(0, 217, 255, 0.3)'
+                                    fontSize: 'clamp(2rem, 4vw, 3rem)',
+                                    fontWeight: '800',
+                                    color: 'white'
                                 }}>
-                                    {t('egp')} {currentPrice}
+                                    EGP {parseFloat(currentPrice).toFixed(2)}
                                 </span>
                                 {hasDiscount && (
-                                    <span style={{
-                                        fontSize: '1.2rem',
-                                        color: 'var(--color-text-muted)',
-                                        textDecoration: 'line-through',
-                                        opacity: 0.6
-                                    }}>
-                                        {t('egp')} {regularPrice}
-                                    </span>
+                                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '2px' }}>
+                                        <div style={{
+                                            background: '#ff4757',
+                                            color: 'white',
+                                            padding: '2px 8px',
+                                            borderRadius: '6px',
+                                            fontSize: '0.85rem',
+                                            fontWeight: 'bold',
+                                        }}>
+                                            -{Math.round(((regularPrice - currentPrice) / regularPrice) * 100)}%
+                                        </div>
+                                        <span style={{
+                                            fontSize: '1rem',
+                                            color: 'var(--color-text-muted)',
+                                            textDecoration: 'line-through',
+                                            opacity: 0.7
+                                        }}>
+                                            EGP {parseFloat(regularPrice).toFixed(2)}
+                                        </span>
+                                    </div>
                                 )}
                             </div>
 
@@ -250,43 +305,10 @@ const ProductDetails = () => {
                                 </div>
                             )}
 
-                            <div style={{
-                                marginBottom: '40px',
-                                color: 'var(--color-text-secondary)',
-                                fontSize: '1.1rem',
-                                lineHeight: '1.8',
-                                background: 'rgba(0,0,0,0.2)',
-                                padding: '20px',
-                                borderRadius: '16px',
-                                border: '1px solid rgba(255,255,255,0.03)'
-                            }}>
-                                {product.description}
-                            </div>
 
-                            {/* Meta Info Grid */}
-                            <div style={{
-                                display: 'grid',
-                                gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
-                                gap: '20px',
-                                marginBottom: '40px'
-                            }}>
-                                {[
-                                    { label: t('platform'), value: product.platform },
-                                    { label: t('region'), value: product.region },
-                                    { label: t('type'), value: product.type },
-                                    { label: t('stock'), value: product.stock > 0 ? t('inStock') : t('outOfStock'), color: product.stock > 0 ? '#00ff88' : '#ff4757' }
-                                ].map((item, i) => (
-                                    <div key={i} style={{
-                                        padding: '15px',
-                                        background: 'rgba(255,255,255,0.02)',
-                                        borderRadius: '12px',
-                                        border: '1px solid rgba(255,255,255,0.05)'
-                                    }}>
-                                        <div style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)', textTransform: 'uppercase', marginBottom: '5px' }}>{item.label}</div>
-                                        <div style={{ fontWeight: '700', color: item.color || 'white' }}>{item.value}</div>
-                                    </div>
-                                ))}
-                            </div>
+
+
+
 
                             {/* Action Area */}
                             <div style={{
@@ -323,7 +345,6 @@ const ProductDetails = () => {
                                 </div>
 
                                 <button
-                                    className="cta-btn"
                                     style={{
                                         flex: 1,
                                         minWidth: '200px',
@@ -331,10 +352,22 @@ const ProductDetails = () => {
                                         fontSize: '1.1rem',
                                         margin: 0,
                                         width: '100%',
-                                        justifyContent: 'center'
+                                        justifyContent: 'center',
+                                        background: 'var(--color-cyan-primary)',
+                                        color: '#000',
+                                        border: 'none',
+                                        borderRadius: '12px',
+                                        fontWeight: '800',
+                                        cursor: adding || product.stock <= 0 ? 'not-allowed' : 'pointer',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        opacity: adding || product.stock <= 0 ? 0.7 : 1,
+                                        transition: 'all 0.2s'
                                     }}
                                     onClick={handleAddToCart}
                                     disabled={adding || product.stock <= 0}
+                                    onMouseOver={(e) => !adding && product.stock > 0 && (e.currentTarget.style.transform = 'translateY(-2px)')}
+                                    onMouseOut={(e) => !adding && product.stock > 0 && (e.currentTarget.style.transform = 'translateY(0)')}
                                 >
                                     <ShoppingCart size={22} style={{ marginRight: isRTL ? 0 : '10px', marginLeft: isRTL ? '10px' : 0 }} />
                                     {adding ? t('adding') : product.stock <= 0 ? t('outOfStock') : t('addToCart')}
@@ -343,6 +376,8 @@ const ProductDetails = () => {
                         </div>
                     </div>
                 </div>
+
+
             </main>
         </div>
     );
