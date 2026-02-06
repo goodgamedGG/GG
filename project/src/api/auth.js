@@ -78,7 +78,8 @@ const authAPI = {
 
     // Logout
     logout: async () => {
-        return await client.logout();
+        const response = await client.post('/auth/logout');
+        return response.data;
     },
 
     // Token management helpers

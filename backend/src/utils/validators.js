@@ -17,7 +17,7 @@ const sanitizeOptionalString = (field) => [
  * Auth Validators
  */
 const signupValidator = [
-    body('name').trim().escape().stripLow().notEmpty().withMessage('Name is required'),
+    body('name').trim().notEmpty().withMessage('Name is required'),
     body('email').isEmail().normalizeEmail().withMessage('Valid email is required'),
     body('password')
         .isLength({ min: 8 })
@@ -31,12 +31,12 @@ const signupValidator = [
             }
             return true;
         }),
-    body('phone').trim().escape().stripLow().notEmpty().withMessage('Phone number is required')
+    body('phone').trim().notEmpty().withMessage('Phone number is required')
 ];
 
 const loginValidator = [
     body('email').isEmail().normalizeEmail().withMessage('Valid email is required'),
-    body('password').notEmpty().withMessage('Password is required').escape()
+    body('password').notEmpty().withMessage('Password is required')
 ];
 
 const verifyEmailValidator = [

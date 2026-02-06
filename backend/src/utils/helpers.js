@@ -54,9 +54,37 @@ const generateUniqueFilename = (originalName) => {
     return `${timestamp}-${random}-${originalName}`;
 };
 
+/**
+ * Generate random verification code
+ * @param {number} length - Length of code
+ * @returns {string} - Random numeric code
+ */
+const generateVerificationCode = (length = 6) => {
+    let code = '';
+    for (let i = 0; i < length; i++) {
+        code += Math.floor(Math.random() * 10).toString();
+    }
+    return code;
+};
+
+/**
+ * Format currency
+ * @param {number} amount - Amount to format
+ * @param {string} currency - Currency code
+ * @returns {string} - Formatted currency string
+ */
+const formatCurrency = (amount, currency = 'USD') => {
+    return new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: currency
+    }).format(amount);
+};
+
 module.exports = {
     formatImageUrl,
     getPagination,
     createPaginationMeta,
-    generateUniqueFilename
+    generateUniqueFilename,
+    generateVerificationCode,
+    formatCurrency
 };
