@@ -3,6 +3,7 @@ import adminAPI from '../../api/admin';
 import { Package, Plus, Search, Edit2, Trash2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import Pagination from '../../components/Pagination.jsx';
+import { getImageUrl } from '../../utils/imageUtils';
 
 const Products = () => {
     const [products, setProducts] = useState([]);
@@ -101,12 +102,26 @@ const Products = () => {
                 </div>
             </div>
 
+
+
+
+
             {/* Products Table */}
             <div className="admin-card">
                 <div className="card-header">
                     <div className="card-title">
                         <Package size={20} color="var(--color-primary)" />
-                        Product List ({totalProducts})
+                        <span>Product List</span>
+                        <span style={{
+                            fontSize: '12px',
+                            background: 'var(--color-bg-secondary)',
+                            padding: '2px 8px',
+                            borderRadius: '10px',
+                            color: 'var(--color-text-secondary)',
+                            marginLeft: '8px'
+                        }}>
+                            {totalProducts || 0} items
+                        </span>
                     </div>
                 </div>
 
@@ -136,16 +151,23 @@ const Products = () => {
                                     <tr key={product._id}>
                                         <td className="col-image">
                                             <img
-                                                src={product.image || 'https://via.placeholder.com/40'}
+                                                src={getImageUrl(product.images?.[0] || product.image)}
                                                 alt={product.name}
-                                                onError={(e) => { e.target.src = 'https://via.placeholder.com/40'; }}
+                                                style={{
+                                                    width: '40px',
+                                                    height: '40px',
+                                                    objectFit: 'cover',
+                                                    borderRadius: '6px',
+                                                    border: '1px solid var(--color-border)'
+                                                }}
+                                                onError={(e) => { e.target.src = 'https://placehold.co/40'; }}
                                             />
                                         </td>
                                         <td className="col-primary">
                                             <div>{product.name}</div>
                                             <div style={{ fontSize: '11px', color: 'var(--color-text-muted)' }}>ID: {product._id.substring(products.length - 6)}...</div>
                                         </td>
-                                        <td>{product.category || 'Uncategorized'}</td>
+                                        <td>{product.category?.name || product.category || 'Uncategorized'}</td>
                                         <td style={{ fontWeight: '600' }}>{formatPrice(product.price)}</td>
                                         <td>
                                             <span className={`status-badge ${product.isActive ? 'status-active' : 'status-inactive'}`}>

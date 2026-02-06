@@ -14,7 +14,7 @@ const GameCard = ({ product }) => {
     // Default image if missing
     const image = product.images && product.images.length > 0
         ? getImageUrl(product.images[0])
-        : 'https://via.placeholder.com/300x400?text=No+Image';
+        : 'https://placehold.co/300x400?text=No+Image';
 
     const handleAddToCart = async (e) => {
         e.preventDefault();

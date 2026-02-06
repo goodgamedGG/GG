@@ -188,10 +188,10 @@ const Categories = () => {
                                     <tr key={category._id}>
                                         <td className="col-image">
                                             <img
-                                                src={category.image ? getImageUrl(category.image) : 'https://via.placeholder.com/40'}
+                                                src={category.image ? getImageUrl(category.image) : 'https://placehold.co/40'}
                                                 alt={category.name}
                                                 style={{ width: '40px', height: '40px', objectFit: 'cover', borderRadius: '6px', background: 'var(--color-bg-secondary)' }}
-                                                onError={(e) => { e.target.src = 'https://via.placeholder.com/40'; }}
+                                                onError={(e) => { e.target.src = 'https://placehold.co/40'; }}
                                             />
                                         </td>
                                         <td className="col-primary" style={{ fontWeight: 600 }}>{category.name}</td>
