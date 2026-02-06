@@ -8,11 +8,17 @@ import { useLanguage } from '../context/LanguageContext';
 
 import { getImageUrl } from '../utils/imageUtils';
 
+// Add useToast to imports
+import { useToast } from '../context/ToastContext';
+
+// ... other imports
+
 const ProductDetails = () => {
     const { id } = useParams();
     const navigate = useNavigate();
     const { addToCart } = useCart();
     const { t, isRTL } = useLanguage();
+    const { addToast } = useToast(); // Destructure addToast
 
     const [product, setProduct] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -44,7 +50,7 @@ const ProductDetails = () => {
 
     const handleAddToCart = async () => {
         if (product.variants && product.variants.length > 0 && !selectedVariant) {
-            alert('Please select an account type/option');
+            addToast('Please select an account type/option', 'info');
             return;
         }
 
@@ -52,10 +58,10 @@ const ProductDetails = () => {
             setAdding(true);
             const variantData = selectedVariant ? { type: selectedVariant.type, price: selectedVariant.price } : null;
             await addToCart(id, quantity, variantData);
-            alert('Added to cart!');
+            addToast('Added to cart successfully!', 'success');
         } catch (err) {
             console.error('Failed to add to cart:', err);
-            alert('Failed to add to cart. Please make sure you are logged in.');
+            addToast('Failed to add to cart. Please make sure you are logged in.', 'error');
         } finally {
             setAdding(false);
         }

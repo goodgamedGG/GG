@@ -11,6 +11,7 @@ const translations = {
         privacyPolicy: 'Privacy Policy',
         newsletter: 'Newsletter',
         login: 'Login',
+        signIn: 'Sign In',
         signup: 'Sign Up',
         search: 'Search games...',
         addToCart: 'Add to Cart',
@@ -23,7 +24,19 @@ const translations = {
         loading: 'Loading...',
         error: 'An error occurred',
         success: 'Success',
-        rightsReserved: 'All rights reserved.'
+        rightsReserved: 'All rights reserved.',
+        // Cart Translations
+        cartTitle: 'Shopping Cart',
+        emptyCart: 'Your cart is empty',
+        browseGames: 'Browse Games',
+        checkout: 'Checkout',
+        subtotal: 'Subtotal',
+        total: 'Total',
+        remove: 'Remove',
+        quantity: 'Quantity',
+        price: 'Price',
+        clearCart: 'Clear Cart',
+        summary: 'Order Summary'
     },
     ar: {
         home: 'الرئيسية',
@@ -33,6 +46,7 @@ const translations = {
         privacyPolicy: 'سياسة الخصوصية',
         newsletter: 'النشرة البريدية',
         login: 'تسجيل الدخول',
+        signIn: 'تسجيل الدخول',
         signup: 'إنشاء حساب',
         search: 'ابحث عن الألعاب...',
         addToCart: 'أضف للسلة',
@@ -45,7 +59,19 @@ const translations = {
         loading: 'جاري التحميل...',
         error: 'حدث خطأ',
         success: 'تم بنجاح',
-        rightsReserved: 'جميع الحقوق محفوظة.'
+        rightsReserved: 'جميع الحقوق محفوظة.',
+        // Cart Translations
+        cartTitle: 'سلة التسوق',
+        emptyCart: 'سلة التسوق فارغة',
+        browseGames: 'تصفح الألعاب',
+        checkout: 'إتمام الشراء',
+        subtotal: 'المجموع الفرعي',
+        total: 'المجموع الإجمالي',
+        remove: 'حذف',
+        quantity: 'الكمية',
+        price: 'السعر',
+        clearCart: 'إفراغ السلة',
+        summary: 'ملخص الطلب'
     }
 };
 

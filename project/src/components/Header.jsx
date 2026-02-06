@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { User, Menu, LogOut, LayoutDashboard } from 'lucide-react';
+import { User, Menu, LogOut, LayoutDashboard, ShoppingCart } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { useCart } from '../context/CartContext';
 
 const Header = () => {
     const { user, logout, isAuthenticated, isAdmin } = useAuth();
+    const { itemCount } = useCart();
     const navigate = useNavigate();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
 
@@ -161,6 +163,28 @@ const Header = () => {
                     opacity: 0.9;
                 }
 
+                .cart-btn-wrapper {
+                    position: relative;
+                }
+
+                .cart-badge {
+                    position: absolute;
+                    top: -8px;
+                    right: -8px;
+                    background: var(--color-cyan-primary);
+                    color: var(--color-bg-primary);
+                    font-size: 10px;
+                    font-weight: 700;
+                    min-width: 18px;
+                    height: 18px;
+                    border-radius: 50%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    padding: 2px;
+                    border: 2px solid var(--color-bg-primary);
+                }
+
                 @media (max-width: 768px) {
                     .header-container {
                         grid-template-columns: auto 1fr auto;
@@ -192,22 +216,29 @@ const Header = () => {
                 {/* Right: User Actions */}
                 <div className="header-actions">
                     {isAuthenticated ? (
-                        <div className="user-profile">
-                            {isAdmin && (
-                                <Link to="/admin" className="icon-btn" title="Admin Dashboard">
-                                    <LayoutDashboard size={20} />
-                                </Link>
-                            )}
+                        <>
+                            <Link to="/cart" className="icon-btn cart-btn-wrapper" title="Cart">
+                                <ShoppingCart size={22} />
+                                {itemCount > 0 && <span className="cart-badge">{itemCount}</span>}
+                            </Link>
 
-                            <div className="user-info">
-                                <User size={20} className="text-cyan-primary" />
-                                <span className="user-name">{user?.name || 'User'}</span>
+                            <div className="user-profile">
+                                {isAdmin && (
+                                    <Link to="/admin" className="icon-btn" title="Admin Dashboard">
+                                        <LayoutDashboard size={20} />
+                                    </Link>
+                                )}
+
+                                <div className="user-info">
+                                    <User size={20} className="text-cyan-primary" />
+                                    <span className="user-name">{user?.name || 'User'}</span>
+                                </div>
+
+                                <button className="icon-btn" onClick={handleLogout} title="Logout">
+                                    <LogOut size={20} />
+                                </button>
                             </div>
-
-                            <button className="icon-btn" onClick={handleLogout} title="Logout">
-                                <LogOut size={20} />
-                            </button>
-                        </div>
+                        </>
                     ) : (
                         <div className="auth-buttons">
                             <Link to="/login" className="btn-login">Login</Link>

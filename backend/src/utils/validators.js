@@ -134,6 +134,10 @@ const validatePromoCodeValidator = [
 /**
  * Common Validators
  */
+const cartItemIdValidator = [
+    param('itemId').trim().escape().isMongoId().withMessage('Invalid item ID')
+];
+
 const mongoIdValidator = [
     param('id').trim().escape().isMongoId().withMessage('Invalid ID')
 ];
@@ -155,6 +159,7 @@ module.exports = {
     updateCategoryValidator,
     addToCartValidator,
     updateCartValidator,
+    cartItemIdValidator,
     createOrderValidator,
     updateOrderStatusValidator,
     submitPaymentValidator,

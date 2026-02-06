@@ -13,6 +13,7 @@ const validate = require('../middleware/validateMiddleware');
 const {
     addToCartValidator,
     updateCartValidator,
+    cartItemIdValidator,
     mongoIdValidator
 } = require('../utils/validators');
 
@@ -29,7 +30,7 @@ router.post('/', addToCartValidator, validate, addToCart);
 router.put('/:itemId', updateCartValidator, validate, updateCartItem);
 
 // @route   DELETE /api/cart/:itemId
-router.delete('/:itemId', mongoIdValidator, validate, removeFromCart);
+router.delete('/:itemId', cartItemIdValidator, validate, removeFromCart);
 
 // @route   DELETE /api/cart
 router.delete('/', clearCart);
