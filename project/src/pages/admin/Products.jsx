@@ -1,177 +1,185 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import adminAPI from '../../api/admin';
-import productsAPI from '../../api/products';
-import { Plus, Edit, Trash2, Search } from 'lucide-react';
-import { useToast } from '../../context/ToastContext';
-
-import { getImageUrl } from '../../utils/imageUtils';
+import { Package, Plus, Search, Edit2, Trash2 } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import Pagination from '../../components/Pagination.jsx';
 
 const Products = () => {
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
-    const { addToast } = useToast();
+    const [searchTerm, setSearchTerm] = useState('');
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
+    const [totalProducts, setTotalProducts] = useState(0);
+
+    const ITEMS_per_PAGE = 10;
+
+    useEffect(() => {
+        fetchProducts();
+    }, [currentPage, searchTerm]);
 
     const fetchProducts = async () => {
-        setLoading(true);
         try {
-            // Using admin endpoint if available, otherwise public with limit
-            const data = await productsAPI.getProducts({ limit: 100 });
-            setProducts(data.products);
+            setLoading(true);
+            const response = await adminAPI.getProducts(currentPage, ITEMS_per_PAGE, searchTerm);
+
+            if (response.products) {
+                setProducts(response.products); // Expecting array
+                setTotalPages(response.pages);  // Expecting number
+                setTotalProducts(response.total); // Expecting number
+            } else if (response.data && response.data.products) { // Handle potential nested structure
+                setProducts(response.data.products);
+                setTotalPages(response.data.pages);
+                setTotalProducts(response.data.total);
+            }
         } catch (error) {
-            addToast('Failed to fetch products', 'error');
+            console.error('Error fetching products:', error);
         } finally {
             setLoading(false);
         }
     };
 
-    useEffect(() => {
-        fetchProducts();
-    }, []);
-
     const handleDelete = async (id) => {
         if (window.confirm('Are you sure you want to delete this product?')) {
             try {
-                await productsAPI.deleteProduct(id);
-                addToast('Product deleted', 'success');
-                fetchProducts();
+                await adminAPI.deleteProduct(id);
+                setProducts(products.filter(p => p._id !== id));
             } catch (error) {
-                addToast('Failed to delete product', 'error');
+                console.error('Error deleting product:', error);
+                alert('Failed to delete product');
             }
         }
     };
 
-    return (
-        <div className="admin-products">
-            <style>{`
-                .admin-header {
-                    display: flex;
-                    justify-content: space-between;
-                    align-items: center;
-                    margin-bottom: 24px;
-                }
-                .page-title {
-                    font-size: 24px;
-                    color: var(--color-text-primary);
-                }
-                .btn-primary {
-                    background: var(--color-cyan-primary);
-                    color: var(--color-bg-primary);
-                    border: none;
-                    padding: 8px 16px;
-                    border-radius: 4px;
-                    display: flex;
-                    align-items: center;
-                    gap: 8px;
-                    cursor: pointer;
-                    font-weight: 600;
-                }
-                .products-table {
-                    width: 100%;
-                    background: var(--color-bg-card);
-                    border-radius: 8px;
-                    border-collapse: collapse;
-                    overflow: hidden;
-                }
-                .products-table th, .products-table td {
-                    padding: 12px 16px;
-                    text-align: left;
-                    border-bottom: 1px solid var(--color-border);
-                }
-                .products-table th {
-                    background: rgba(255, 255, 255, 0.05);
-                    color: var(--color-text-secondary);
-                    font-weight: 500;
-                }
-                .product-image {
-                    width: 40px;
-                    height: 40px;
-                    object-fit: cover;
-                    border-radius: 4px;
-                }
-                .action-btn {
-                    background: none;
-                    border: none;
-                    cursor: pointer;
-                    color: var(--color-text-secondary);
-                    margin-right: 8px;
-                }
-                .action-btn:hover {
-                    color: var(--color-cyan-primary);
-                }
-                .action-btn.delete:hover {
-                    color: #ff4444;
-                }
-                .status-badge {
-                    padding: 2px 8px;
-                    border-radius: 99px;
-                    font-size: 12px;
-                    background: rgba(0, 255, 0, 0.1);
-                    color: #00ff00;
-                }
-                .status-badge.inactive {
-                    background: rgba(255, 0, 0, 0.1);
-                    color: #ff4444;
-                }
-            `}</style>
+    const formatPrice = (price) => {
+        return new Intl.NumberFormat('en-US', {
+            style: 'currency',
+            currency: 'USD'
+        }).format(price);
+    };
 
-            <div className="admin-header">
-                <h1 className="page-title">Products management</h1>
-                <button className="btn-primary">
-                    <Plus size={18} /> Add Product
-                </button>
+    return (
+        <div>
+            {/* Header */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+                <h1 className="page-title">Products</h1>
+                <Link to="/admin/products/new" className="btn-primary" style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    background: 'var(--color-primary)',
+                    color: '#000',
+                    padding: '10px 20px',
+                    borderRadius: 'var(--radius-md)',
+                    fontWeight: '600',
+                    textDecoration: 'none'
+                }}>
+                    <Plus size={18} />
+                    Add Product
+                </Link>
             </div>
 
-            {loading ? (
-                <div>Loading...</div>
-            ) : (
-                <table className="products-table">
-                    <thead>
-                        <tr>
-                            <th>Image</th>
-                            <th>Name</th>
-                            <th>Category</th>
-                            <th>Price</th>
-                            <th>Stock</th>
-                            <th>Status</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {products.map(product => (
-                            <tr key={product._id}>
-                                <td>
-                                    <img
-                                        src={product.images?.[0] ? getImageUrl(product.images[0]) : 'https://via.placeholder.com/40'}
-                                        alt={product.name}
-                                        className="product-image"
-                                    />
-                                </td>
-                                <td>{product.name}</td>
-                                <td>{product.category?.name || 'N/A'}</td>
-                                <td>${product.price}</td>
-                                <td>{product.stock}</td>
-                                <td>
-                                    <span className={`status-badge ${product.isActive ? 'active' : 'inactive'}`}>
-                                        {product.isActive ? 'Active' : 'Inactive'}
-                                    </span>
-                                </td>
-                                <td>
-                                    <button className="action-btn" title="Edit">
-                                        <Edit size={18} />
-                                    </button>
-                                    <button
-                                        className="action-btn delete"
-                                        title="Delete"
-                                        onClick={() => handleDelete(product._id)}
-                                    >
-                                        <Trash2 size={18} />
-                                    </button>
-                                </td>
+            {/* Filters / Search */}
+            <div className="admin-card" style={{ marginBottom: '24px', padding: '16px' }}>
+                <div style={{ position: 'relative', maxWidth: '400px' }}>
+                    <Search size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-muted)' }} />
+                    <input
+                        type="text"
+                        placeholder="Search products..."
+                        className="form-input"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        style={{
+                            width: '100%',
+                            padding: '10px 10px 10px 40px',
+                            background: 'var(--color-bg-primary)',
+                            border: '1px solid var(--color-border)',
+                            borderRadius: 'var(--radius-md)',
+                            color: 'var(--color-text-primary)'
+                        }}
+                    />
+                </div>
+            </div>
+
+            {/* Products Table */}
+            <div className="admin-card">
+                <div className="card-header">
+                    <div className="card-title">
+                        <Package size={20} color="var(--color-primary)" />
+                        Product List ({totalProducts})
+                    </div>
+                </div>
+
+                <div className="table-container">
+                    <table className="data-table">
+                        <thead>
+                            <tr>
+                                <th style={{ width: '60px' }}>Image</th>
+                                <th>Name</th>
+                                <th>Category</th>
+                                <th>Price</th>
+                                <th>Status</th>
+                                <th style={{ textAlign: 'right' }}>Actions</th>
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
-            )}
+                        </thead>
+                        <tbody>
+                            {loading ? (
+                                <tr>
+                                    <td colSpan="6" style={{ textAlign: 'center', padding: '40px' }}>Loading...</td>
+                                </tr>
+                            ) : products.length === 0 ? (
+                                <tr>
+                                    <td colSpan="6" style={{ textAlign: 'center', padding: '40px' }}>No products found.</td>
+                                </tr>
+                            ) : (
+                                products.map((product) => (
+                                    <tr key={product._id}>
+                                        <td className="col-image">
+                                            <img
+                                                src={product.image || 'https://via.placeholder.com/40'}
+                                                alt={product.name}
+                                                onError={(e) => { e.target.src = 'https://via.placeholder.com/40'; }}
+                                            />
+                                        </td>
+                                        <td className="col-primary">
+                                            <div>{product.name}</div>
+                                            <div style={{ fontSize: '11px', color: 'var(--color-text-muted)' }}>ID: {product._id.substring(products.length - 6)}...</div>
+                                        </td>
+                                        <td>{product.category || 'Uncategorized'}</td>
+                                        <td style={{ fontWeight: '600' }}>{formatPrice(product.price)}</td>
+                                        <td>
+                                            <span className={`status-badge ${product.isActive ? 'status-active' : 'status-inactive'}`}>
+                                                {product.isActive ? 'Active' : 'Inactive'}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <div className="action-btn-group" style={{ justifyContent: 'flex-end' }}>
+                                                <Link to={`/admin/products/edit/${product._id}`} className="action-btn" title="Edit">
+                                                    <Edit2 size={16} />
+                                                </Link>
+                                                <button onClick={() => handleDelete(product._id)} className="action-btn delete" title="Delete">
+                                                    <Trash2 size={16} />
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))
+                            )}
+                        </tbody>
+                    </table>
+                </div>
+
+                {/* Pagination */}
+                {!loading && totalPages > 1 && (
+                    <div style={{ padding: '20px', borderTop: '1px solid var(--color-border)' }}>
+                        <Pagination
+                            currentPage={currentPage}
+                            totalPages={totalPages}
+                            onPageChange={setCurrentPage}
+                        />
+                    </div>
+                )}
+            </div>
         </div>
     );
 };

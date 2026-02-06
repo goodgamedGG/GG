@@ -12,7 +12,6 @@ import {
     LogOut,
     Menu,
     X,
-    Bell,
     Shield,
     FileText,
     Mail,
@@ -20,7 +19,8 @@ import {
     Gift,
     Award,
     MessageSquare,
-    Globe
+    Globe,
+    ChevronRight
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
@@ -37,23 +37,52 @@ const AdminLayout = () => {
 
     const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
 
-    const navItems = [
-        { path: '/admin', icon: <LayoutDashboard size={20} />, label: 'Dashboard' },
-        { path: '/admin/products', icon: <Package size={20} />, label: 'Products' },
-        { path: '/admin/categories', icon: <Tag size={20} />, label: 'Categories' },
-        { path: '/admin/orders', icon: <ShoppingCart size={20} />, label: 'Orders' },
-        { path: '/admin/users', icon: <Users size={20} />, label: 'Users' },
-        { path: '/admin/analytics', icon: <BarChart2 size={20} />, label: 'Analytics' },
-        { path: '/admin/payments', icon: <CreditCard size={20} />, label: 'Payments' },
-        { path: '/admin/promo-codes', icon: <Gift size={20} />, label: 'Promo Codes' },
-        { path: '/admin/flash-sales', icon: <Zap size={20} />, label: 'Flash Sales' },
-        { path: '/admin/loyalty', icon: <Award size={20} />, label: 'Loyalty' },
-        { path: '/admin/reviews', icon: <MessageSquare size={20} />, label: 'Reviews' },
-        { path: '/admin/content', icon: <Globe size={20} />, label: 'Content' },
-        { path: '/admin/email-queue', icon: <Mail size={20} />, label: 'Email Queue' },
-        { path: '/admin/audit-logs', icon: <Shield size={20} />, label: 'Audit Logs' },
-        { path: '/admin/settings', icon: <Settings size={20} />, label: 'Settings' },
+    const menuGroups = [
+        {
+            title: 'CORE',
+            items: [
+                { path: '/admin', icon: <LayoutDashboard size={20} />, label: 'Dashboard' },
+                { path: '/admin/analytics', icon: <BarChart2 size={20} />, label: 'Analytics' }
+            ]
+        },
+        {
+            title: 'COMMERCE',
+            items: [
+                { path: '/admin/orders', icon: <ShoppingCart size={20} />, label: 'Orders' },
+                { path: '/admin/products', icon: <Package size={20} />, label: 'Products' },
+                { path: '/admin/categories', icon: <Tag size={20} />, label: 'Categories' },
+                { path: '/admin/payments', icon: <CreditCard size={20} />, label: 'Payments' },
+                { path: '/admin/promo-codes', icon: <Gift size={20} />, label: 'Promo Codes' },
+                { path: '/admin/flash-sales', icon: <Zap size={20} />, label: 'Flash Sales' }
+            ]
+        },
+        {
+            title: 'MARKETING',
+            items: [
+                { path: '/admin/loyalty', icon: <Award size={20} />, label: 'Loyalty Program' },
+                { path: '/admin/reviews', icon: <MessageSquare size={20} />, label: 'Reviews' },
+                { path: '/admin/content', icon: <Globe size={20} />, label: 'Content' },
+                { path: '/admin/email-queue', icon: <Mail size={20} />, label: 'Email Queue' }
+            ]
+        },
+        {
+            title: 'MANAGEMENT',
+            items: [
+                { path: '/admin/users', icon: <Users size={20} />, label: 'Users' },
+                { path: '/admin/audit-logs', icon: <Shield size={20} />, label: 'Audit Logs' }
+            ]
+        },
+        {
+            title: 'SYSTEM',
+            items: [
+                { path: '/admin/settings', icon: <Settings size={20} />, label: 'Settings' }
+            ]
+        }
     ];
+
+    const currentPathLabel = menuGroups
+        .flatMap(g => g.items)
+        .find(item => item.path === location.pathname || (item.path !== '/admin' && location.pathname.startsWith(item.path)))?.label;
 
     return (
         <div className="admin-layout">
@@ -64,87 +93,136 @@ const AdminLayout = () => {
                     background: var(--color-bg-primary);
                 }
 
-                /* Sidebar */
+                /* -- SIDEBAR -- */
                 .admin-sidebar {
-                    width: ${isSidebarOpen ? '260px' : '80px'};
+                    width: ${isSidebarOpen ? '280px' : '80px'};
                     background: var(--color-bg-card);
                     border-right: 1px solid var(--color-border);
                     display: flex;
                     flex-direction: column;
-                    transition: width 0.3s ease;
+                    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
                     position: sticky;
                     top: 0;
                     height: 100vh;
                     z-index: 50;
-                    overflow-y: auto;
+                    overflow-x: hidden;
+                    box-shadow: var(--shadow-xl);
                 }
 
                 .sidebar-header {
-                    padding: 20px;
+                    height: 70px;
                     display: flex;
                     align-items: center;
-                    justify-content: ${isSidebarOpen ? 'space-between' : 'center'};
+                    padding: 0 24px;
                     border-bottom: 1px solid var(--color-border);
+                    justify-content: ${isSidebarOpen ? 'space-between' : 'center'};
                 }
 
                 .brand-title {
                     font-family: 'Orbitron', sans-serif;
-                    font-size: 18px;
-                    color: var(--color-cyan-primary);
-                    margin: 0;
-                    display: ${isSidebarOpen ? 'block' : 'none'};
+                    font-size: 20px;
+                    font-weight: 700;
+                    color: var(--color-primary);
+                    white-space: nowrap;
+                    opacity: ${isSidebarOpen ? 1 : 0};
+                    transition: opacity 0.2s;
                 }
 
-                .nav-menu {
-                    padding: 20px 0;
+                .sidebar-content {
                     flex: 1;
+                    overflow-y: auto;
+                    padding: 24px 0;
                     display: flex;
                     flex-direction: column;
-                    gap: 4px;
+                    gap: 32px;
+                }
+
+                .nav-group {
+                    padding: 0 16px;
+                }
+
+                .nav-group-title {
+                    font-size: 11px;
+                    font-weight: 600;
+                    color: var(--color-text-muted);
+                    text-transform: uppercase;
+                    letter-spacing: 1.5px;
+                    margin-bottom: 12px;
+                    padding-left: 12px;
+                    display: ${isSidebarOpen ? 'block' : 'none'};
                 }
 
                 .nav-item {
                     display: flex;
                     align-items: center;
-                    padding: 12px 20px;
+                    padding: 10px 12px;
                     color: var(--color-text-secondary);
                     text-decoration: none;
-                    transition: all 0.2s;
-                    border-left: 3px solid transparent;
+                    border-radius: var(--radius-md);
+                    transition: all 0.2s ease;
+                    margin-bottom: 4px;
                     justify-content: ${isSidebarOpen ? 'flex-start' : 'center'};
+                    position: relative;
                 }
 
-                .nav-item:hover, .nav-item.active {
-                    background: rgba(0, 217, 255, 0.05);
-                    color: var(--color-cyan-primary);
+                .nav-item:hover {
+                    color: var(--color-text-primary);
+                    background: var(--color-bg-card-hover);
                 }
 
                 .nav-item.active {
-                    border-left-color: var(--color-cyan-primary);
+                    color: var(--color-primary);
+                    background: rgba(0, 217, 255, 0.1);
+                    font-weight: 500;
+                }
+
+                .nav-item.active::before {
+                    content: '';
+                    position: absolute;
+                    left: 0;
+                    top: 50%;
+                    transform: translateY(-50%);
+                    width: 3px;
+                    height: 16px;
+                    background: var(--color-primary);
+                    border-radius: 0 4px 4px 0;
+                    display: ${isSidebarOpen ? 'none' : 'block'};
+                }
+
+                .nav-icon-wrapper {
+                    display: flex;
+                    width: 24px;
+                    justify-content: center;
+                    margin-right: ${isSidebarOpen ? '12px' : '0'};
                 }
 
                 .nav-label {
-                    margin-left: 12px;
+                    font-size: 14px;
                     white-space: nowrap;
                     display: ${isSidebarOpen ? 'block' : 'none'};
                 }
 
-                /* Main Content */
+                /* -- MAIN CONTENT -- */
                 .admin-main {
                     flex: 1;
                     display: flex;
                     flex-direction: column;
-                    min-width: 0; /* Prevent overflow */
+                    min-width: 0;
                 }
 
                 .admin-header {
-                    height: 64px;
-                    background: var(--color-bg-card);
+                    height: 70px;
+                    background: var(--color-bg-primary); /* Blend with page bg usually, or card if distinctive header wanted */
+                    background: rgba(15, 20, 25, 0.8);
+                    backdrop-filter: blur(12px);
                     border-bottom: 1px solid var(--color-border);
                     display: flex;
                     align-items: center;
                     justify-content: space-between;
-                    padding: 0 24px;
+                    padding: 0 32px;
+                    position: sticky;
+                    top: 0;
+                    z-index: 40;
                 }
 
                 .header-left {
@@ -154,125 +232,172 @@ const AdminLayout = () => {
                 }
 
                 .toggle-btn {
-                    background: none;
+                    background: transparent;
                     border: none;
                     color: var(--color-text-secondary);
                     cursor: pointer;
-                    padding: 4px;
+                    padding: 8px;
+                    border-radius: var(--radius-md);
+                    transition: color 0.2s;
                 }
 
-                .page-title {
-                    font-size: 18px;
-                    font-weight: 600;
+                .toggle-btn:hover {
                     color: var(--color-text-primary);
-                    margin: 0;
+                    background: var(--color-bg-card-hover);
                 }
 
-                .header-right {
+                .page-breadcrumb {
                     display: flex;
                     align-items: center;
-                    gap: 20px;
+                    gap: 8px;
+                    color: var(--color-text-muted);
+                    font-size: 14px;
                 }
 
-                .user-info {
+                .breadcrumb-active {
+                    color: var(--color-text-primary);
+                    font-weight: 500;
+                }
+
+                .user-profile {
                     display: flex;
                     align-items: center;
-                    gap: 12px;
+                    gap: 16px;
+                    padding: 6px 12px;
+                    background: var(--color-bg-card);
+                    border: 1px solid var(--color-border);
+                    border-radius: var(--radius-full);
+                    transition: border-color 0.2s;
+                }
+
+                .user-profile:hover {
+                    border-color: var(--color-border-hover);
                 }
 
                 .user-avatar {
                     width: 32px;
                     height: 32px;
                     border-radius: 50%;
-                    background: var(--color-cyan-primary);
+                    background: linear-gradient(135deg, var(--color-primary), var(--color-cyan-dark));
                     display: flex;
                     align-items: center;
                     justify-content: center;
-                    font-weight: bold;
-                    color: var(--color-bg-primary);
+                    color: white;
+                    font-weight: 700;
+                    font-size: 14px;
                 }
 
-                .logout-btn {
+                .user-info {
+                    display: flex;
+                    flex-direction: column;
+                    line-height: 1.2;
+                }
+
+                .user-name {
+                    font-size: 13px;
+                    font-weight: 600;
+                    color: var(--color-text-primary);
+                }
+                
+                .user-role {
+                    font-size: 11px;
+                    color: var(--color-text-muted);
+                }
+
+                .logout-icon-btn {
+                    color: var(--color-text-muted);
+                    padding: 8px;
+                    border-radius: 50%;
+                    transition: all 0.2s;
                     display: flex;
                     align-items: center;
-                    gap: 8px;
-                    background: none;
-                    border: 1px solid var(--color-border);
-                    padding: 6px 12px;
-                    border-radius: 4px;
-                    color: var(--color-text-secondary);
-                    cursor: pointer;
-                    transition: all 0.2s;
+                    justify-content: center;
                 }
 
-                .logout-btn:hover {
-                    background: rgba(255, 50, 50, 0.1);
-                    color: #ff4444;
-                    border-color: #ff4444;
+                .logout-icon-btn:hover {
+                    color: var(--color-danger);
+                    background: rgba(239, 68, 68, 0.1);
                 }
 
                 .admin-content {
-                    padding: 24px;
+                    padding: 32px;
                     overflow-y: auto;
                     flex: 1;
+                    max-width: 1600px;
+                    margin: 0 auto;
+                    width: 100%;
                 }
+
+                /* Scrollbar polish */
+                .admin-sidebar::-webkit-scrollbar { width: 4px; }
+                .admin-sidebar::-webkit-scrollbar-thumb { background: var(--color-border); border-radius: 4px; }
+                .admin-sidebar:hover::-webkit-scrollbar-thumb { background: var(--color-text-muted); }
             `}</style>
 
-            {/* Sidebar */}
+            {/* SIDEBAR */}
             <aside className="admin-sidebar">
                 <div className="sidebar-header">
-                    <h2 className="brand-title">ADMIN PANEL</h2>
-                    <button className="toggle-btn" onClick={toggleSidebar}>
+                    {isSidebarOpen && <div className="brand-title">ADMIN PANEL</div>}
+                    <button className="toggle-btn" onClick={toggleSidebar} style={{ marginLeft: isSidebarOpen ? 'auto' : '0' }}>
                         {isSidebarOpen ? <X size={20} /> : <Menu size={20} />}
                     </button>
                 </div>
 
-                <nav className="nav-menu">
-                    {navItems.map((item) => {
-                        const isActive = location.pathname === item.path ||
-                            (item.path !== '/admin' && location.pathname.startsWith(item.path));
+                <div className="sidebar-content">
+                    {menuGroups.map((group, index) => (
+                        <div key={index} className="nav-group">
+                            <div className="nav-group-title">{group.title}</div>
+                            {group.items.map((item) => {
+                                const isActive = location.pathname === item.path ||
+                                    (item.path !== '/admin' && location.pathname.startsWith(item.path));
 
-                        return (
-                            <Link
-                                key={item.path}
-                                to={item.path}
-                                className={`nav-item ${isActive ? 'active' : ''}`}
-                                title={!isSidebarOpen ? item.label : ''}
-                            >
-                                {item.icon}
-                                <span className="nav-label">{item.label}</span>
-                            </Link>
-                        );
-                    })}
-                </nav>
-
-                <div className="sidebar-footer">
-                    {/* Additional footer items if needed */}
+                                return (
+                                    <Link
+                                        key={item.path}
+                                        to={item.path}
+                                        className={`nav-item ${isActive ? 'active' : ''}`}
+                                        title={!isSidebarOpen ? item.label : ''}
+                                    >
+                                        <div className="nav-icon-wrapper">
+                                            {React.cloneElement(item.icon, {
+                                                size: 20,
+                                                strokeWidth: isActive ? 2.5 : 2
+                                            })}
+                                        </div>
+                                        <span className="nav-label">{item.label}</span>
+                                    </Link>
+                                );
+                            })}
+                        </div>
+                    ))}
                 </div>
             </aside>
 
-            {/* Main Content */}
+            {/* MAIN CONTENT */}
             <main className="admin-main">
                 <header className="admin-header">
                     <div className="header-left">
-                        <button className="toggle-btn" onClick={toggleSidebar}>
-                            <Menu size={24} />
-                        </button>
-                        <h1 className="page-title">
-                            {navItems.find(item => item.path === location.pathname)?.label || 'Dashboard'}
-                        </h1>
+                        <div className="page-breadcrumb">
+                            <span>Admin</span>
+                            <ChevronRight size={14} />
+                            <span className="breadcrumb-active">
+                                {currentPathLabel || 'Dashboard'}
+                            </span>
+                        </div>
                     </div>
 
-                    <div className="header-right">
-                        <div className="user-info">
-                            <span className="user-name">{user?.name || 'Admin'}</span>
+                    <div className="header-right" style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+                        <div className="user-profile">
                             <div className="user-avatar">
                                 {user?.name?.charAt(0).toUpperCase() || 'A'}
                             </div>
+                            <div className="user-info mobile-hidden">
+                                <span className="user-name">{user?.name || 'Administrator'}</span>
+                                <span className="user-role">Super Admin</span>
+                            </div>
                         </div>
-                        <button className="logout-btn" onClick={handleLogout}>
-                            <LogOut size={16} />
-                            <span>Logout</span>
+                        <button className="logout-icon-btn" onClick={handleLogout} title="Logout">
+                            <LogOut size={18} />
                         </button>
                     </div>
                 </header>
