@@ -6,7 +6,9 @@ const {
     createPromoCode,
     updatePromoCode,
     deletePromoCode,
-    togglePromoCodeStatus
+    togglePromoCodeStatus,
+    getPromoStats,
+    getPromoCodeStats
 } = require('../controllers/promoCodeController');
 const { protect, requireEmailVerification } = require('../middleware/authMiddleware');
 const { requireAdmin } = require('../middleware/roleMiddleware');
@@ -22,6 +24,12 @@ const {
 router.post('/validate', protect, requireEmailVerification, validatePromoCodeValidator, validate, validatePromoCode);
 
 // Admin routes
+// @route   GET /api/promo-codes/stats (Global stats)
+router.get('/stats', protect, requireAdmin, getPromoStats);
+
+// @route   GET /api/promo-codes/:id/stats (Single promo stats)
+router.get('/:id/stats', protect, requireAdmin, mongoIdValidator, validate, getPromoCodeStats);
+
 // @route   GET /api/promo-codes
 router.get('/', protect, requireAdmin, getPromoCodes);
 

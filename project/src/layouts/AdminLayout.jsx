@@ -359,6 +359,177 @@ const AdminLayout = () => {
                     background: var(--color-primary);
                     box-shadow: 0 0 8px var(--color-primary-glow);
                 }
+
+                /* -- GLOBAL ADMIN STYLES -- */
+                .page-title {
+                    font-family: 'Orbitron', sans-serif;
+                    font-size: 24px;
+                    font-weight: 700;
+                    color: var(--color-text-primary);
+                    margin-bottom: 4px;
+                }
+
+                .btn-primary {
+                    background: var(--color-primary);
+                    color: var(--color-bg-primary);
+                    border: none;
+                    padding: 8px 16px;
+                    border-radius: var(--radius-md);
+                    font-weight: 600;
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    transition: all 0.2s;
+                    cursor: pointer;
+                    font-size: 14px;
+                }
+
+                .btn-primary:hover {
+                    background: var(--color-primary-glow);
+                    box-shadow: 0 0 10px var(--color-primary-glow);
+                    transform: translateY(-1px);
+                }
+
+                .btn-secondary {
+                    background: var(--color-bg-card);
+                    color: var(--color-text-primary);
+                    border: 1px solid var(--color-border);
+                    padding: 8px 16px;
+                    border-radius: var(--radius-md);
+                    font-weight: 500;
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    transition: all 0.2s;
+                    cursor: pointer;
+                    font-size: 14px;
+                }
+
+                .btn-secondary:hover {
+                    border-color: var(--color-text-muted);
+                    background: var(--color-bg-card-hover);
+                    transform: translateY(-1px);
+                }
+
+                .empty-state {
+                    text-align: center;
+                    padding: 48px;
+                    background: var(--color-bg-card);
+                    border: 1px dashed var(--color-border);
+                    border-radius: var(--radius-lg);
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: center;
+                    color: var(--color-text-muted);
+                }
+
+                /* -- MODAL STYLES -- */
+                .modal-overlay {
+                    position: fixed;
+                    inset: 0;
+                    background: rgba(0, 0, 0, 0.7);
+                    backdrop-filter: blur(4px);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    z-index: 1000;
+                    animation: fadeIn 0.2s ease-out;
+                }
+
+                .modal-content {
+                    background: var(--color-bg-card);
+                    border: 1px solid var(--color-border);
+                    border-radius: var(--radius-lg);
+                    width: 100%;
+                    max-width: 500px;
+                    max-height: 90vh;
+                    overflow-y: auto;
+                    box-shadow: var(--shadow-xl);
+                    animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+                    display: flex;
+                    flex-direction: column;
+                }
+
+                .modal-header {
+                    padding: 24px;
+                    border-bottom: 1px solid var(--color-border);
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    flex-shrink: 0;
+                }
+
+                .modal-body {
+                    padding: 32px;
+                    overflow-y: auto;
+                }
+
+                .modal-title {
+                    font-family: 'Orbitron', sans-serif;
+                    font-size: 18px;
+                    font-weight: 700;
+                    color: var(--color-text-primary);
+                }
+
+                .modal-close {
+                    background: transparent;
+                    border: none;
+                    color: var(--color-text-muted);
+                    cursor: pointer;
+                    padding: 4px;
+                    border-radius: var(--radius-sm);
+                    transition: all 0.2s;
+                    display: flex;
+                }
+
+                .modal-close:hover {
+                    color: var(--color-text-primary);
+                    background: var(--color-bg-secondary);
+                }
+
+                /* -- FORM STYLES -- */
+                .form-group {
+                    margin-bottom: 24px;
+                }
+
+                .form-label {
+                    display: block;
+                    font-size: 13px;
+                    font-weight: 500;
+                    color: var(--color-text-secondary);
+                    margin-bottom: 10px;
+                }
+
+                .form-input,
+                .form-select {
+                    width: 100%;
+                    background: var(--color-bg-secondary);
+                    border: 1px solid var(--color-border);
+                    border-radius: var(--radius-md);
+                    padding: 12px 14px;
+                    color: var(--color-text-primary);
+                    font-family: inherit;
+                    font-size: 14px;
+                    transition: all 0.2s;
+                }
+
+                .form-input:focus,
+                .form-select:focus {
+                    border-color: var(--color-primary);
+                    box-shadow: 0 0 0 2px rgba(0, 217, 255, 0.1);
+                    outline: none;
+                }
+
+                @keyframes fadeIn {
+                    from { opacity: 0; }
+                    to { opacity: 1; }
+                }
+
+                @keyframes slideUp {
+                    from { opacity: 0; transform: translateY(20px); }
+                    to { opacity: 1; transform: translateY(0); }
+                }
             `}</style>
 
             {/* SIDEBAR */}

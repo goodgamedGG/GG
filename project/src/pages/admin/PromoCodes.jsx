@@ -156,34 +156,55 @@ const PromoCodes = () => {
     };
 
     return (
-        <div>
-            <header className="admin-header">
+        <div className="promo-codes-page">
+            <header className="page-header" style={{ marginBottom: '32px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div>
                     <h1 className="page-title">Promo Codes</h1>
-                    <p style={{ color: 'var(--color-text-muted)', marginTop: '4px' }}>
-                        {promoCodes.length} promo codes
+                    <p style={{ color: 'var(--color-text-muted)', marginTop: '4px', fontSize: '14px' }}>
+                        Manage your discount codes and coupons ({promoCodes.length})
                     </p>
                 </div>
                 <div style={{ display: 'flex', gap: '12px' }}>
-                    <button onClick={() => setIsStatsModalOpen(true)} className="btn-secondary">
+                    <button
+                        onClick={() => setIsStatsModalOpen(true)}
+                        className="btn-secondary"
+                        title="View Statistics"
+                    >
                         <BarChart3 size={18} />
-                        Statistics
+                        <span>Statistics</span>
                     </button>
                     <button onClick={handleAdd} className="btn-primary">
                         <Plus size={18} />
-                        Add Promo Code
+                        <span>Add Promo Code</span>
                     </button>
                 </div>
             </header>
 
             {loading ? (
-                <div className="empty-state">Loading promo codes...</div>
+                <div className="empty-state">
+                    <div className="spinner" style={{ border: '2px solid var(--color-bg-card)', borderTop: '2px solid var(--color-primary)', borderRadius: '50%', width: '24px', height: '24px', animation: 'spin 1s linear infinite' }}></div>
+                    <p style={{ marginTop: '16px' }}>Loading promo codes...</p>
+                </div>
             ) : promoCodes.length === 0 ? (
                 <div className="empty-state">
-                    <Tag size={48} style={{ marginBottom: '16px', opacity: 0.5 }} />
-                    <p>No promo codes found.</p>
-                    <button onClick={handleAdd} className="btn-primary" style={{ marginTop: '16px' }}>
-                        Create Your First Promo Code
+                    <div style={{
+                        width: '64px',
+                        height: '64px',
+                        background: 'rgba(0, 217, 255, 0.1)',
+                        borderRadius: '50%',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        marginBottom: '16px',
+                        color: 'var(--color-primary)'
+                    }}>
+                        <Tag size={32} />
+                    </div>
+                    <h3 style={{ fontSize: '18px', fontWeight: '600', marginBottom: '8px', color: 'var(--color-text-primary)' }}>No Promo Codes Yet</h3>
+                    <p style={{ maxWidth: '400px', marginBottom: '24px' }}>Create discount codes to boost sales and reward your loyal customers.</p>
+                    <button onClick={handleAdd} className="btn-primary">
+                        <Plus size={18} />
+                        Create First Code
                     </button>
                 </div>
             ) : (
@@ -206,9 +227,9 @@ const PromoCodes = () => {
                                 <tr key={promo._id}>
                                     <td>
                                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                            <code style={{ 
-                                                background: 'var(--color-bg-secondary)', 
-                                                padding: '4px 8px', 
+                                            <code style={{
+                                                background: 'var(--color-bg-secondary)',
+                                                padding: '4px 8px',
                                                 borderRadius: '4px',
                                                 fontFamily: 'monospace',
                                                 color: 'var(--color-cyan-primary)',
@@ -222,8 +243,8 @@ const PromoCodes = () => {
                                         </div>
                                     </td>
                                     <td style={{ fontWeight: 'bold', color: '#00ff80' }}>
-                                        {promo.discountType === 'percentage' 
-                                            ? `${promo.discountValue}%` 
+                                        {promo.discountType === 'percentage'
+                                            ? `${promo.discountValue}%`
                                             : `$${promo.discountValue}`
                                         }
                                     </td>
@@ -243,7 +264,7 @@ const PromoCodes = () => {
                                         </div>
                                     </td>
                                     <td>
-                                        <button 
+                                        <button
                                             onClick={() => loadPromoDetails(promo._id)}
                                             className="icon-btn"
                                             title="View Revenue Details"
@@ -297,95 +318,97 @@ const PromoCodes = () => {
                             </button>
                         </div>
 
-                        <form onSubmit={handleSubmit}>
-                            <div className="form-group">
-                                <label className="form-label">Promo Code *</label>
-                                <input
-                                    className="form-input"
-                                    value={formData.code}
-                                    onChange={e => setFormData({ ...formData, code: e.target.value.toUpperCase() })}
-                                    required
-                                    placeholder="e.g., SAVE20"
-                                    style={{ textTransform: 'uppercase', fontFamily: 'monospace' }}
-                                />
-                            </div>
-
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                        <div className="modal-body">
+                            <form onSubmit={handleSubmit}>
                                 <div className="form-group">
-                                    <label className="form-label">Discount Type *</label>
-                                    <select
-                                        className="form-select"
-                                        value={formData.discountType}
-                                        onChange={e => setFormData({ ...formData, discountType: e.target.value })}
-                                    >
-                                        <option value="percentage">Percentage (%)</option>
-                                        <option value="fixed">Fixed Amount ($)</option>
-                                    </select>
-                                </div>
-                                <div className="form-group">
-                                    <label className="form-label">Discount Value *</label>
+                                    <label className="form-label">Promo Code *</label>
                                     <input
                                         className="form-input"
-                                        type="number"
-                                        step="0.01"
-                                        value={formData.discountValue}
-                                        onChange={e => setFormData({ ...formData, discountValue: e.target.value })}
+                                        value={formData.code}
+                                        onChange={e => setFormData({ ...formData, code: e.target.value.toUpperCase() })}
                                         required
-                                        placeholder={formData.discountType === 'percentage' ? '20' : '10.00'}
+                                        placeholder="e.g., SAVE20"
+                                        style={{ textTransform: 'uppercase', fontFamily: 'monospace' }}
                                     />
                                 </div>
-                            </div>
 
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                                    <div className="form-group">
+                                        <label className="form-label">Discount Type *</label>
+                                        <select
+                                            className="form-select"
+                                            value={formData.discountType}
+                                            onChange={e => setFormData({ ...formData, discountType: e.target.value })}
+                                        >
+                                            <option value="percentage">Percentage (%)</option>
+                                            <option value="fixed">Fixed Amount ($)</option>
+                                        </select>
+                                    </div>
+                                    <div className="form-group">
+                                        <label className="form-label">Discount Value *</label>
+                                        <input
+                                            className="form-input"
+                                            type="number"
+                                            step="0.01"
+                                            value={formData.discountValue}
+                                            onChange={e => setFormData({ ...formData, discountValue: e.target.value })}
+                                            required
+                                            placeholder={formData.discountType === 'percentage' ? '20' : '10.00'}
+                                        />
+                                    </div>
+                                </div>
+
+                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                                    <div className="form-group">
+                                        <label className="form-label">Min Purchase ($)</label>
+                                        <input
+                                            className="form-input"
+                                            type="number"
+                                            step="0.01"
+                                            value={formData.minPurchaseAmount}
+                                            onChange={e => setFormData({ ...formData, minPurchaseAmount: e.target.value })}
+                                            placeholder="0.00"
+                                        />
+                                    </div>
+                                    <div className="form-group">
+                                        <label className="form-label">Usage Limit</label>
+                                        <input
+                                            className="form-input"
+                                            type="number"
+                                            value={formData.usageLimit}
+                                            onChange={e => setFormData({ ...formData, usageLimit: e.target.value })}
+                                            placeholder="Unlimited"
+                                        />
+                                    </div>
+                                </div>
+
                                 <div className="form-group">
-                                    <label className="form-label">Min Purchase ($)</label>
+                                    <label className="form-label">Expiration Date</label>
                                     <input
                                         className="form-input"
-                                        type="number"
-                                        step="0.01"
-                                        value={formData.minPurchaseAmount}
-                                        onChange={e => setFormData({ ...formData, minPurchaseAmount: e.target.value })}
-                                        placeholder="0.00"
+                                        type="date"
+                                        value={formData.expirationDate}
+                                        onChange={e => setFormData({ ...formData, expirationDate: e.target.value })}
                                     />
                                 </div>
-                                <div className="form-group">
-                                    <label className="form-label">Usage Limit</label>
-                                    <input
-                                        className="form-input"
-                                        type="number"
-                                        value={formData.usageLimit}
-                                        onChange={e => setFormData({ ...formData, usageLimit: e.target.value })}
-                                        placeholder="Unlimited"
-                                    />
+
+                                <div style={{ display: 'flex', gap: '12px', marginTop: '24px' }}>
+                                    <button type="button" onClick={() => setIsModalOpen(false)} className="btn-secondary" style={{ flex: 1, justifyContent: 'center' }}>
+                                        Cancel
+                                    </button>
+                                    <button type="submit" className="btn-primary" style={{ flex: 1, justifyContent: 'center' }}>
+                                        <Save size={18} />
+                                        {editingPromo ? 'Save Changes' : 'Create Code'}
+                                    </button>
                                 </div>
-                            </div>
-
-                            <div className="form-group">
-                                <label className="form-label">Expiration Date</label>
-                                <input
-                                    className="form-input"
-                                    type="date"
-                                    value={formData.expirationDate}
-                                    onChange={e => setFormData({ ...formData, expirationDate: e.target.value })}
-                                />
-                            </div>
-
-                            <div style={{ display: 'flex', gap: '12px', marginTop: '24px' }}>
-                                <button type="button" onClick={() => setIsModalOpen(false)} className="btn-secondary" style={{ flex: 1 }}>
-                                    Cancel
-                                </button>
-                                <button type="submit" className="btn-primary" style={{ flex: 1, justifyContent: 'center' }}>
-                                    <Save size={18} />
-                                    {editingPromo ? 'Save Changes' : 'Create Code'}
-                                </button>
-                            </div>
-                        </form>
+                            </form>
+                        </div>
                     </div>
                 </div>
             )}
 
             {/* Statistics Modal */}
-            {isStatsModalOpen && promoStats && (
+            {isStatsModalOpen && (
                 <div className="modal-overlay">
                     <div className="modal-content" style={{ maxWidth: '600px' }}>
                         <div className="modal-header">
@@ -394,30 +417,39 @@ const PromoCodes = () => {
                                 <X size={24} />
                             </button>
                         </div>
-                        <div style={{ padding: '20px' }}>
-                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '16px', marginBottom: '24px' }}>
-                                <div style={{ padding: '16px', background: 'var(--color-bg-secondary)', borderRadius: 'var(--radius-md)' }}>
-                                    <div style={{ fontSize: '12px', color: 'var(--color-text-muted)', marginBottom: '4px' }}>Total Codes</div>
-                                    <div style={{ fontSize: '24px', fontWeight: 'bold' }}>{promoStats.totalCodes || 0}</div>
+                        <div className="modal-body">
+                            {promoStats ? (
+                                <>
+                                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '16px', marginBottom: '24px' }}>
+                                        <div style={{ padding: '16px', background: 'var(--color-bg-secondary)', borderRadius: 'var(--radius-md)' }}>
+                                            <div style={{ fontSize: '12px', color: 'var(--color-text-muted)', marginBottom: '4px' }}>Total Codes</div>
+                                            <div style={{ fontSize: '24px', fontWeight: 'bold' }}>{promoStats.totalCodes || 0}</div>
+                                        </div>
+                                        <div style={{ padding: '16px', background: 'var(--color-bg-secondary)', borderRadius: 'var(--radius-md)' }}>
+                                            <div style={{ fontSize: '12px', color: 'var(--color-text-muted)', marginBottom: '4px' }}>Active Codes</div>
+                                            <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#00ff80' }}>{promoStats.activeCodes || 0}</div>
+                                        </div>
+                                        <div style={{ padding: '16px', background: 'var(--color-bg-secondary)', borderRadius: 'var(--radius-md)' }}>
+                                            <div style={{ fontSize: '12px', color: 'var(--color-text-muted)', marginBottom: '4px' }}>Expired Codes</div>
+                                            <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#ff6464' }}>{promoStats.expiredCodes || 0}</div>
+                                        </div>
+                                        <div style={{ padding: '16px', background: 'var(--color-bg-secondary)', borderRadius: 'var(--radius-md)' }}>
+                                            <div style={{ fontSize: '12px', color: 'var(--color-text-muted)', marginBottom: '4px' }}>Total Usage</div>
+                                            <div style={{ fontSize: '24px', fontWeight: 'bold', color: 'var(--color-cyan-primary)' }}>{promoStats.totalUsage || 0}</div>
+                                        </div>
+                                    </div>
+                                    <div style={{ borderTop: '1px solid var(--color-border)', paddingTop: '20px', display: 'flex', justifyContent: 'flex-end' }}>
+                                        <button onClick={() => setIsStatsModalOpen(false)} className="btn-secondary">
+                                            Close
+                                        </button>
+                                    </div>
+                                </>
+                            ) : (
+                                <div className="empty-state" style={{ padding: '40px 0' }}>
+                                    <div className="spinner" style={{ border: '2px solid var(--color-bg-card)', borderTop: '2px solid var(--color-primary)', borderRadius: '50%', width: '24px', height: '24px', animation: 'spin 1s linear infinite', marginBottom: '16px' }}></div>
+                                    <p>Loading statistics...</p>
                                 </div>
-                                <div style={{ padding: '16px', background: 'var(--color-bg-secondary)', borderRadius: 'var(--radius-md)' }}>
-                                    <div style={{ fontSize: '12px', color: 'var(--color-text-muted)', marginBottom: '4px' }}>Active Codes</div>
-                                    <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#00ff80' }}>{promoStats.activeCodes || 0}</div>
-                                </div>
-                                <div style={{ padding: '16px', background: 'var(--color-bg-secondary)', borderRadius: 'var(--radius-md)' }}>
-                                    <div style={{ fontSize: '12px', color: 'var(--color-text-muted)', marginBottom: '4px' }}>Expired Codes</div>
-                                    <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#ff6464' }}>{promoStats.expiredCodes || 0}</div>
-                                </div>
-                                <div style={{ padding: '16px', background: 'var(--color-bg-secondary)', borderRadius: 'var(--radius-md)' }}>
-                                    <div style={{ fontSize: '12px', color: 'var(--color-text-muted)', marginBottom: '4px' }}>Total Usage</div>
-                                    <div style={{ fontSize: '24px', fontWeight: 'bold', color: 'var(--color-cyan-primary)' }}>{promoStats.totalUsage || 0}</div>
-                                </div>
-                            </div>
-                        </div>
-                        <div style={{ padding: '20px', borderTop: '1px solid var(--color-border)', display: 'flex', justifyContent: 'flex-end' }}>
-                            <button onClick={() => setIsStatsModalOpen(false)} className="btn-secondary">
-                                Close
-                            </button>
+                            )}
                         </div>
                     </div>
                 </div>
@@ -440,8 +472,8 @@ const PromoCodes = () => {
                                         <div>
                                             <div style={{ fontSize: '12px', color: 'var(--color-text-muted)', marginBottom: '4px' }}>Discount</div>
                                             <div style={{ fontSize: '18px', fontWeight: 'bold', color: '#00ff80' }}>
-                                                {selectedPromoStats.promoCode.discountType === 'percentage' 
-                                                    ? `${selectedPromoStats.promoCode.discountValue}%` 
+                                                {selectedPromoStats.promoCode.discountType === 'percentage'
+                                                    ? `${selectedPromoStats.promoCode.discountValue}%`
                                                     : formatCurrency(selectedPromoStats.promoCode.discountValue)
                                                 }
                                             </div>

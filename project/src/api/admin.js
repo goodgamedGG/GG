@@ -145,6 +145,38 @@ const adminAPI = {
         // For now, let's assume specific key updates or leave as placeholder
         console.warn("updateSettings bulk not fully implemented in backend");
         return null;
+    },
+
+    // Promo Codes
+    getPromoCodes: async () => {
+        const response = await client.get('/promo-codes');
+        return response.data.data;
+    },
+
+    getPromoCodeStats: async (id = null) => {
+        const url = id ? `/promo-codes/${id}/stats` : '/promo-codes/stats';
+        const response = await client.get(url);
+        return response.data;
+    },
+
+    createPromoCode: async (data) => {
+        const response = await client.post('/promo-codes', data);
+        return response.data.data;
+    },
+
+    updatePromoCode: async (id, data) => {
+        const response = await client.put(`/promo-codes/${id}`, data);
+        return response.data.data;
+    },
+
+    deletePromoCode: async (id) => {
+        const response = await client.delete(`/promo-codes/${id}`);
+        return response.data;
+    },
+
+    togglePromoCode: async (id) => {
+        const response = await client.patch(`/promo-codes/${id}/toggle`);
+        return response.data.data;
     }
 };
 
