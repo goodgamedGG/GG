@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-const ImageUpload = ({ onImageSelect, multiple = false, preview = true, maxSize = 5 }) => {
+const ImageUpload = ({ onImageSelect, onChange, multiple = false, preview = true, maxSize = 5 }) => {
     const [previews, setPreviews] = useState([]);
     const [error, setError] = useState('');
 
@@ -32,8 +32,11 @@ const ImageUpload = ({ onImageSelect, multiple = false, preview = true, maxSize 
             setPreviews(multiple ? [...previews, ...newPreviews] : newPreviews);
         }
 
-        // Call parent callback
-        onImageSelect(multiple ? files : files[0]);
+        // Call parent callback - support both prop names
+        const callback = onChange || onImageSelect;
+        if (callback) {
+            callback(multiple ? files : files[0]);
+        }
     };
 
     const removePreview = (index) => {

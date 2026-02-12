@@ -69,10 +69,19 @@ const uploadSingle = (fieldName) => {
 
 // Middleware to process uploaded images (resize, format)
 const processUploadedImages = async (req, res, next) => {
-    if (!req.file) return next();
+    if (!req.files && !req.file) return next();
 
-    // TODO: Implement image processing with sharp if needed
-    // For now, just pass through
+    req.uploadedImages = {};
+
+    if (req.files) {
+        Object.keys(req.files).forEach(key => {
+            req.uploadedImages[key] = req.files[key].map(file => file.path.replace(/\\/g, '/'));
+        });
+    } else if (req.file) {
+        // If single file upload, usually looking for specific field handling
+        req.uploadedImages[req.file.fieldname] = req.file.path.replace(/\\/g, '/');
+    }
+
     next();
 };
 
@@ -82,8 +91,10 @@ const uploadFields = (fields) => {
         const uploadMiddleware = upload.fields(fields);
         uploadMiddleware(req, res, (err) => {
             if (err instanceof multer.MulterError) {
+                console.error('Multer Error (Fields):', err);
                 return res.status(400).json({ message: `Upload error: ${err.message}` });
             } else if (err) {
+                console.error('Upload Error (Fields):', err);
                 return res.status(400).json({ message: err.message });
             }
             next();

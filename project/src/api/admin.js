@@ -29,12 +29,16 @@ const adminAPI = {
     },
 
     createProduct: async (productData) => {
-        const response = await client.post('/products', productData);
+        const response = await client.post('/products', productData, {
+            headers: { 'Content-Type': undefined } // Let browser set multipart/form-data with boundary
+        });
         return response.data.data;
     },
 
     updateProduct: async (id, productData) => {
-        const response = await client.put(`/products/${id}`, productData);
+        const response = await client.put(`/products/${id}`, productData, {
+            headers: { 'Content-Type': undefined }
+        });
         return response.data.data;
     },
 
@@ -110,7 +114,7 @@ const adminAPI = {
     getCategories: async (params = {}) => {
         // Public endpoint
         const response = await client.get('/categories', { params });
-        return response.data.data;
+        return response.data.data.categories;
     },
 
     createCategory: async (categoryData) => {

@@ -13,6 +13,9 @@ const validate = (req, res, next) => {
             message: err.msg
         }));
 
+        console.error('Validation Errors:', JSON.stringify(errorMessages, null, 2));
+        console.error('Request Body:', req.body);
+
         return res.status(HTTP_STATUS.UNPROCESSABLE_ENTITY).json({
             success: false,
             error: 'Validation failed',

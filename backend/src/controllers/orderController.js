@@ -1,7 +1,27 @@
+const Order = require('../models/Order');
+const Cart = require('../models/Cart');
+const Product = require('../models/Product');
+const PromoCode = require('../models/PromoCode');
 const Payment = require('../models/Payment');
-const { PAYMENT_STATUS, PAYMENT_METHODS } = require('../utils/constants');
+const { AppError } = require('../middleware/errorMiddleware');
+const { HTTP_STATUS, ORDER_STATUS, PAYMENT_STATUS, PAYMENT_METHODS } = require('../utils/constants');
+const { getPagination, createPaginationMeta } = require('../utils/helpers');
+const { sendOrderConfirmationEmail } = require('../services/emailService');
 
-// ... existing imports
+// Helper function to validate stock
+const validateStock = (items) => {
+    const errors = [];
+    let valid = true;
+
+    for (const item of items) {
+        if (item.product.stock < item.quantity) {
+            errors.push(`${item.product.name} has insufficient stock`);
+            valid = false;
+        }
+    }
+
+    return { valid, errors };
+};
 
 /**
  * @desc    Create order from cart
