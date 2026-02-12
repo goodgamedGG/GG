@@ -33,6 +33,7 @@ const comparisonRoutes = require('./routes/comparisonRoutes');
 const loyaltyRoutes = require('./routes/loyaltyRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const adminProductRoutes = require('./routes/adminProductRoutes');
+const imageRoutes = require('./routes/imageRoutes');
 
 // Initialize Express app
 const app = express();
@@ -194,6 +195,7 @@ app.use('/api/compare', comparisonRoutes);
 app.use('/api/loyalty', loyaltyRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/admin/products', adminProductRoutes);
+app.use('/api/images', imageRoutes); // Mount image routes
 app.use('/api/upload', require('./routes/uploadRoutes'));
 
 // 404 handler
