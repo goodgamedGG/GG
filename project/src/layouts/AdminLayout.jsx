@@ -89,7 +89,8 @@ const AdminLayout = () => {
             <style>{`
                 .admin-layout {
                     display: flex;
-                    min-height: 100vh;
+                    height: 100vh;
+                    overflow: hidden;
                     background: var(--color-bg-primary);
                 }
 
@@ -101,9 +102,8 @@ const AdminLayout = () => {
                     display: flex;
                     flex-direction: column;
                     transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-                    position: sticky;
-                    top: 0;
-                    height: 100vh;
+                    position: relative;
+                    height: 100%;
                     z-index: 50;
                     overflow-x: hidden;
                     box-shadow: var(--shadow-xl);
@@ -328,10 +328,37 @@ const AdminLayout = () => {
                     width: 100%;
                 }
 
-                /* Scrollbar polish */
-                .admin-sidebar::-webkit-scrollbar { width: 4px; }
-                .admin-sidebar::-webkit-scrollbar-thumb { background: var(--color-border); border-radius: 4px; }
-                .admin-sidebar:hover::-webkit-scrollbar-thumb { background: var(--color-text-muted); }
+                /* Scrollbar polish - Updated for Admin Panel */
+                .sidebar-content,
+                .admin-content {
+                    scrollbar-width: thin;
+                    scrollbar-color: var(--color-primary) transparent;
+                }
+                
+                /* Webkit scrollbar styling */
+                .sidebar-content::-webkit-scrollbar,
+                .admin-content::-webkit-scrollbar { 
+                    width: 3px;
+                    height: 3px;
+                }
+                
+                .sidebar-content::-webkit-scrollbar-track,
+                .admin-content::-webkit-scrollbar-track { 
+                    background: transparent; 
+                }
+                
+                .sidebar-content::-webkit-scrollbar-thumb,
+                .admin-content::-webkit-scrollbar-thumb {
+                    background: var(--color-primary);
+                    border-radius: 10px;
+                    box-shadow: 0 0 5px var(--color-primary-glow);
+                }
+                
+                .sidebar-content:hover::-webkit-scrollbar-thumb,
+                .admin-content:hover::-webkit-scrollbar-thumb {
+                    background: var(--color-primary);
+                    box-shadow: 0 0 8px var(--color-primary-glow);
+                }
             `}</style>
 
             {/* SIDEBAR */}
