@@ -64,7 +64,23 @@ const requireEmailVerification = (req, res, next) => {
     next();
 };
 
+/**
+ * Require admin role
+ */
+const requireAdmin = (req, res, next) => {
+    if (!req.user || req.user.role !== 'admin') {
+        return next(
+            new AppError(
+                'Access denied. Admin privileges required',
+                HTTP_STATUS.FORBIDDEN
+            )
+        );
+    }
+    next();
+};
+
 module.exports = {
     protect,
-    requireEmailVerification
+    requireEmailVerification,
+    requireAdmin
 };

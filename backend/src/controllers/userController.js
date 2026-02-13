@@ -14,6 +14,9 @@ const getProfile = async (req, res, next) => {
         const user = await User.findById(req.user._id);
         const loyalty = await LoyaltyPoint.findOne({ user: req.user._id });
 
+        console.log('DEBUG: getProfile User:', JSON.stringify(user, null, 2));
+        console.log('DEBUG: getProfile Loyalty:', JSON.stringify(loyalty, null, 2));
+
         res.status(HTTP_STATUS.OK).json({
             success: true,
             data: {

@@ -4,16 +4,22 @@ const logger = require('../utils/logger');
 /**
  * Connect to MongoDB
  */
+/**
+ * Connect to MongoDB
+ */
 const connectDB = async () => {
     try {
-        // Connection options to handle DNS issues
+        // Connection options
         const options = {
             serverSelectionTimeoutMS: 10000,
             socketTimeoutMS: 45000,
-            family: 4, // Use IPv4, skip trying IPv6
         };
 
         logger.info('Attempting MongoDB connection...');
+        // Log masked URI for debugging
+        const maskedURI = process.env.MONGO_URI ? process.env.MONGO_URI.replace(/:([^:@]{1,})@/, ':****@') : 'UNDEFINED';
+        console.log(`Connecting to: ${maskedURI}`);
+
         const conn = await mongoose.connect(process.env.MONGO_URI, options);
 
         logger.info('MongoDB Connected', {
@@ -21,8 +27,11 @@ const connectDB = async () => {
             database: conn.connection.name
         });
 
+        console.log(`MongoDB Connected: ${conn.connection.host}`);
+
         // Handle connection events
         mongoose.connection.on('error', (err) => {
+            console.error('MongoDB connection error event:', err);
             logger.error('MongoDB connection error', { error: err.message, stack: err.stack });
         });
 
@@ -38,6 +47,7 @@ const connectDB = async () => {
         });
 
     } catch (error) {
+        console.error('MongoDB connection failed (console):', error);
         logger.error('MongoDB connection failed', { error: error.message, stack: error.stack });
         process.exit(1);
     }
