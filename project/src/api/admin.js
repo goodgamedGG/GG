@@ -177,6 +177,24 @@ const adminAPI = {
     togglePromoCode: async (id) => {
         const response = await client.patch(`/promo-codes/${id}/toggle`);
         return response.data.data;
+    },
+
+    // Payments
+    getAllPayments: async (page = 1, limit = 20, status = '') => {
+        const params = { page, limit };
+        if (status) params.status = status;
+        const response = await client.get('/payments', { params }); // Admin route is /api/payments based on routes file
+        return response.data.data;
+    },
+
+    confirmPayment: async (id) => {
+        const response = await client.patch(`/payments/${id}/confirm`);
+        return response.data.data;
+    },
+
+    rejectPayment: async (id, reason) => {
+        const response = await client.patch(`/payments/${id}/reject`, { reason });
+        return response.data.data;
     }
 };
 

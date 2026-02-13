@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import adminAPI from '../../api/admin';
 import { ShoppingCart, Search, Eye, Filter } from 'lucide-react';
 import Pagination from '../../components/Pagination.jsx';
+import OrderDetailsModal from '../../components/admin/OrderDetailsModal';
 
 const Orders = () => {
     const [orders, setOrders] = useState([]);
@@ -9,6 +10,7 @@ const Orders = () => {
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [statusFilter, setStatusFilter] = useState('all');
+    const [selectedOrder, setSelectedOrder] = useState(null);
 
     useEffect(() => {
         fetchOrders();
@@ -86,56 +88,101 @@ const Orders = () => {
                     </div>
                 </div>
 
-                <div className="table-container">
-                    <table className="data-table">
+                <div className="table-container" style={{ overflowX: 'auto' }}>
+                    <table className="data-table" style={{ width: '100%', borderCollapse: 'separate', borderSpacing: '0' }}>
                         <thead>
-                            <tr>
-                                <th>Order ID</th>
-                                <th>Customer</th>
-                                <th>Date</th>
-                                <th>Total</th>
-                                <th>Payment</th>
-                                <th>Status</th>
-                                <th style={{ textAlign: 'right' }}>Actions</th>
+                            <tr style={{ background: 'var(--color-bg-secondary)' }}>
+                                <th style={{ padding: '16px', textAlign: 'left', minWidth: '120px' }}>Order ID</th>
+                                <th style={{ padding: '16px', textAlign: 'left', minWidth: '200px' }}>Customer</th>
+                                <th style={{ padding: '16px', textAlign: 'left', minWidth: '140px' }}>Date</th>
+                                <th style={{ padding: '16px', textAlign: 'left', minWidth: '100px' }}>Total</th>
+                                <th style={{ padding: '16px', textAlign: 'left', minWidth: '120px' }}>Payment</th>
+                                <th style={{ padding: '16px', textAlign: 'left', minWidth: '140px' }}>Status</th>
+                                <th style={{ padding: '16px', textAlign: 'right', minWidth: '100px' }}>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
                             {loading ? (
                                 <tr>
-                                    <td colSpan="7" style={{ textAlign: 'center', padding: '40px' }}>Loading orders...</td>
+                                    <td colSpan="7" style={{ textAlign: 'center', padding: '40px', color: 'var(--color-text-muted)' }}>Loading orders...</td>
                                 </tr>
                             ) : orders.length === 0 ? (
                                 <tr>
-                                    <td colSpan="7" style={{ textAlign: 'center', padding: '40px' }}>No orders found.</td>
+                                    <td colSpan="7" style={{ textAlign: 'center', padding: '40px', color: 'var(--color-text-muted)' }}>No orders found.</td>
                                 </tr>
                             ) : (
                                 orders.map((order) => (
-                                    <tr key={order._id}>
-                                        <td style={{ fontFamily: 'monospace', color: 'var(--color-primary)' }}>
+                                    <tr key={order._id} style={{ borderBottom: '1px solid var(--color-border)', transition: 'background 0.2s' }}>
+                                        <td style={{ padding: '16px', fontFamily: 'monospace', color: 'var(--color-cyan-primary)', fontWeight: 'bold' }}>
                                             #{order.orderNumber}
                                         </td>
-                                        <td className="col-primary">
-                                            {order.customerInfo?.name || order.user?.name || 'Guest'}
-                                            <div style={{ fontSize: '11px', color: 'var(--color-text-muted)', fontWeight: 400 }}>
+                                        <td style={{ padding: '16px' }}>
+                                            <div style={{ fontWeight: '500', color: 'var(--color-text-primary)' }}>
+                                                {order.customerInfo?.name || order.user?.name || 'Guest'}
+                                            </div>
+                                            <div style={{ fontSize: '12px', color: 'var(--color-text-muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '180px' }} title={order.customerInfo?.email || order.user?.email}>
                                                 {order.customerInfo?.email || order.user?.email}
                                             </div>
                                         </td>
-                                        <td>{formatDate(order.createdAt)}</td>
-                                        <td style={{ fontWeight: '600' }}>{formatCurrency(order.total)}</td>
-                                        <td>
-                                            <span className={`status-badge ${order.paymentStatus === 'confirmed' ? 'status-success' : 'status-warning'}`}>
+                                        <td style={{ padding: '16px', color: 'var(--color-text-secondary)', fontSize: '14px' }}>{formatDate(order.createdAt)}</td>
+                                        <td style={{ padding: '16px', fontWeight: 'bold', color: 'white' }}>{formatCurrency(order.total)}</td>
+                                        <td style={{ padding: '16px' }}>
+                                            <span style={{
+                                                padding: '4px 10px',
+                                                borderRadius: '20px',
+                                                fontSize: '11px',
+                                                fontWeight: '600',
+                                                textTransform: 'uppercase',
+                                                background: order.paymentStatus === 'confirmed' ? 'rgba(74, 222, 128, 0.1)' : 'rgba(250, 204, 21, 0.1)',
+                                                color: order.paymentStatus === 'confirmed' ? '#4ade80' : '#facc15',
+                                                border: `1px solid ${order.paymentStatus === 'confirmed' ? 'rgba(74, 222, 128, 0.3)' : 'rgba(250, 204, 21, 0.3)'}`
+                                            }}>
                                                 {order.paymentStatus}
                                             </span>
                                         </td>
-                                        <td>
-                                            <span className={`status-badge status-${order.orderStatus}`}>
-                                                {order.orderStatus}
-                                            </span>
+                                        <td style={{ padding: '16px' }}>
+                                            <select
+                                                value={order.orderStatus}
+                                                onChange={async (e) => {
+                                                    const newStatus = e.target.value;
+                                                    // Optimistic update
+                                                    const updatedOrders = orders.map(o => o._id === order._id ? { ...o, orderStatus: newStatus } : o);
+                                                    setOrders(updatedOrders);
+
+                                                    try {
+                                                        await adminAPI.updateOrderStatus(order._id, newStatus);
+                                                        // Ideally generic toast or reliable notification
+                                                    } catch (err) {
+                                                        console.error('Update failed', err);
+                                                        fetchOrders(); // Revert
+                                                    }
+                                                }}
+                                                style={{
+                                                    padding: '6px 10px',
+                                                    borderRadius: '6px',
+                                                    border: '1px solid var(--color-border)',
+                                                    background: 'var(--color-bg-primary)',
+                                                    color: 'white',
+                                                    fontSize: '13px',
+                                                    cursor: 'pointer'
+                                                }}
+                                            >
+                                                <option value="new">New</option>
+                                                <option value="processing">Processing</option>
+                                                <option value="shipped">Shipped</option>
+                                                <option value="completed">Completed</option>
+                                                <option value="cancelled">Cancelled</option>
+                                            </select>
                                         </td>
-                                        <td>
-                                            <div className="action-btn-group" style={{ justifyContent: 'flex-end' }}>
-                                                <button className="action-btn" title="View Details">
-                                                    <Eye size={16} />
+                                        <td style={{ padding: '16px', textAlign: 'right' }}>
+                                            <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+                                                <button
+                                                    className="icon-btn"
+                                                    title="View Details"
+                                                    style={{ padding: '6px', background: 'var(--color-bg-secondary)', borderRadius: '6px' }}
+                                                    onClick={() => setSelectedOrder(order)}
+                                                >
+                                                    <Eye size={16} color="var(--color-text-secondary)" />
                                                 </button>
                                             </div>
                                         </td>
@@ -156,6 +203,14 @@ const Orders = () => {
                     </div>
                 )}
             </div>
+
+            {selectedOrder && (
+                <OrderDetailsModal
+                    order={selectedOrder}
+                    onClose={() => setSelectedOrder(null)}
+                    onUpdate={fetchOrders}
+                />
+            )}
         </div>
     );
 };

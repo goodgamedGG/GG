@@ -229,10 +229,10 @@ const Header = () => {
                                     </Link>
                                 )}
 
-                                <div className="user-info">
+                                <Link to="/profile" className="user-info" style={{ textDecoration: 'none' }}>
                                     <User size={20} className="text-cyan-primary" />
                                     <span className="user-name">{user?.name || 'User'}</span>
-                                </div>
+                                </Link>
 
                                 <button className="icon-btn" onClick={handleLogout} title="Logout">
                                     <LogOut size={20} />

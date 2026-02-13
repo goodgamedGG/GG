@@ -1,4 +1,5 @@
 const User = require('../models/User');
+const LoyaltyPoint = require('../models/LoyaltyPoint');
 const { AppError } = require('../middleware/errorMiddleware');
 const { HTTP_STATUS, USER_ROLES } = require('../utils/constants');
 const { validatePassword } = require('../utils/passwordSecurity');
@@ -11,10 +12,17 @@ const { validatePassword } = require('../utils/passwordSecurity');
 const getProfile = async (req, res, next) => {
     try {
         const user = await User.findById(req.user._id);
+        const loyalty = await LoyaltyPoint.findOne({ user: req.user._id });
 
         res.status(HTTP_STATUS.OK).json({
             success: true,
-            data: { user }
+            data: {
+                user: {
+                    ...user.toObject(),
+                    loyaltyPoints: loyalty?.points || 0,
+                    loyaltyTier: loyalty?.tier || 'bronze'
+                }
+            }
         });
     } catch (error) {
         next(error);

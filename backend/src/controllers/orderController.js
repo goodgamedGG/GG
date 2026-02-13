@@ -32,6 +32,14 @@ const createOrder = async (req, res, next) => {
     try {
         const { phone, paymentMethod, paymentProof, phoneNumber } = req.body;
 
+        console.log('=== CREATE ORDER REQUEST ===');
+        console.log('Request body:', JSON.stringify(req.body, null, 2));
+        console.log('Payment Method:', paymentMethod);
+        console.log('Payment Proof:', paymentProof);
+        console.log('Phone Number (sender):', phoneNumber);
+        console.log('Contact Phone:', phone);
+        console.log('===========================');
+
         // Get cart
         const cart = await Cart.findOne({ user: req.user._id }).populate('items.product promoCode');
         if (!cart || cart.items.length === 0) {
@@ -77,6 +85,10 @@ const createOrder = async (req, res, next) => {
 
         // Handle Payment creation if proof is provided (Manual Payment)
         if (paymentProof && phoneNumber && [PAYMENT_METHODS.INSTAPAY, PAYMENT_METHODS.VODAFONE_CASH, PAYMENT_METHODS.TELDA].includes(paymentMethod)) {
+            console.log('Creating payment with proof:', paymentProof);
+            console.log('Phone number:', phoneNumber);
+            console.log('Payment method:', paymentMethod);
+
             const payment = await Payment.create({
                 order: order._id,
                 user: req.user._id,
@@ -86,9 +98,18 @@ const createOrder = async (req, res, next) => {
                 status: PAYMENT_STATUS.PENDING
             });
 
+            console.log('Payment created:', payment._id);
+
             order.payment = payment._id;
             order.paymentStatus = PAYMENT_STATUS.PENDING;
             await order.save();
+        } else {
+            console.log('Payment NOT created. Conditions:', {
+                hasProof: !!paymentProof,
+                hasPhone: !!phoneNumber,
+                method: paymentMethod,
+                isValidMethod: [PAYMENT_METHODS.INSTAPAY, PAYMENT_METHODS.VODAFONE_CASH, PAYMENT_METHODS.TELDA].includes(paymentMethod)
+            });
         }
 
         // Update product stock and purchase count
@@ -215,7 +236,8 @@ const getAllOrders = async (req, res, next) => {
             .skip(skip)
             .limit(limitNum)
             .populate('user', 'name email')
-            .populate('items.product');
+            .populate('items.product')
+            .populate('payment');
 
         const total = await Order.countDocuments(query);
 

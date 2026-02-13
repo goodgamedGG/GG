@@ -18,6 +18,16 @@ const {
     paginationValidator
 } = require('../utils/validators');
 
+// Admin routes (must come before parameterized routes)
+// @route   GET /api/payments
+router.get('/', protect, requireAdmin, paginationValidator, validate, getAllPayments);
+
+// @route   PATCH /api/payments/:id/confirm
+router.patch('/:id/confirm', protect, requireAdmin, mongoIdValidator, validate, confirmPayment);
+
+// @route   PATCH /api/payments/:id/reject
+router.patch('/:id/reject', protect, requireAdmin, mongoIdValidator, validate, rejectPayment);
+
 // User routes
 // @route   POST /api/payments
 router.post(
@@ -34,15 +44,5 @@ router.post(
 
 // @route   GET /api/payments/:orderId
 router.get('/:orderId', protect, requireEmailVerification, mongoIdValidator, validate, getPaymentStatus);
-
-// Admin routes
-// @route   GET /api/payments
-router.get('/', protect, requireAdmin, paginationValidator, validate, getAllPayments);
-
-// @route   PATCH /api/payments/:id/confirm
-router.patch('/:id/confirm', protect, requireAdmin, mongoIdValidator, validate, confirmPayment);
-
-// @route   PATCH /api/payments/:id/reject
-router.patch('/:id/reject', protect, requireAdmin, mongoIdValidator, validate, rejectPayment);
 
 module.exports = router;

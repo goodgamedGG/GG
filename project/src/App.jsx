@@ -23,6 +23,7 @@ import Home from './pages/Home';
 import ProductDetails from './pages/ProductDetails';
 import Cart from './pages/Cart';
 import Checkout from './pages/Checkout';
+import Profile from './pages/Profile'; // Import Profile page
 import Categories from './pages/Categories';
 import About from './pages/About';
 import PrivacyPolicy from './pages/PrivacyPolicy';
@@ -166,6 +167,13 @@ const App = () => {
 
                                         {/* Fallback */}
                                         <Route path="*" element={<Navigate to="/" replace />} />
+                                        <Route path="/profile" element={
+                                            <PublicLayout>
+                                                <ProtectedRoute>
+                                                    <Profile />
+                                                </ProtectedRoute>
+                                            </PublicLayout>
+                                        } />
                                     </Routes>
                                 </GameProvider>
                             </ProductProvider>
