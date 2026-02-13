@@ -59,7 +59,7 @@ const getProductReviews = async (req, res, next) => {
             const stat = ratingStats[0];
             stats.averageRating = Math.round(stat.averageRating * 10) / 10;
             stats.totalReviews = stat.totalReviews;
-            
+
             // Calculate distribution
             stat.ratingDistribution.forEach(rating => {
                 stats.ratingDistribution[rating] = (stats.ratingDistribution[rating] || 0) + 1;
@@ -126,10 +126,14 @@ const createReview = async (req, res, next) => {
         // Update product rating (calculate average)
         await updateProductRating(productId);
 
+        // Award loyalty points for review
+        const { awardPointsForReview } = require('../controllers/loyaltyController');
+        const pointsEarned = await awardPointsForReview(req.user._id, productId);
+
         res.status(HTTP_STATUS.CREATED).json({
             success: true,
-            message: 'Review created successfully',
-            data: { review }
+            message: pointsEarned > 0 ? `Review created! You earned ${pointsEarned} points` : 'Review created successfully',
+            data: { review, pointsEarned }
         });
     } catch (error) {
         next(error);

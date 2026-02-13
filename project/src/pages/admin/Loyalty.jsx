@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Award, Plus, Minus, TrendingUp, Filter, Trophy, X, Save } from 'lucide-react';
+import { Award, Plus, Minus, TrendingUp, Filter, Trophy, X, Save, Settings } from 'lucide-react';
 import adminAPI from '../../api/admin';
+import LoyaltySettingsModal from '../../components/admin/LoyaltySettingsModal';
 
 const Loyalty = () => {
     const [loyaltyPoints, setLoyaltyPoints] = useState([]);
@@ -14,6 +15,7 @@ const Loyalty = () => {
     });
     const [showFilters, setShowFilters] = useState(false);
     const [isAdjustModalOpen, setIsAdjustModalOpen] = useState(false);
+    const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
     const [selectedUser, setSelectedUser] = useState(null);
     const [adjustFormData, setAdjustFormData] = useState({
         points: '',
@@ -96,10 +98,16 @@ const Loyalty = () => {
                         Manage customer loyalty points
                     </p>
                 </div>
-                <button onClick={() => setShowFilters(!showFilters)} className="btn-secondary">
-                    <Filter size={18} />
-                    Filters
-                </button>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                    <button onClick={() => setIsSettingsModalOpen(true)} className="btn-secondary">
+                        <Settings size={18} />
+                        Settings
+                    </button>
+                    <button onClick={() => setShowFilters(!showFilters)} className="btn-secondary">
+                        <Filter size={18} />
+                        Filters
+                    </button>
+                </div>
             </header>
 
             {/* Leaderboard */}
@@ -147,12 +155,12 @@ const Loyalty = () => {
 
             {/* Filters Panel */}
             {showFilters && (
-                <div style={{ 
-                    background: 'var(--color-bg-card)', 
-                    border: '1px solid var(--color-border)', 
-                    borderRadius: 'var(--radius-md)', 
-                    padding: '20px', 
-                    marginBottom: '20px' 
+                <div style={{
+                    background: 'var(--color-bg-card)',
+                    border: '1px solid var(--color-border)',
+                    borderRadius: 'var(--radius-md)',
+                    padding: '20px',
+                    marginBottom: '20px'
                 }}>
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
                         <div>
@@ -246,8 +254,8 @@ const Loyalty = () => {
                                             </span>
                                         </td>
                                         <td>
-                                            <button 
-                                                onClick={() => handleAdjust(loyalty)} 
+                                            <button
+                                                onClick={() => handleAdjust(loyalty)}
                                                 className="icon-btn"
                                                 title="Adjust Points"
                                             >
@@ -263,8 +271,8 @@ const Loyalty = () => {
                     {/* Pagination */}
                     {totalPages > 1 && (
                         <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', marginTop: '20px' }}>
-                            <button 
-                                onClick={() => setPage(p => Math.max(1, p - 1))} 
+                            <button
+                                onClick={() => setPage(p => Math.max(1, p - 1))}
                                 disabled={page === 1}
                                 className="btn-secondary"
                             >
@@ -273,8 +281,8 @@ const Loyalty = () => {
                             <span style={{ display: 'flex', alignItems: 'center', padding: '0 16px' }}>
                                 Page {page} of {totalPages}
                             </span>
-                            <button 
-                                onClick={() => setPage(p => Math.min(totalPages, p + 1))} 
+                            <button
+                                onClick={() => setPage(p => Math.min(totalPages, p + 1))}
                                 disabled={page === totalPages}
                                 className="btn-secondary"
                             >
@@ -362,10 +370,10 @@ const Loyalty = () => {
                                     />
                                 </div>
                                 <div style={{ display: 'flex', gap: '12px', marginTop: '24px' }}>
-                                    <button 
-                                        type="button" 
-                                        onClick={() => { setIsAdjustModalOpen(false); setSelectedUser(null); }} 
-                                        className="btn-secondary" 
+                                    <button
+                                        type="button"
+                                        onClick={() => { setIsAdjustModalOpen(false); setSelectedUser(null); }}
+                                        className="btn-secondary"
                                         style={{ flex: 1 }}
                                     >
                                         Cancel
@@ -379,6 +387,11 @@ const Loyalty = () => {
                         </div>
                     </div>
                 </div>
+            )}
+
+            {/* Settings Modal */}
+            {isSettingsModalOpen && (
+                <LoyaltySettingsModal onClose={() => setIsSettingsModalOpen(false)} />
             )}
         </div>
     );

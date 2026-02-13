@@ -195,6 +195,35 @@ const adminAPI = {
     rejectPayment: async (id, reason) => {
         const response = await client.patch(`/payments/${id}/reject`, { reason });
         return response.data.data;
+    },
+
+    // Loyalty
+    getLoyaltyPoints: async (page = 1, limit = 50, tier, minPoints) => {
+        const params = { page, limit };
+        if (tier) params.tier = tier;
+        if (minPoints) params.minPoints = minPoints;
+        const response = await client.get('/loyalty/all', { params });
+        return response.data;
+    },
+
+    getLeaderboard: async (limit = 10) => {
+        const response = await client.get('/loyalty/leaderboard', { params: { limit } });
+        return response.data;
+    },
+
+    getLoyaltySettings: async () => {
+        const response = await client.get('/loyalty/settings');
+        return response.data.data.settings;
+    },
+
+    updateLoyaltySettings: async (settings) => {
+        const response = await client.put('/loyalty/settings', settings);
+        return response.data.data.settings;
+    },
+
+    adjustLoyaltyPoints: async (userId, points, reason) => {
+        const response = await client.post('/loyalty/adjust', { userId, points, reason });
+        return response.data.data;
     }
 };
 
