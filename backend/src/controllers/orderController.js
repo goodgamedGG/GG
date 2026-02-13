@@ -7,6 +7,7 @@ const { AppError } = require('../middleware/errorMiddleware');
 const { HTTP_STATUS, ORDER_STATUS, PAYMENT_STATUS, PAYMENT_METHODS } = require('../utils/constants');
 const { getPagination, createPaginationMeta, generateOrderNumber } = require('../utils/helpers');
 const { sendOrderConfirmationEmail } = require('../services/emailService');
+const { redeemPoints } = require('./loyaltyController');
 
 // Helper function to validate stock
 const validateStock = (items) => {
@@ -60,6 +61,20 @@ const createOrder = async (req, res, next) => {
             quantity: item.quantity
         }));
 
+        // Deduct loyalty points if used
+        if (cart.pointsUsed > 0) {
+            console.log(`Processing point redemption: ${cart.pointsUsed} points`);
+
+            // Attempt to redeem logic (deduct points)
+            const redemptionResult = await redeemPoints(req.user._id, cart.pointsUsed);
+
+            if (!redemptionResult.success) {
+                return next(new AppError(`Failed to redeem points: ${redemptionResult.message}`, HTTP_STATUS.BAD_REQUEST));
+            }
+
+            console.log('Points redemption successful');
+        }
+
         // Create order
         const order = await Order.create({
             user: req.user._id,
@@ -68,6 +83,8 @@ const createOrder = async (req, res, next) => {
             subtotal: cart.subtotal,
             discount: cart.discount,
             total: cart.total,
+            pointsUsed: cart.pointsUsed || 0,
+            pointsDiscount: cart.pointsDiscount || 0,
             customerInfo: {
                 name: req.user.name,
                 email: req.user.email,
@@ -137,6 +154,8 @@ const createOrder = async (req, res, next) => {
         cart.discount = 0;
         cart.total = 0;
         cart.promoCode = null;
+        cart.pointsUsed = 0;
+        cart.pointsDiscount = 0;
         await cart.save();
 
         // Send confirmation email

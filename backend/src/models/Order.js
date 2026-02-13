@@ -95,6 +95,14 @@ const orderSchema = new mongoose.Schema(
             ref: 'PromoCode',
             default: null
         },
+        pointsUsed: {
+            type: Number,
+            default: 0
+        },
+        pointsDiscount: {
+            type: Number,
+            default: 0
+        },
         trackingHistory: [{
             status: {
                 type: String,

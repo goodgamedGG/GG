@@ -13,7 +13,7 @@ const loyaltySettingsSchema = new mongoose.Schema(
         // Points redemption rules
         pointsToMoneyRatio: {
             type: Number,
-            default: 100, // 100 points = $1
+            default: 100, // 100 points = 1 EGP
             min: 1,
             required: true
         },
@@ -25,7 +25,7 @@ const loyaltySettingsSchema = new mongoose.Schema(
         },
         maxRedemptionPerOrder: {
             type: Number,
-            default: 1000, // Max $10 discount per order
+            default: 1000, // Max 10 EGP discount per order
             min: 0
         },
 

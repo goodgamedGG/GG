@@ -1,6 +1,8 @@
 const Cart = require('../models/Cart');
 const Product = require('../models/Product');
 const PromoCode = require('../models/PromoCode');
+const LoyaltyPoint = require('../models/LoyaltyPoint');
+const LoyaltySettings = require('../models/LoyaltySettings');
 const { AppError } = require('../middleware/errorMiddleware');
 const { HTTP_STATUS } = require('../utils/constants');
 const { calculateOrderTotals } = require('../services/calculationService');
@@ -276,11 +278,113 @@ const applyPromoCode = async (req, res, next) => {
     }
 };
 
+/**
+ * @desc    Redeem loyalty points
+ * @route   POST /api/cart/redeem-points
+ * @access  Private
+ */
+const redeemPoints = async (req, res, next) => {
+    try {
+        const { points } = req.body;
+        const pointsToRedeem = parseInt(points);
+
+        if (isNaN(pointsToRedeem) || pointsToRedeem <= 0) {
+            return next(new AppError('Invalid points amount', HTTP_STATUS.BAD_REQUEST));
+        }
+
+        const cart = await Cart.findOne({ user: req.user._id }).populate('items.product');
+        if (!cart) {
+            return next(new AppError('Cart not found', HTTP_STATUS.NOT_FOUND));
+        }
+
+        if (cart.items.length === 0) {
+            return next(new AppError('Cart is empty', HTTP_STATUS.BAD_REQUEST));
+        }
+
+        // Get settings and validation
+        const settings = await LoyaltySettings.getSettings();
+        if (!settings.isActive) {
+            return next(new AppError('Loyalty program is active', HTTP_STATUS.BAD_REQUEST));
+        }
+
+        if (pointsToRedeem < settings.minPointsToRedeem) {
+            return next(new AppError(`Minimum redemption is ${settings.minPointsToRedeem} points`, HTTP_STATUS.BAD_REQUEST));
+        }
+
+        // Check user balance
+        const loyalty = await LoyaltyPoint.findOne({ user: req.user._id });
+        if (!loyalty || loyalty.points < pointsToRedeem) {
+            return next(new AppError('Insufficient loyalty points', HTTP_STATUS.BAD_REQUEST));
+        }
+
+        // Calculate discount
+        const discountAmount = pointsToRedeem / settings.pointsToMoneyRatio;
+
+        if (settings.maxRedemptionPerOrder > 0 && discountAmount > settings.maxRedemptionPerOrder) {
+            return next(new AppError(`Maximum discount allowed is $${settings.maxRedemptionPerOrder}`, HTTP_STATUS.BAD_REQUEST));
+        }
+
+        // Apply to cart (don't deduct yet)
+        cart.pointsUsed = pointsToRedeem;
+        cart.pointsDiscount = discountAmount;
+
+        // Ensure total doesn't go below 0 (handled in calculateTotals)
+        // If discount > subtotal, cap it
+        if (cart.pointsDiscount > cart.subtotal) {
+            const maxDiscount = cart.subtotal;
+            const maxPoints = Math.ceil(maxDiscount * settings.pointsToMoneyRatio);
+
+            cart.pointsDiscount = maxDiscount;
+            cart.pointsUsed = maxPoints;
+        }
+
+        cart.calculateTotals();
+        await cart.save();
+
+        res.status(HTTP_STATUS.OK).json({
+            success: true,
+            message: 'Points applied to cart',
+            data: { cart }
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+/**
+ * @desc    Remove redeemed points
+ * @route   DELETE /api/cart/redeem-points
+ * @access  Private
+ */
+const removePoints = async (req, res, next) => {
+    try {
+        const cart = await Cart.findOne({ user: req.user._id });
+        if (!cart) {
+            return next(new AppError('Cart not found', HTTP_STATUS.NOT_FOUND));
+        }
+
+        cart.pointsUsed = 0;
+        cart.pointsDiscount = 0;
+        cart.calculateTotals();
+        await cart.save();
+
+        res.status(HTTP_STATUS.OK).json({
+            success: true,
+            message: 'Points removed from cart',
+            data: { cart }
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
 module.exports = {
     getCart,
     addToCart,
     updateCartItem,
     removeFromCart,
     clearCart,
-    applyPromoCode
+    applyPromoCode,
+    redeemPoints,
+    removePoints
 };

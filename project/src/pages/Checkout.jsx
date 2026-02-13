@@ -9,7 +9,7 @@ import client from '../api/client'; // Import client for API calls
 const Checkout = () => {
     const { t, isRTL } = useLanguage();
     const { isAuthenticated, user } = useAuth();
-    const { cart, clearCart } = useCart();
+    const { cart, clearCart, fetchCart } = useCart();
     const navigate = useNavigate();
     const { addToast } = useToast();
 
@@ -18,6 +18,62 @@ const Checkout = () => {
     const [phoneNumber, setPhoneNumber] = useState(''); // Sender's number
     const [paymentProof, setPaymentProof] = useState(null);
     const [contactPhone, setContactPhone] = useState(user?.phone || '');
+
+    // Loyalty State
+    const [loyalty, setLoyalty] = useState(null);
+    const [pointsInput, setPointsInput] = useState('');
+    const [redeemLoading, setRedeemLoading] = useState(false);
+
+    React.useEffect(() => {
+        const fetchLoyalty = async () => {
+            try {
+                const res = await client.get('/loyalty');
+                if (res.data.success) {
+                    setLoyalty(res.data.data);
+                }
+            } catch (error) {
+                console.error('Error fetching loyalty:', error);
+            }
+        };
+        fetchLoyalty();
+    }, []);
+
+    const handleRedeemPoints = async () => {
+        if (!pointsInput || isNaN(pointsInput) || parseInt(pointsInput) <= 0) {
+            addToast('Please enter a valid points amount', 'error');
+            return;
+        }
+
+        try {
+            setRedeemLoading(true);
+            const res = await client.post('/cart/redeem-points', { points: parseInt(pointsInput) });
+            if (res.data.success) {
+                addToast('Points applied successfully', 'success');
+                fetchCart(); // Refresh cart to show discount
+                setPointsInput('');
+            }
+        } catch (error) {
+            const msg = error.response?.data?.message || 'Failed to redeem points';
+            addToast(msg, 'error');
+        } finally {
+            setRedeemLoading(false);
+        }
+    };
+
+    const handleRemovePoints = async () => {
+        try {
+            setRedeemLoading(true);
+            const res = await client.delete('/cart/redeem-points');
+            if (res.data.success) {
+                addToast('Points removed', 'success');
+                fetchCart(); // Refresh cart
+            }
+        } catch (error) {
+            addToast('Failed to remove points', 'error');
+        } finally {
+            setRedeemLoading(false);
+        }
+    };
 
     const PAYMENT_METHODS = {
         INSTAPAY: { id: 'InstaPay', name: 'InstaPay', number: '01000000000' },
@@ -169,6 +225,59 @@ const Checkout = () => {
                         />
                     </div>
 
+                    {/* Loyalty Points Redemption */}
+                    {loyalty && loyalty.settings && loyalty.loyalty && (
+                        <div style={{ marginBottom: '32px', padding: '20px', background: 'rgba(255, 215, 0, 0.05)', borderRadius: '8px', border: '1px solid rgba(255, 215, 0, 0.2)' }}>
+                            <h3 style={{ marginBottom: '16px', color: '#FFD700', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                <span>💎</span> Loyalty Points
+                            </h3>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '16px', fontSize: '14px' }}>
+                                <span style={{ color: 'var(--color-text-secondary)' }}>Available: {loyalty.loyalty.points} points</span>
+                                <span style={{ color: 'var(--color-text-secondary)' }}>Value: EGP {(loyalty.loyalty.points / loyalty.settings.pointsToMoneyRatio).toFixed(2)}</span>
+                            </div>
+
+                            {cart.pointsUsed > 0 ? (
+                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px', background: 'rgba(255, 215, 0, 0.1)', borderRadius: '6px' }}>
+                                    <div>
+                                        <div style={{ color: '#FFD700', fontWeight: 'bold' }}>{cart.pointsUsed} Points Applied</div>
+                                        <div style={{ fontSize: '12px', color: 'var(--color-text-muted)' }}>Discount: -EGP {cart.pointsDiscount}</div>
+                                    </div>
+                                    <button
+                                        type="button"
+                                        onClick={handleRemovePoints}
+                                        disabled={redeemLoading}
+                                        style={{ background: 'transparent', border: '1px solid #FFD700', color: '#FFD700', padding: '6px 12px', borderRadius: '4px', cursor: 'pointer' }}
+                                    >
+                                        Remove
+                                    </button>
+                                </div>
+                            ) : (
+                                <div style={{ display: 'flex', gap: '8px' }}>
+                                    <input
+                                        type="number"
+                                        value={pointsInput}
+                                        onChange={(e) => setPointsInput(e.target.value)}
+                                        placeholder={`Min ${loyalty.settings.minPointsToRedeem} points`}
+                                        style={{ flex: 1, padding: '10px', background: 'var(--color-bg-primary)', border: '1px solid var(--color-border)', borderRadius: '6px', color: 'white' }}
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={handleRedeemPoints}
+                                        disabled={redeemLoading || !pointsInput}
+                                        style={{ background: '#FFD700', color: 'black', border: 'none', padding: '0 20px', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer', opacity: (redeemLoading || !pointsInput) ? 0.5 : 1 }}
+                                    >
+                                        Apply
+                                    </button>
+                                </div>
+                            )}
+                            {loyalty.settings.minPointsToRedeem > 0 && (
+                                <p style={{ marginTop: '8px', fontSize: '12px', color: 'var(--color-text-muted)' }}>
+                                    Minimum redemption: {loyalty.settings.minPointsToRedeem} points. Rate: {loyalty.settings.pointsToMoneyRatio} points = 1 EGP.
+                                </p>
+                            )}
+                        </div>
+                    )}
+
                     {/* Payment Methods */}
                     <div style={{ marginBottom: '32px' }}>
                         <h3 style={{ marginBottom: '16px', color: 'var(--color-text-primary)' }}>Payment Method</h3>
@@ -244,9 +353,27 @@ const Checkout = () => {
                     )}
 
                     <div style={{ marginTop: '32px', borderTop: '1px solid var(--color-border)', paddingTop: '20px' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px', fontSize: '18px', fontWeight: 'bold' }}>
-                            <span>Total</span>
-                            <span style={{ color: 'var(--color-cyan-primary)' }}>EGP {cart.total}</span>
+                        <div style={{ marginBottom: '20px' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', color: 'var(--color-text-secondary)' }}>
+                                <span>Subtotal</span>
+                                <span>EGP {cart.subtotal}</span>
+                            </div>
+                            {cart.discount > 0 && (
+                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', color: '#4CAF50' }}>
+                                    <span>Discount (Promo)</span>
+                                    <span>-EGP {cart.discount}</span>
+                                </div>
+                            )}
+                            {cart.pointsDiscount > 0 && (
+                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', color: '#FFD700' }}>
+                                    <span>Loyalty Discount</span>
+                                    <span>-EGP {cart.pointsDiscount}</span>
+                                </div>
+                            )}
+                            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '20px', fontWeight: 'bold', marginTop: '12px', paddingTop: '12px', borderTop: '1px solid var(--color-border)' }}>
+                                <span>Total</span>
+                                <span style={{ color: 'var(--color-cyan-primary)' }}>EGP {cart.total}</span>
+                            </div>
                         </div>
 
                         <button

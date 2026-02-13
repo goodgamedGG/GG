@@ -51,6 +51,16 @@ const cartSchema = new mongoose.Schema(
             type: mongoose.Schema.Types.ObjectId,
             ref: 'PromoCode',
             default: null
+        },
+        pointsUsed: {
+            type: Number,
+            default: 0,
+            min: 0
+        },
+        pointsDiscount: {
+            type: Number,
+            default: 0,
+            min: 0
         }
     },
     {
@@ -63,8 +73,8 @@ cartSchema.methods.calculateTotals = function () {
     // Calculate subtotal
     this.subtotal = this.items.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
-    // Calculate total (subtotal - discount)
-    this.total = Math.max(0, this.subtotal - this.discount);
+    // Calculate total (subtotal - discount - pointsDiscount)
+    this.total = Math.max(0, this.subtotal - this.discount - this.pointsDiscount);
 
     return this;
 };

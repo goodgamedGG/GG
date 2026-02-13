@@ -21,9 +21,18 @@ const getLoyaltyPoints = async (req, res, next) => {
             });
         }
 
+        const settings = await LoyaltySettings.getSettings();
+
         res.status(HTTP_STATUS.OK).json({
             success: true,
-            data: { loyalty }
+            data: {
+                loyalty,
+                settings: {
+                    pointsToMoneyRatio: settings.pointsToMoneyRatio,
+                    minPointsToRedeem: settings.minPointsToRedeem,
+                    maxRedemptionPerOrder: settings.maxRedemptionPerOrder
+                }
+            }
         });
     } catch (error) {
         next(error);

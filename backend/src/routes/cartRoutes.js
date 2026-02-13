@@ -6,7 +6,9 @@ const {
     updateCartItem,
     removeFromCart,
     clearCart,
-    applyPromoCode
+    applyPromoCode,
+    redeemPoints,
+    removePoints
 } = require('../controllers/cartController');
 const { protect, requireEmailVerification } = require('../middleware/authMiddleware');
 const validate = require('../middleware/validateMiddleware');
@@ -37,5 +39,11 @@ router.delete('/', clearCart);
 
 // @route   POST /api/cart/promo-code
 router.post('/promo-code', applyPromoCode);
+
+// @route   POST /api/cart/redeem-points
+router.post('/redeem-points', validate, redeemPoints);
+
+// @route   DELETE /api/cart/redeem-points
+router.delete('/redeem-points', removePoints);
 
 module.exports = router;
