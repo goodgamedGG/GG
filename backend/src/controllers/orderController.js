@@ -5,7 +5,7 @@ const PromoCode = require('../models/PromoCode');
 const Payment = require('../models/Payment');
 const { AppError } = require('../middleware/errorMiddleware');
 const { HTTP_STATUS, ORDER_STATUS, PAYMENT_STATUS, PAYMENT_METHODS } = require('../utils/constants');
-const { getPagination, createPaginationMeta } = require('../utils/helpers');
+const { getPagination, createPaginationMeta, generateOrderNumber } = require('../utils/helpers');
 const { sendOrderConfirmationEmail } = require('../services/emailService');
 
 // Helper function to validate stock
@@ -55,6 +55,7 @@ const createOrder = async (req, res, next) => {
         // Create order
         const order = await Order.create({
             user: req.user._id,
+            orderNumber: generateOrderNumber(),
             items: orderItems,
             subtotal: cart.subtotal,
             discount: cart.discount,

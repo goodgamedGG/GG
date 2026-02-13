@@ -6,7 +6,6 @@ const path = require('path');
 // Create GridFS storage engine
 const storage = new GridFsStorage({
     url: process.env.MONGO_URI,
-    options: { useUnifiedTopology: true },
     file: (req, file) => {
         return new Promise((resolve, reject) => {
             crypto.randomBytes(16, (err, buf) => {

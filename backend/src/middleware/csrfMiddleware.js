@@ -17,16 +17,16 @@ const generateCSRFToken = () => {
  */
 const createCSRFToken = (req, res, next) => {
     const token = generateCSRFToken();
-    
+
     // Store token with expiration (15 minutes)
     csrfTokens.set(token, {
         expires: Date.now() + 15 * 60 * 1000,
         ip: req.ip
     });
-    
+
     // Set token in response header
     res.setHeader('X-CSRF-Token', token);
-    
+
     // Also set in cookie for easier access
     res.cookie('csrf-token', token, {
         httpOnly: false, // Must be accessible to JavaScript
@@ -34,7 +34,7 @@ const createCSRFToken = (req, res, next) => {
         sameSite: 'strict',
         maxAge: 15 * 60 * 1000 // 15 minutes
     });
-    
+
     next();
 };
 
@@ -46,25 +46,25 @@ const verifyCSRFToken = (req, res, next) => {
     if (['GET', 'HEAD', 'OPTIONS'].includes(req.method)) {
         return next();
     }
-    
+
     // Get token from header or body
     const token = req.headers['x-csrf-token'] || req.body._csrf || req.query._csrf;
-    
+
     if (!token) {
         return next(
             new AppError('CSRF token is required', HTTP_STATUS.FORBIDDEN)
         );
     }
-    
+
     // Check if token exists and is valid
     const tokenData = csrfTokens.get(token);
-    
+
     if (!tokenData) {
         return next(
             new AppError('Invalid CSRF token', HTTP_STATUS.FORBIDDEN)
         );
     }
-    
+
     // Check expiration
     if (tokenData.expires < Date.now()) {
         csrfTokens.delete(token);
@@ -72,17 +72,17 @@ const verifyCSRFToken = (req, res, next) => {
             new AppError('CSRF token has expired', HTTP_STATUS.FORBIDDEN)
         );
     }
-    
+
     // Optional: Verify IP address matches
     if (tokenData.ip !== req.ip) {
         return next(
             new AppError('CSRF token IP mismatch', HTTP_STATUS.FORBIDDEN)
         );
     }
-    
+
     // Token is valid, delete it (one-time use)
-    csrfTokens.delete(token);
-    
+    // csrfTokens.delete(token); // Allow token reuse for better UX
+
     next();
 };
 

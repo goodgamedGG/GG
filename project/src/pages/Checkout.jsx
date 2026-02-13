@@ -20,9 +20,9 @@ const Checkout = () => {
     const [contactPhone, setContactPhone] = useState(user?.phone || '');
 
     const PAYMENT_METHODS = {
-        INSTAPAY: { id: 'instapay', name: 'InstaPay', number: '01000000000' },
-        VODAFONE_CASH: { id: 'vodafone_cash', name: 'Vodafone Cash', number: '01000000000' },
-        TELDA: { id: 'telda', name: 'Telda', number: '01500000000' }
+        INSTAPAY: { id: 'InstaPay', name: 'InstaPay', number: '01000000000' },
+        VODAFONE_CASH: { id: 'Vodafone Cash', name: 'Vodafone Cash', number: '01000000000' },
+        TELDA: { id: 'Telda', name: 'Telda', number: '01500000000' }
     };
 
     const handleFileChange = (e) => {
@@ -44,7 +44,7 @@ const Checkout = () => {
             return;
         }
 
-        if (['instapay', 'vodafone_cash', 'telda'].includes(paymentMethod) && (!paymentProof || !phoneNumber)) {
+        if (['InstaPay', 'Vodafone Cash', 'Telda'].includes(paymentMethod) && (!paymentProof || !phoneNumber)) {
             addToast('Please upload payment proof and enter the sender number', 'error');
             return;
         }
@@ -58,12 +58,13 @@ const Checkout = () => {
                 const formData = new FormData();
                 formData.append('file', paymentProof);
 
-                const uploadRes = await client.post('/upload', formData, true);
-                // Access data correctly based on standard response { success: true, data: { url: ... } }
-                // client.post returns response.data directly based on previous files, 
-                // OR response object? In content.js: response.data.banner.
-                // In client.js: return data; (which is await res.json())
-                // So uploadRes IS the json body.
+                const response = await client.post('/upload', formData, {
+                    headers: {
+                        'Content-Type': undefined
+                    }
+                });
+
+                const uploadRes = response.data;
 
                 if (!uploadRes.success) throw new Error(uploadRes.message || 'Upload failed');
                 proofUrl = uploadRes.data.url;
@@ -77,7 +78,8 @@ const Checkout = () => {
                 phoneNumber
             };
 
-            const orderRes = await client.post('/orders', orderData);
+            const response = await client.post('/orders', orderData);
+            const orderRes = response.data;
 
             if (orderRes.success) {
                 addToast('Order placed successfully!', 'success');
@@ -91,8 +93,10 @@ const Checkout = () => {
             }
 
         } catch (error) {
-            console.error(error);
-            addToast(error.message || 'Order failed', 'error');
+            console.error('Checkout Error:', error);
+            const errorMessage = error.response?.data?.message || error.response?.data?.error || error.message || 'Order failed';
+            addToast(errorMessage, 'error');
+            alert(`Order Failed: ${errorMessage}`); // Force alert for immediate visibility
         } finally {
             setLoading(false);
         }
