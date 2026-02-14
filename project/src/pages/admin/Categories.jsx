@@ -119,22 +119,45 @@ const Categories = () => {
                 <h1 className="page-title">Categories</h1>
                 <button
                     onClick={() => { resetForm(); setIsModalOpen(true); }}
-                    className="btn-primary"
                     style={{
-                        display: 'flex', alignItems: 'center', gap: '8px',
-                        background: 'var(--color-primary)', color: '#000',
-                        padding: '10px 20px', borderRadius: 'var(--radius-md)',
-                        fontWeight: '600', border: 'none', cursor: 'pointer'
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px',
+                        background: 'linear-gradient(135deg, #00d9ff 0%, #00a8cc 100%)',
+                        color: '#0a0f14',
+                        padding: '14px 28px',
+                        borderRadius: 'var(--radius-md)',
+                        fontWeight: '700',
+                        border: 'none',
+                        cursor: 'pointer',
+                        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                        boxShadow: '0 4px 20px rgba(0, 217, 255, 0.4)',
+                        fontSize: '15px',
+                        letterSpacing: '0.3px'
+                    }}
+                    onMouseEnter={(e) => {
+                        e.currentTarget.style.transform = 'translateY(-3px) scale(1.02)';
+                        e.currentTarget.style.boxShadow = '0 8px 30px rgba(0, 217, 255, 0.6)';
+                    }}
+                    onMouseLeave={(e) => {
+                        e.currentTarget.style.transform = 'translateY(0) scale(1)';
+                        e.currentTarget.style.boxShadow = '0 4px 20px rgba(0, 217, 255, 0.4)';
+                    }}
+                    onMouseDown={(e) => {
+                        e.currentTarget.style.transform = 'translateY(-1px) scale(0.98)';
+                    }}
+                    onMouseUp={(e) => {
+                        e.currentTarget.style.transform = 'translateY(-3px) scale(1.02)';
                     }}
                 >
-                    <Plus size={18} />
+                    <Plus size={20} strokeWidth={2.5} />
                     Add Category
                 </button>
             </div>
 
             {/* Filters */}
-            <div className="admin-card" style={{ marginBottom: '24px', padding: '16px' }}>
-                <div style={{ position: 'relative', maxWidth: '400px' }}>
+            <div className="admin-card" style={{ marginBottom: '40px', padding: '32px' }}>
+                <div style={{ position: 'relative', maxWidth: '600px' }}>
                     <Search size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-muted)' }} />
                     <input
                         type="text"
@@ -142,13 +165,24 @@ const Categories = () => {
                         className="form-input"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
+                        onFocus={(e) => {
+                            e.currentTarget.style.borderColor = 'var(--color-primary)';
+                            e.currentTarget.style.boxShadow = '0 0 0 3px rgba(0, 217, 255, 0.1)';
+                        }}
+                        onBlur={(e) => {
+                            e.currentTarget.style.borderColor = 'var(--color-border)';
+                            e.currentTarget.style.boxShadow = 'none';
+                        }}
                         style={{
                             width: '100%',
-                            padding: '10px 10px 10px 40px',
-                            background: 'var(--color-bg-primary)',
+                            padding: '14px 14px 14px 48px',
+                            background: 'var(--color-bg-secondary)',
                             border: '1px solid var(--color-border)',
                             borderRadius: 'var(--radius-md)',
-                            color: 'var(--color-text-primary)'
+                            color: 'var(--color-text-primary)',
+                            fontSize: '15px',
+                            transition: 'all 0.3s ease',
+                            outline: 'none'
                         }}
                     />
                 </div>
@@ -164,14 +198,14 @@ const Categories = () => {
                 </div>
 
                 <div className="table-container">
-                    <table className="data-table">
+                    <table className="data-table enhanced-table">
                         <thead>
                             <tr>
-                                <th style={{ width: '80px' }}>Image</th>
-                                <th>Name</th>
-                                <th>Description</th>
-                                <th>Status</th>
-                                <th style={{ textAlign: 'right' }}>Actions</th>
+                                <th style={{ width: '120px', padding: '24px' }}>Image</th>
+                                <th style={{ width: '25%', padding: '24px' }}>Name</th>
+                                <th style={{ padding: '24px' }}>Description</th>
+                                <th style={{ width: '180px', padding: '24px' }}>Status</th>
+                                <th style={{ textAlign: 'right', width: '160px', padding: '24px' }}>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -184,26 +218,57 @@ const Categories = () => {
                                     <td colSpan="5" style={{ textAlign: 'center', padding: '40px' }}>No categories found.</td>
                                 </tr>
                             ) : (
-                                filteredCategories.map((category) => (
-                                    <tr key={category._id}>
-                                        <td className="col-image">
+                                filteredCategories.map((category, index) => (
+                                    <tr key={category._id} style={{ animationDelay: `${index * 50}ms` }}>
+                                        <td className="col-image" style={{ padding: '24px 32px' }}>
                                             <img
-                                                src={category.image ? getImageUrl(category.image) : 'https://placehold.co/40'}
+                                                src={category.image ? getImageUrl(category.image) : 'https://placehold.co/80'}
                                                 alt={category.name}
-                                                style={{ width: '40px', height: '40px', objectFit: 'cover', borderRadius: '6px', background: 'var(--color-bg-secondary)' }}
-                                                onError={(e) => { e.target.src = 'https://placehold.co/40'; }}
+                                                style={{
+                                                    width: '80px',
+                                                    height: '80px',
+                                                    objectFit: 'cover',
+                                                    borderRadius: 'var(--radius-md)',
+                                                    background: 'var(--color-bg-secondary)',
+                                                    border: '1px solid var(--color-border)'
+                                                }}
+                                                onError={(e) => { e.target.src = 'https://placehold.co/80x80/1a212c/64748b?text=Category'; }}
                                             />
                                         </td>
-                                        <td className="col-primary" style={{ fontWeight: 600 }}>{category.name}</td>
-                                        <td style={{ color: 'var(--color-text-secondary)', maxWidth: '300px', whiteSpace: 'normal' }}>
-                                            {category.description || '-'}
+                                        <td className="col-primary" style={{ padding: '24px 32px' }}>
+                                            <div style={{ fontWeight: '700', fontSize: '17px', color: 'var(--color-text-primary)' }}>{category.name}</div>
                                         </td>
-                                        <td>
-                                            <span className={`status-badge ${category.isActive !== false ? 'status-active' : 'status-inactive'}`}>
+                                        <td style={{ padding: '24px 32px' }}>
+                                            <div style={{
+                                                color: 'var(--color-text-secondary)',
+                                                fontSize: '14px',
+                                                lineHeight: '1.6',
+                                                maxWidth: '600px',
+                                                overflow: 'hidden',
+                                                textOverflow: 'ellipsis',
+                                                display: '-webkit-box',
+                                                WebkitLineClamp: 2,
+                                                WebkitBoxOrient: 'vertical'
+                                            }}>
+                                                {category.description || 'No description provided.'}
+                                            </div>
+                                        </td>
+                                        <td style={{ padding: '24px 32px' }}>
+                                            <span
+                                                className={`status-badge ${category.isActive !== false ? 'status-active' : 'status-inactive'}`}
+                                                style={{
+                                                    padding: '8px 16px',
+                                                    borderRadius: '24px',
+                                                    fontSize: '12px',
+                                                    fontWeight: '700',
+                                                    textTransform: 'uppercase',
+                                                    letterSpacing: '1px'
+                                                }}
+                                            >
                                                 {category.isActive !== false ? 'Active' : 'Inactive'}
                                             </span>
                                         </td>
-                                        <td>
+                                        <td style={{ padding: '24px 32px' }}>
                                             <div className="action-btn-group" style={{ justifyContent: 'flex-end' }}>
                                                 <button onClick={() => openEditModal(category)} className="action-btn" title="Edit">
                                                     <Edit2 size={16} />

@@ -320,11 +320,9 @@ const AdminLayout = () => {
                 }
 
                 .admin-content {
-                    padding: 32px;
+                    padding: 40px 48px;
                     overflow-y: auto;
                     flex: 1;
-                    max-width: 1600px;
-                    margin: 0 auto;
                     width: 100%;
                 }
 

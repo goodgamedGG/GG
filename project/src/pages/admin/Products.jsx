@@ -247,9 +247,9 @@ const Products = () => {
     return (
         <div>
             {/* Hero Section with Stats */}
-            <div style={{ marginBottom: 'var(--spacing-xl)' }}>
+            <div style={{ marginBottom: '32px' }}>
                 {/* Header */}
-                <div style={{ marginBottom: 'var(--spacing-lg)' }}>
+                <div style={{ marginBottom: '24px' }}>
                     <h1 style={{
                         fontSize: 'clamp(28px, 4vw, 36px)',
                         fontWeight: '700',
@@ -272,26 +272,34 @@ const Products = () => {
                             display: 'flex',
                             alignItems: 'center',
                             gap: '8px',
-                            background: 'var(--color-primary)',
-                            color: '#000',
-                            padding: '12px 24px',
+                            background: 'linear-gradient(135deg, #00d9ff 0%, #00a8cc 100%)',
+                            color: '#0a0f14',
+                            padding: '14px 28px',
                             borderRadius: 'var(--radius-md)',
-                            fontWeight: '600',
+                            fontWeight: '700',
                             border: 'none',
                             cursor: 'pointer',
-                            transition: 'all var(--transition-fast)',
-                            boxShadow: '0 0 20px rgba(0, 217, 255, 0.3)'
+                            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                            boxShadow: '0 4px 20px rgba(0, 217, 255, 0.4)',
+                            fontSize: '15px',
+                            letterSpacing: '0.3px'
                         }}
                         onMouseEnter={(e) => {
-                            e.currentTarget.style.transform = 'translateY(-2px)';
-                            e.currentTarget.style.boxShadow = '0 0 30px rgba(0, 217, 255, 0.5)';
+                            e.currentTarget.style.transform = 'translateY(-3px) scale(1.02)';
+                            e.currentTarget.style.boxShadow = '0 8px 30px rgba(0, 217, 255, 0.6)';
                         }}
                         onMouseLeave={(e) => {
-                            e.currentTarget.style.transform = 'translateY(0)';
-                            e.currentTarget.style.boxShadow = '0 0 20px rgba(0, 217, 255, 0.3)';
+                            e.currentTarget.style.transform = 'translateY(0) scale(1)';
+                            e.currentTarget.style.boxShadow = '0 4px 20px rgba(0, 217, 255, 0.4)';
+                        }}
+                        onMouseDown={(e) => {
+                            e.currentTarget.style.transform = 'translateY(-1px) scale(0.98)';
+                        }}
+                        onMouseUp={(e) => {
+                            e.currentTarget.style.transform = 'translateY(-3px) scale(1.02)';
                         }}
                     >
-                        <Plus size={18} />
+                        <Plus size={20} strokeWidth={2.5} />
                         Add Product
                     </button>
                 </div>
@@ -299,9 +307,9 @@ const Products = () => {
                 {/* Stats Cards */}
                 <div style={{
                     display: 'grid',
-                    gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
-                    gap: 'var(--spacing-md)',
-                    marginBottom: 'var(--spacing-lg)'
+                    gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
+                    gap: '20px',
+                    marginBottom: '32px'
                 }}>
                     <div className="stats-card">
                         <div className="stats-icon" style={{ background: 'rgba(0, 217, 255, 0.1)' }}>
@@ -338,11 +346,11 @@ const Products = () => {
             </div>
 
             {/* Advanced Filters */}
-            <div className="admin-card" style={{ marginBottom: 'var(--spacing-lg)', padding: 'var(--spacing-md)' }}>
+            <div className="admin-card" style={{ marginBottom: '32px', padding: '24px' }}>
                 <div style={{
                     display: 'grid',
                     gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-                    gap: 'var(--spacing-md)',
+                    gap: '20px',
                     alignItems: 'end'
                 }}>
                     {/* Search */}
@@ -369,14 +377,24 @@ const Products = () => {
                                 placeholder="Search by name..."
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
+                                onFocus={(e) => {
+                                    e.currentTarget.style.borderColor = 'var(--color-primary)';
+                                    e.currentTarget.style.boxShadow = '0 0 0 3px rgba(0, 217, 255, 0.1)';
+                                }}
+                                onBlur={(e) => {
+                                    e.currentTarget.style.borderColor = 'var(--color-border)';
+                                    e.currentTarget.style.boxShadow = 'none';
+                                }}
                                 style={{
                                     width: '100%',
-                                    padding: '10px 10px 10px 40px',
+                                    padding: '12px 12px 12px 42px',
                                     background: 'var(--color-bg-secondary)',
                                     border: '1px solid var(--color-border)',
                                     borderRadius: 'var(--radius-md)',
                                     color: 'var(--color-text-primary)',
-                                    fontSize: '14px'
+                                    fontSize: '14px',
+                                    transition: 'all 0.3s ease',
+                                    outline: 'none'
                                 }}
                             />
                         </div>
@@ -396,14 +414,25 @@ const Products = () => {
                         <select
                             value={selectedCategory}
                             onChange={(e) => setSelectedCategory(e.target.value)}
+                            onFocus={(e) => {
+                                e.currentTarget.style.borderColor = 'var(--color-primary)';
+                                e.currentTarget.style.boxShadow = '0 0 0 3px rgba(0, 217, 255, 0.1)';
+                            }}
+                            onBlur={(e) => {
+                                e.currentTarget.style.borderColor = 'var(--color-border)';
+                                e.currentTarget.style.boxShadow = 'none';
+                            }}
                             style={{
                                 width: '100%',
-                                padding: '10px 12px',
+                                padding: '12px 14px',
                                 background: 'var(--color-bg-secondary)',
                                 border: '1px solid var(--color-border)',
                                 borderRadius: 'var(--radius-md)',
                                 color: 'var(--color-text-primary)',
-                                fontSize: '14px'
+                                fontSize: '14px',
+                                transition: 'all 0.3s ease',
+                                outline: 'none',
+                                cursor: 'pointer'
                             }}
                         >
                             <option value="">All Categories</option>
@@ -427,14 +456,25 @@ const Products = () => {
                         <select
                             value={selectedStatus}
                             onChange={(e) => setSelectedStatus(e.target.value)}
+                            onFocus={(e) => {
+                                e.currentTarget.style.borderColor = 'var(--color-primary)';
+                                e.currentTarget.style.boxShadow = '0 0 0 3px rgba(0, 217, 255, 0.1)';
+                            }}
+                            onBlur={(e) => {
+                                e.currentTarget.style.borderColor = 'var(--color-border)';
+                                e.currentTarget.style.boxShadow = 'none';
+                            }}
                             style={{
                                 width: '100%',
-                                padding: '10px 12px',
+                                padding: '12px 14px',
                                 background: 'var(--color-bg-secondary)',
                                 border: '1px solid var(--color-border)',
                                 borderRadius: 'var(--radius-md)',
                                 color: 'var(--color-text-primary)',
-                                fontSize: '14px'
+                                fontSize: '14px',
+                                transition: 'all 0.3s ease',
+                                outline: 'none',
+                                cursor: 'pointer'
                             }}
                         >
                             <option value="all">All Status</option>
@@ -459,14 +499,24 @@ const Products = () => {
                             placeholder="$0"
                             value={priceMin}
                             onChange={(e) => setPriceMin(e.target.value)}
+                            onFocus={(e) => {
+                                e.currentTarget.style.borderColor = 'var(--color-primary)';
+                                e.currentTarget.style.boxShadow = '0 0 0 3px rgba(0, 217, 255, 0.1)';
+                            }}
+                            onBlur={(e) => {
+                                e.currentTarget.style.borderColor = 'var(--color-border)';
+                                e.currentTarget.style.boxShadow = 'none';
+                            }}
                             style={{
                                 width: '100%',
-                                padding: '10px 12px',
+                                padding: '12px 14px',
                                 background: 'var(--color-bg-secondary)',
                                 border: '1px solid var(--color-border)',
                                 borderRadius: 'var(--radius-md)',
                                 color: 'var(--color-text-primary)',
-                                fontSize: '14px'
+                                fontSize: '14px',
+                                transition: 'all 0.3s ease',
+                                outline: 'none'
                             }}
                         />
                     </div>
@@ -487,14 +537,24 @@ const Products = () => {
                             placeholder="$999"
                             value={priceMax}
                             onChange={(e) => setPriceMax(e.target.value)}
+                            onFocus={(e) => {
+                                e.currentTarget.style.borderColor = 'var(--color-primary)';
+                                e.currentTarget.style.boxShadow = '0 0 0 3px rgba(0, 217, 255, 0.1)';
+                            }}
+                            onBlur={(e) => {
+                                e.currentTarget.style.borderColor = 'var(--color-border)';
+                                e.currentTarget.style.boxShadow = 'none';
+                            }}
                             style={{
                                 width: '100%',
-                                padding: '10px 12px',
+                                padding: '12px 14px',
                                 background: 'var(--color-bg-secondary)',
                                 border: '1px solid var(--color-border)',
                                 borderRadius: 'var(--radius-md)',
                                 color: 'var(--color-text-primary)',
-                                fontSize: '14px'
+                                fontSize: '14px',
+                                transition: 'all 0.3s ease',
+                                outline: 'none'
                             }}
                         />
                     </div>
@@ -513,21 +573,34 @@ const Products = () => {
                         <select
                             value={sortBy}
                             onChange={(e) => setSortBy(e.target.value)}
+                            onFocus={(e) => {
+                                e.currentTarget.style.borderColor = 'var(--color-primary)';
+                                e.currentTarget.style.boxShadow = '0 0 0 3px rgba(0, 217, 255, 0.1)';
+                            }}
+                            onBlur={(e) => {
+                                e.currentTarget.style.borderColor = 'var(--color-border)';
+                                e.currentTarget.style.boxShadow = 'none';
+                            }}
                             style={{
                                 width: '100%',
-                                padding: '10px 12px',
+                                padding: '12px 14px',
                                 background: 'var(--color-bg-secondary)',
                                 border: '1px solid var(--color-border)',
                                 borderRadius: 'var(--radius-md)',
                                 color: 'var(--color-text-primary)',
-                                fontSize: '14px'
+                                fontSize: '14px',
+                                transition: 'all 0.3s ease',
+                                outline: 'none',
+                                cursor: 'pointer'
                             }}
                         >
-                            <option value="newest">Newest First</option>
-                            <option value="price-low">Price: Low → High</option>
-                            <option value="price-high">Price: High → Low</option>
-                            <option value="name-asc">Name: A → Z</option>
-                            <option value="name-desc">Name: Z → A</option>
+                            <option value="">Default</option>
+                            <option value="name-asc">Name (A-Z)</option>
+                            <option value="name-desc">Name (Z-A)</option>
+                            <option value="price-asc">Price (Low to High)</option>
+                            <option value="price-desc">Price (High to Low)</option>
+                            <option value="stock-asc">Stock (Low to High)</option>
+                            <option value="stock-desc">Stock (High to Low)</option>
                         </select>
                     </div>
                 </div>
@@ -579,11 +652,12 @@ const Products = () => {
                                     </th>
                                     <th style={{ width: '80px' }}>Image</th>
                                     <th>Product Details</th>
-                                    <th>Category</th>
-                                    <th>Attributes</th>
-                                    <th>Price & Stock</th>
-                                    <th>Status</th>
-                                    <th style={{ textAlign: 'right' }}>Actions</th>
+                                    <th style={{ width: '120px' }}>Category</th>
+                                    <th style={{ width: '150px' }}>Attributes</th>
+                                    <th style={{ width: '140px' }}>Performance</th>
+                                    <th style={{ width: '150px' }}>Price & Stock</th>
+                                    <th style={{ width: '100px' }}>Status</th>
+                                    <th style={{ textAlign: 'right', width: '100px' }}>Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -612,54 +686,160 @@ const Products = () => {
                                             />
                                         </td>
                                         <td className="col-primary">
-                                            <div style={{ fontWeight: '600', marginBottom: '4px' }}>{product.name}</div>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+                                                <div style={{ fontWeight: '600', fontSize: '15px' }}>{product.name}</div>
+                                                {product.isFeatured && (
+                                                    <span style={{
+                                                        background: 'rgba(250, 204, 21, 0.1)',
+                                                        color: '#facc15',
+                                                        fontSize: '10px',
+                                                        padding: '2px 6px',
+                                                        borderRadius: '4px',
+                                                        border: '1px solid rgba(250, 204, 21, 0.2)',
+                                                        fontWeight: '600',
+                                                        textTransform: 'uppercase'
+                                                    }}>Featured</span>
+                                                )}
+                                                {product.isFlashSale && (
+                                                    <span style={{
+                                                        background: 'rgba(244, 63, 94, 0.1)',
+                                                        color: '#f43f5e',
+                                                        fontSize: '10px',
+                                                        padding: '2px 6px',
+                                                        borderRadius: '4px',
+                                                        border: '1px solid rgba(244, 63, 94, 0.2)',
+                                                        fontWeight: '600',
+                                                        textTransform: 'uppercase'
+                                                    }}>Flash Sale</span>
+                                                )}
+                                            </div>
                                             <div style={{
                                                 fontSize: '12px',
                                                 color: 'var(--color-text-muted)',
-                                                marginBottom: '4px',
+                                                marginBottom: '6px',
                                                 overflow: 'hidden',
                                                 textOverflow: 'ellipsis',
                                                 whiteSpace: 'nowrap',
-                                                maxWidth: '250px'
+                                                maxWidth: '300px'
                                             }}>
                                                 {product.description || 'No description'}
                                             </div>
-
+                                            {product.tags && product.tags.length > 0 && (
+                                                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
+                                                    {product.tags.map((tag, i) => (
+                                                        <span key={i} style={{
+                                                            fontSize: '10px',
+                                                            color: 'var(--color-text-secondary)',
+                                                            background: 'rgba(255, 255, 255, 0.05)',
+                                                            padding: '1px 5px',
+                                                            borderRadius: '3px',
+                                                            border: '1px solid var(--color-border)'
+                                                        }}>#{tag}</span>
+                                                    ))}
+                                                </div>
+                                            )}
                                         </td>
                                         <td>
                                             <span style={{
                                                 background: 'var(--color-bg-secondary)',
-                                                padding: '4px 8px',
-                                                borderRadius: '4px',
-                                                fontSize: '12px'
+                                                padding: '6px 10px',
+                                                borderRadius: '6px',
+                                                fontSize: '12px',
+                                                color: 'var(--color-text-primary)',
+                                                fontWeight: '500',
+                                                border: '1px solid var(--color-border)'
                                             }}>
                                                 {product.category?.name || product.category || 'Uncategorized'}
                                             </span>
                                         </td>
                                         <td>
-                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '12px' }}>
-                                                <div><span style={{ color: 'var(--color-text-muted)' }}>Type:</span> {product.type}</div>
-                                                <div><span style={{ color: 'var(--color-text-muted)' }}>Platform:</span> {product.platform}</div>
-                                                <div><span style={{ color: 'var(--color-text-muted)' }}>Region:</span> {product.region}</div>
+                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', fontSize: '12px' }}>
+                                                <div style={{ display: 'flex', gap: '6px' }}>
+                                                    <span style={{ color: 'var(--color-text-muted)', width: '60px' }}>Type:</span>
+                                                    <span style={{ color: 'var(--color-text-secondary)' }}>{product.type}</span>
+                                                </div>
+                                                <div style={{ display: 'flex', gap: '6px' }}>
+                                                    <span style={{ color: 'var(--color-text-muted)', width: '60px' }}>Platform:</span>
+                                                    <span style={{ color: 'var(--color-text-secondary)' }}>{product.platform}</span>
+                                                </div>
+                                                <div style={{ display: 'flex', gap: '6px' }}>
+                                                    <span style={{ color: 'var(--color-text-muted)', width: '60px' }}>Region:</span>
+                                                    <span style={{ color: 'var(--color-text-secondary)' }}>{product.region}</span>
+                                                </div>
                                             </div>
                                         </td>
                                         <td>
-                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                                                <div style={{ fontWeight: '600', color: 'var(--color-primary)' }}>
-                                                    {formatPrice(product.price)}
+                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                                    <span style={{ color: '#facc15', display: 'flex' }}>★</span>
+                                                    <span style={{ fontSize: '13px', fontWeight: '600' }}>{product.averageRating?.toFixed(1) || '0.0'}</span>
+                                                    <span style={{ color: 'var(--color-text-muted)', fontSize: '11px' }}>({product.totalReviews || 0})</span>
                                                 </div>
-                                                {product.discountPrice > 0 && (
-                                                    <div style={{ fontSize: '11px', color: 'var(--color-success)' }}>
-                                                        Disc: {formatPrice(product.discountPrice)}
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', fontSize: '12px' }}>
+                                                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px', color: 'var(--color-text-muted)' }}>
+                                                        <span style={{ fontSize: '10px' }}>👁</span>
+                                                        <span>{product.viewCount || 0}</span>
                                                     </div>
-                                                )}
-                                                <div style={{ fontSize: '11px', color: product.stock < 10 ? 'var(--color-warning)' : 'var(--color-text-muted)' }}>
-                                                    Stock: {product.stock}
+                                                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px', color: 'var(--color-text-muted)' }}>
+                                                        <span style={{ fontSize: '10px' }}>🛒</span>
+                                                        <span>{product.purchaseCount || 0}</span>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </td>
                                         <td>
-                                            <span className={`status-badge ${product.isActive ? 'status-active' : 'status-inactive'}`}>
+                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                    <span style={{ fontWeight: '700', color: 'var(--color-primary)', fontSize: '16px', fontFamily: 'Orbitron, sans-serif' }}>
+                                                        {formatPrice(product.price)}
+                                                    </span>
+                                                    {product.discountPrice > 0 && (
+                                                        <span style={{
+                                                            fontSize: '11px',
+                                                            color: 'var(--color-bg-secondary)',
+                                                            background: 'var(--color-success)',
+                                                            padding: '1px 5px',
+                                                            borderRadius: '4px',
+                                                            fontWeight: '700'
+                                                        }}>
+                                                            -{Math.round(((product.price - product.discountPrice) / product.price) * 100)}%
+                                                        </span>
+                                                    )}
+                                                </div>
+                                                <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                                                    {product.discountPrice > 0 && (
+                                                        <div style={{ fontSize: '11px', color: 'var(--color-text-muted)', textDecoration: 'line-through' }}>
+                                                            {formatPrice(product.price)}
+                                                        </div>
+                                                    )}
+                                                    <div style={{
+                                                        fontSize: '12px',
+                                                        fontWeight: '600',
+                                                        color: product.stock < 10 ? 'var(--color-warning)' : 'var(--color-success)',
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        gap: '4px'
+                                                    }}>
+                                                        <div style={{
+                                                            width: '6px',
+                                                            height: '6px',
+                                                            borderRadius: '50%',
+                                                            background: product.stock < 10 ? 'var(--color-warning)' : 'var(--color-success)'
+                                                        }}></div>
+                                                        Stock: {product.stock}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span className={`status-badge ${product.isActive ? 'status-active' : 'status-inactive'}`} style={{
+                                                padding: '6px 12px',
+                                                borderRadius: '20px',
+                                                fontSize: '11px',
+                                                fontWeight: '600',
+                                                textTransform: 'uppercase',
+                                                letterSpacing: '0.5px'
+                                            }}>
                                                 {product.isActive ? 'Active' : 'Inactive'}
                                             </span>
                                         </td>

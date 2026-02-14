@@ -832,6 +832,20 @@ h3 {
     border-radius: var(--radius-lg);
     overflow: hidden;
     transition: box-shadow var(--transition-normal);
+    width: 100%;
+    animation: fadeInUp 0.5s ease-out;
+  }
+
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 
   .admin-card:hover {
@@ -865,6 +879,18 @@ h3 {
     width: 100%;
     border-collapse: collapse;
     white-space: nowrap;
+  }
+
+  .data-table th,
+  .data-table tbody tr {
+    transition: all 0.3s ease;
+    animation: fadeInUp 0.5s ease-out both;
+  }
+
+  .data-table tbody tr:hover {
+    background: rgba(0, 217, 255, 0.03) !important;
+    transform: translateX(4px);
+    box-shadow: -4px 0 0 0 var(--color-primary);
   }
 
   .data-table th,
@@ -1421,17 +1447,20 @@ h3 {
 .stats-card::before {
   content: '';
   position: absolute;
-  inset: 0;
-  background: linear-gradient(135deg, rgba(0, 217, 255, 0.05), transparent);
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(0, 217, 255, 0.05), rgba(0, 217, 255, 0));
   opacity: 0;
-  transition: opacity var(--transition-normal);
+  transition: opacity 0.3s ease;
   pointer-events: none;
 }
 
 .stats-card:hover {
-  transform: translateY(-2px);
-  border-color: var(--color-primary);
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(0, 217, 255, 0.1);
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 0 12px 24px rgba(0, 217, 255, 0.15);
+  border-color: rgba(0, 217, 255, 0.3);
 }
 
 .stats-card:hover::before {
@@ -1446,6 +1475,11 @@ h3 {
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  transition: transform 0.3s ease;
+}
+
+.stats-card:hover .stats-icon {
+  transform: scale(1.1) rotate(5deg);
 }
 
 .stats-content {
@@ -1453,12 +1487,11 @@ h3 {
 }
 
 .stats-label {
-  font-size: 12px;
+  font-size: 13px;
   color: var(--color-text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin-bottom: 4px;
+  margin-bottom: 6px;
   font-weight: 500;
+  letter-spacing: 0.3px;
 }
 
 .stats-value {
@@ -1491,6 +1524,7 @@ h3 {
     opacity: 0;
     transform: translateY(10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -1552,9 +1586,12 @@ h3 {
 }
 
 @keyframes pulse {
-  0%, 100% {
+
+  0%,
+  100% {
     opacity: 1;
   }
+
   50% {
     opacity: 0.5;
   }
@@ -1565,6 +1602,7 @@ h3 {
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
@@ -1575,6 +1613,7 @@ h3 {
     opacity: 0;
     transform: translateY(20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
