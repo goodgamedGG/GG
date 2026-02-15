@@ -189,102 +189,234 @@ const Categories = () => {
             </div>
 
             {/* Categories Table */}
-            <div className="admin-card">
-                <div className="card-header">
+            <div className="admin-card" style={{ background: 'transparent', border: 'none', boxShadow: 'none', padding: 0 }}>
+                <div className="card-header" style={{ marginBottom: '16px', padding: '10px 0' }}>
                     <div className="card-title">
                         <Folder size={20} color="var(--color-primary)" />
                         Category List
                     </div>
                 </div>
 
-                <div className="table-container">
-                    <table className="data-table enhanced-table">
-                        <thead>
-                            <tr>
-                                <th style={{ width: '120px', padding: '24px' }}>Image</th>
-                                <th style={{ width: '25%', padding: '24px' }}>Name</th>
-                                <th style={{ padding: '24px' }}>Description</th>
-                                <th style={{ width: '180px', padding: '24px' }}>Status</th>
-                                <th style={{ textAlign: 'right', width: '160px', padding: '24px' }}>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {loading ? (
-                                <tr>
-                                    <td colSpan="5" style={{ textAlign: 'center', padding: '40px' }}>Loading...</td>
-                                </tr>
-                            ) : filteredCategories.length === 0 ? (
-                                <tr>
-                                    <td colSpan="5" style={{ textAlign: 'center', padding: '40px' }}>No categories found.</td>
-                                </tr>
-                            ) : (
-                                filteredCategories.map((category, index) => (
-                                    <tr key={category._id} style={{ animationDelay: `${index * 50}ms` }}>
-                                        <td className="col-image" style={{ padding: '24px 32px' }}>
-                                            <img
-                                                src={category.image ? getImageUrl(category.image) : 'https://placehold.co/80'}
-                                                alt={category.name}
-                                                style={{
-                                                    width: '80px',
-                                                    height: '80px',
-                                                    objectFit: 'cover',
-                                                    borderRadius: 'var(--radius-md)',
-                                                    background: 'var(--color-bg-secondary)',
-                                                    border: '1px solid var(--color-border)'
-                                                }}
-                                                onError={(e) => { e.target.src = 'https://placehold.co/80x80/1a212c/64748b?text=Category'; }}
-                                            />
-                                        </td>
-                                        <td className="col-primary" style={{ padding: '24px 32px' }}>
-                                            <div style={{ fontWeight: '700', fontSize: '17px', color: 'var(--color-text-primary)' }}>{category.name}</div>
-                                        </td>
-                                        <td style={{ padding: '24px 32px' }}>
-                                            <div style={{
-                                                color: 'var(--color-text-secondary)',
-                                                fontSize: '14px',
-                                                lineHeight: '1.6',
-                                                maxWidth: '600px',
-                                                overflow: 'hidden',
-                                                textOverflow: 'ellipsis',
-                                                display: '-webkit-box',
-                                                WebkitLineClamp: 2,
-                                                WebkitBoxOrient: 'vertical'
-                                            }}>
-                                                {category.description || 'No description provided.'}
-                                            </div>
-                                        </td>
-                                        <td style={{ padding: '24px 32px' }}>
-                                            <span
-                                                className={`status-badge ${category.isActive !== false ? 'status-active' : 'status-inactive'}`}
-                                                style={{
-                                                    padding: '8px 16px',
-                                                    borderRadius: '24px',
-                                                    fontSize: '12px',
-                                                    fontWeight: '700',
-                                                    textTransform: 'uppercase',
-                                                    letterSpacing: '1px'
-                                                }}
-                                            >
-                                                {category.isActive !== false ? 'Active' : 'Inactive'}
-                                            </span>
-                                        </td>
-                                        <td style={{ padding: '24px 32px' }}>
-                                            <div className="action-btn-group" style={{ justifyContent: 'flex-end' }}>
-                                                <button onClick={() => openEditModal(category)} className="action-btn" title="Edit">
-                                                    <Edit2 size={16} />
-                                                </button>
-                                                <button onClick={() => handleDelete(category._id)} className="action-btn delete" title="Delete">
-                                                    <Trash2 size={16} />
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                ))
-                            )}
-                        </tbody>
-                    </table>
-                </div>
+                {loading ? (
+                    <div className="admin-card" style={{ textAlign: 'center', padding: '60px', color: 'var(--color-text-muted)' }}>
+                        Loading categories...
+                    </div>
+                ) : filteredCategories.length === 0 ? (
+                    <div className="admin-card" style={{ textAlign: 'center', padding: '60px', color: 'var(--color-text-muted)' }}>
+                        No categories found.
+                    </div>
+                ) : (
+                    <div className="category-grid-container">
+                        {/* Sticky Header */}
+                        <div className="category-grid-header">
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>Image</div>
+                            <div>Name</div>
+                            <div>Description</div>
+                            <div>Status</div>
+                            <div style={{ textAlign: 'right' }}>Actions</div>
+                        </div>
+
+                        {/* Grid Body */}
+                        <div className="category-grid-body">
+                            {filteredCategories.map((category, index) => (
+                                <div
+                                    key={category._id}
+                                    className="category-grid-row"
+                                    style={{ animationDelay: `${index * 50}ms` }}
+                                >
+                                    {/* Image */}
+                                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                        <img
+                                            src={category.image ? getImageUrl(category.image) : 'https://placehold.co/80'}
+                                            alt={category.name}
+                                            className="category-grid-img"
+                                            onError={(e) => { e.target.src = 'https://placehold.co/80x80/1a212c/64748b?text=Category'; }}
+                                        />
+                                    </div>
+
+                                    {/* Name */}
+                                    <div className="category-name-col">
+                                        <div className="category-name">{category.name}</div>
+                                    </div>
+
+                                    {/* Description */}
+                                    <div className="category-desc-col">
+                                        <div className="category-description">
+                                            {category.description || 'No description provided.'}
+                                        </div>
+                                    </div>
+
+                                    {/* Status */}
+                                    <div className="category-status-col">
+                                        <span className={`status-pill ${category.isActive !== false ? 'active' : 'inactive'}`}>
+                                            <span className="status-dot"></span>
+                                            {category.isActive !== false ? 'ACTIVE' : 'INACTIVE'}
+                                        </span>
+                                    </div>
+
+                                    {/* Actions */}
+                                    <div className="category-actions-col">
+                                        <button onClick={() => openEditModal(category)} className="action-btn" title="Edit">
+                                            <Edit2 size={16} />
+                                        </button>
+                                        <button onClick={() => handleDelete(category._id)} className="action-btn danger" title="Delete">
+                                            <Trash2 size={16} />
+                                        </button>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
             </div>
+
+            <style dangerouslySetInnerHTML={{
+                __html: `
+                .category-grid-container {
+                    background: #0f172a;
+                    border: 1px solid #1e293b;
+                    border-radius: 12px;
+                    overflow: visible;
+                }
+
+                .category-grid-header {
+                    display: grid;
+                    grid-template-columns: 120px 1.5fr 2fr 1fr 120px;
+                    padding: 16px 20px;
+                    background: #1e293b;
+                    color: #94a3b8;
+                    font-size: 13px;
+                    font-weight: 600;
+                    text-transform: uppercase;
+                    letter-spacing: 0.05em;
+                    border-bottom: 2px solid #334155;
+                    position: sticky;
+                    top: 0;
+                    z-index: 10;
+                    border-radius: 12px 12px 0 0;
+                }
+
+                .category-grid-row {
+                    display: grid;
+                    grid-template-columns: 120px 1.5fr 2fr 1fr 120px;
+                    padding: 20px 20px;
+                    align-items: center;
+                    border-bottom: 1px solid #1e293b;
+                    transition: all 0.2s ease;
+                    animation: fadeIn 0.3s ease forwards;
+                }
+
+                .category-grid-row:hover {
+                    background: rgba(30, 41, 59, 0.5);
+                }
+
+                .category-grid-row:last-child {
+                    border-bottom: none;
+                    border-radius: 0 0 12px 12px;
+                }
+
+                .category-grid-img {
+                    width: 80px;
+                    height: 80px;
+                    object-fit: cover;
+                    border-radius: 8px;
+                    border: 1px solid #334155;
+                    background: #1e293b;
+                }
+
+                .category-name-col {
+                    padding-right: 15px;
+                }
+
+                .category-name {
+                    font-weight: 700;
+                    font-size: 18px;
+                    color: #ffffff;
+                }
+
+                .category-description {
+                    font-size: 14px;
+                    color: #94a3b8;
+                    line-height: 1.5;
+                    display: -webkit-box;
+                    -webkit-line-clamp: 2;
+                    -webkit-box-orient: vertical;
+                    overflow: hidden;
+                    padding-right: 20px;
+                }
+
+                .status-pill {
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 8px;
+                    padding: 6px 16px;
+                    border-radius: 20px;
+                    font-size: 11px;
+                    font-weight: 700;
+                    letter-spacing: 0.05em;
+                    text-transform: uppercase;
+                }
+
+                .status-pill.active {
+                    background: rgba(16, 185, 129, 0.1);
+                    color: #10b981;
+                    border: 1px solid rgba(16, 185, 129, 0.2);
+                    box-shadow: 0 0 15px rgba(16, 185, 129, 0.1);
+                }
+
+                .status-pill.inactive {
+                    background: rgba(239, 68, 68, 0.1);
+                    color: #ef4444;
+                    border: 1px solid rgba(239, 68, 68, 0.2);
+                }
+
+                .status-dot {
+                    width: 6px;
+                    height: 6px;
+                    border-radius: 50%;
+                    background: currentColor;
+                    box-shadow: 0 0 8px currentColor;
+                }
+
+                .category-actions-col {
+                    display: flex;
+                    gap: 12px;
+                    justify-content: flex-end;
+                }
+
+                .action-btn {
+                    width: 36px;
+                    height: 36px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    background: #1e293b;
+                    color: #94a3b8;
+                    border-radius: 10px;
+                    border: 1px solid #334155;
+                    transition: all 0.2s;
+                    cursor: pointer;
+                }
+
+                .action-btn:hover {
+                    color: #ffffff;
+                    background: #334155;
+                    transform: translateY(-2px);
+                    border-color: #475569;
+                }
+
+                .action-btn.danger:hover {
+                    background: #ef4444;
+                    border-color: #ef4444;
+                    color: #ffffff;
+                    box-shadow: 0 0 15px rgba(239, 68, 68, 0.3);
+                }
+
+                @keyframes fadeIn {
+                    from { opacity: 0; transform: translateY(10px); }
+                    to { opacity: 1; transform: translateY(0); }
+                }
+            ` }} />
 
             {/* Modal */}
             {isModalOpen && (

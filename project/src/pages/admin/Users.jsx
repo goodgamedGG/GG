@@ -231,105 +231,291 @@ const Users = () => {
                     </div>
                 </div>
 
-                <div className="table-container">
-                    <table className="data-table">
-                        <thead>
-                            <tr>
-                                <th style={{ width: '40px' }}>
-                                    <input
-                                        type="checkbox"
-                                        checked={selectedUsers.length === users.length && users.length > 0}
-                                        onChange={toggleSelectAll}
-                                        style={{ cursor: 'pointer' }}
-                                    />
-                                </th>
-                                <th>User</th>
-                                <th>Phone</th>
-                                <th>Role</th>
-                                <th>Status</th>
-                                <th>Loyalty</th>
-                                <th>Joined</th>
-                                <th style={{ textAlign: 'right' }}>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {loading ? (
-                                <tr>
-                                    <td colSpan="8" style={{ textAlign: 'center', padding: '40px' }}>Loading users...</td>
-                                </tr>
-                            ) : filteredUsers.length === 0 ? (
-                                <tr>
-                                    <td colSpan="8" style={{ textAlign: 'center', padding: '40px' }}>No users found.</td>
-                                </tr>
-                            ) : (
-                                filteredUsers.map(user => (
-                                    <tr key={user._id}>
-                                        <td>
-                                            <input
-                                                type="checkbox"
-                                                checked={selectedUsers.includes(user._id)}
-                                                onChange={() => toggleUserSelection(user._id)}
-                                                style={{ cursor: 'pointer' }}
-                                            />
-                                        </td>
-                                        <td>
-                                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                                                <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: 'var(--color-bg-secondary)', overflow: 'hidden' }}>
-                                                    <img
-                                                        src={`https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || 'User')}&background=random&color=fff&size=64`}
-                                                        alt=""
-                                                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                                                    />
-                                                </div>
-                                                <div>
-                                                    <div style={{ fontWeight: 600, color: 'var(--color-text-primary)' }}>{user.name}</div>
-                                                    <div style={{ fontSize: '11px', color: 'var(--color-text-muted)' }}>{user.email}</div>
-                                                </div>
+                <div className="users-grid-container">
+                    {/* Sticky Header */}
+                    <div className="users-grid-header">
+                        <div style={{ display: 'flex', alignItems: 'center' }}>
+                            <input
+                                type="checkbox"
+                                checked={selectedUsers.length === users.length && users.length > 0}
+                                onChange={toggleSelectAll}
+                                style={{ cursor: 'pointer' }}
+                            />
+                        </div>
+                        <div>User</div>
+                        <div>Phone</div>
+                        <div>Role</div>
+                        <div>Status</div>
+                        <div>Loyalty</div>
+                        <div>Joined</div>
+                        <div style={{ textAlign: 'right' }}>Actions</div>
+                    </div>
+
+                    {/* Grid Body */}
+                    <div className="users-grid-body">
+                        {loading ? (
+                            <div style={{ textAlign: 'center', padding: '60px', color: 'var(--color-text-muted)' }}>
+                                Loading users...
+                            </div>
+                        ) : filteredUsers.length === 0 ? (
+                            <div style={{ textAlign: 'center', padding: '60px', color: 'var(--color-text-muted)' }}>
+                                No users found.
+                            </div>
+                        ) : (
+                            filteredUsers.map((user, index) => (
+                                <div
+                                    key={user._id}
+                                    className="users-grid-row"
+                                    style={{ animationDelay: `${index * 50}ms` }}
+                                >
+                                    {/* Checkbox */}
+                                    <div style={{ display: 'flex', alignItems: 'center' }}>
+                                        <input
+                                            type="checkbox"
+                                            checked={selectedUsers.includes(user._id)}
+                                            onChange={() => toggleUserSelection(user._id)}
+                                            style={{ cursor: 'pointer' }}
+                                        />
+                                    </div>
+
+                                    {/* User Profile */}
+                                    <div className="user-profile-col">
+                                        <div className="user-avatar">
+                                            {user.name ? user.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) : 'U'}
+                                        </div>
+                                        <div className="user-info">
+                                            <div className="user-name">{user.name || 'Anonymous'}</div>
+                                            <div className="user-email">{user.email}</div>
+                                        </div>
+                                    </div>
+
+                                    {/* Phone */}
+                                    <div className="phone-col">
+                                        {user.phone || '-'}
+                                    </div>
+
+                                    {/* Role */}
+                                    <div className="role-col">
+                                        <span className={`role-badge ${user.role}`}>
+                                            {user.role}
+                                        </span>
+                                    </div>
+
+                                    {/* Status */}
+                                    <div className="status-col">
+                                        <span className={`status-text ${user.isEmailVerified ? 'verified' : 'pending'}`}>
+                                            {user.isEmailVerified ? 'VERIFIED' : 'PENDING'}
+                                        </span>
+                                    </div>
+
+                                    {/* Loyalty */}
+                                    <div className="loyalty-col">
+                                        {user.loyaltyPoints !== undefined ? (
+                                            <div className="loyalty-info">
+                                                <Award size={14} color={getTierColor(user.loyaltyTier || 'bronze')} />
+                                                <span>{user.loyaltyPoints}</span>
                                             </div>
-                                        </td>
-                                        <td style={{ color: 'var(--color-text-secondary)', fontSize: '13px' }}>{user.phone || '-'}</td>
-                                        <td>
-                                            <span className={`status-badge ${user.role === 'admin' ? 'status-info' : 'status-secondary'}`} style={{ background: user.role === 'admin' ? '' : 'rgba(255,255,255,0.05)', color: user.role === 'admin' ? '' : 'var(--color-text-muted)' }}>
-                                                {user.role}
-                                            </span>
-                                        </td>
-                                        <td>
-                                            <span className={`status-badge ${user.isEmailVerified ? 'status-success' : 'status-warning'}`}>
-                                                {user.isEmailVerified ? 'Verified' : 'Pending'}
-                                            </span>
-                                        </td>
-                                        <td>
-                                            {user.loyaltyPoints !== undefined ? (
-                                                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px' }}>
-                                                    <Award size={14} color={getTierColor(user.loyaltyTier || 'bronze')} />
-                                                    <span>{user.loyaltyPoints}</span>
-                                                </div>
-                                            ) : (
-                                                <span style={{ color: 'var(--color-text-muted)' }}>-</span>
-                                            )}
-                                        </td>
-                                        <td style={{ fontSize: '12px', color: 'var(--color-text-muted)' }}>
-                                            {formatDate(user.createdAt)}
-                                        </td>
-                                        <td>
-                                            <div className="action-btn-group" style={{ justifyContent: 'flex-end' }}>
-                                                <button onClick={() => loadUserDetails(user._id)} className="action-btn" title="View Details">
-                                                    <Eye size={16} />
-                                                </button>
-                                                <button onClick={() => handleEdit(user)} className="action-btn" title="Edit">
-                                                    <Pencil size={16} />
-                                                </button>
-                                                <button onClick={() => handleDelete(user._id)} className="action-btn delete" title="Delete">
-                                                    <Trash2 size={16} />
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                ))
-                            )}
-                        </tbody>
-                    </table>
+                                        ) : (
+                                            <span style={{ color: 'var(--color-text-muted)' }}>-</span>
+                                        )}
+                                    </div>
+
+                                    {/* Joined */}
+                                    <div className="joined-col">
+                                        {formatDate(user.createdAt)}
+                                    </div>
+
+                                    {/* Actions */}
+                                    <div className="actions-col">
+                                        <button onClick={() => loadUserDetails(user._id)} className="action-btn" title="View Details">
+                                            <Eye size={16} />
+                                        </button>
+                                        <button onClick={() => handleEdit(user)} className="action-btn" title="Edit">
+                                            <Pencil size={16} />
+                                        </button>
+                                        <button onClick={() => handleDelete(user._id)} className="action-btn danger" title="Delete">
+                                            <Trash2 size={16} />
+                                        </button>
+                                    </div>
+                                </div>
+                            ))
+                        )}
+                    </div>
                 </div>
+
+                <style dangerouslySetInnerHTML={{
+                    __html: `
+                    .users-grid-container {
+                        background: #0f172a;
+                        border: 1px solid #1e293b;
+                        border-radius: 12px;
+                        overflow: visible;
+                    }
+
+                    .users-grid-header {
+                        display: grid;
+                        grid-template-columns: 40px 3fr 1.5fr 1fr 1fr 1fr 1.5fr 150px;
+                        padding: 16px 20px;
+                        background: #1e293b;
+                        color: #94a3b8;
+                        font-size: 13px;
+                        font-weight: 600;
+                        text-transform: uppercase;
+                        letter-spacing: 0.05em;
+                        border-bottom: 2px solid #334155;
+                        position: sticky;
+                        top: 0;
+                        z-index: 10;
+                        border-radius: 12px 12px 0 0;
+                    }
+
+                    .users-grid-row {
+                        display: grid;
+                        grid-template-columns: 40px 3fr 1.5fr 1fr 1fr 1fr 1.5fr 150px;
+                        padding: 12px 20px;
+                        align-items: center;
+                        border-bottom: 1px solid #1e293b;
+                        transition: all 0.2s ease;
+                        animation: fadeIn 0.3s ease forwards;
+                    }
+
+                    .users-grid-row:hover {
+                        background: rgba(30, 41, 59, 0.5);
+                    }
+
+                    .users-grid-row:last-child {
+                        border-bottom: none;
+                        border-radius: 0 0 12px 12px;
+                    }
+
+                    .user-profile-col {
+                        display: flex;
+                        align-items: center;
+                        gap: 12px;
+                    }
+
+                    .user-avatar {
+                        width: 40px;
+                        height: 40px;
+                        border-radius: 10px;
+                        background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+                        border: 1px solid #334155;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        color: #ffffff;
+                        font-weight: 700;
+                        font-size: 14px;
+                    }
+
+                    .user-info {
+                        display: flex;
+                        flex-direction: column;
+                    }
+
+                    .user-name {
+                        font-weight: 700;
+                        font-size: 15px;
+                        color: #ffffff;
+                    }
+
+                    .user-email {
+                        font-size: 12px;
+                        color: #94a3b8;
+                    }
+
+                    .phone-col {
+                        font-size: 13px;
+                        color: #94a3b8;
+                    }
+
+                    .role-badge {
+                        display: inline-flex;
+                        padding: 4px 10px;
+                        border-radius: 6px;
+                        font-size: 11px;
+                        font-weight: 700;
+                        text-transform: uppercase;
+                        letter-spacing: 0.03em;
+                    }
+
+                    .role-badge.admin {
+                        background: rgba(0, 217, 255, 0.1);
+                        color: #00d9ff;
+                        border: 1px solid rgba(0, 217, 255, 0.2);
+                    }
+
+                    .role-badge.user {
+                        background: rgba(148, 163, 184, 0.1);
+                        color: #94a3b8;
+                        border: 1px solid rgba(148, 163, 184, 0.2);
+                    }
+
+                    .status-text {
+                        font-size: 12px;
+                        font-weight: 800;
+                        letter-spacing: 0.02em;
+                    }
+
+                    .status-text.verified {
+                        color: #10b981;
+                    }
+
+                    .status-text.pending {
+                        color: #f59e0b;
+                    }
+
+                    .loyalty-info {
+                        display: flex;
+                        align-items: center;
+                        gap: 8px;
+                        font-size: 13px;
+                        color: #ffffff;
+                    }
+
+                    .joined-col {
+                        font-size: 13px;
+                        color: #64748b;
+                    }
+
+                    .actions-col {
+                        display: flex;
+                        gap: 8px;
+                        justify-content: flex-end;
+                    }
+
+                    .action-btn {
+                        width: 32px;
+                        height: 32px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        background: #1e293b;
+                        color: #94a3b8;
+                        border-radius: 8px;
+                        border: 1px solid #334155;
+                        transition: all 0.2s;
+                        cursor: pointer;
+                    }
+
+                    .action-btn:hover {
+                        color: #ffffff;
+                        background: #334155;
+                        transform: translateY(-2px);
+                        border-color: #475569;
+                    }
+
+                    .action-btn.danger:hover {
+                        background: rgba(239, 68, 68, 0.1);
+                        color: #ef4444;
+                        border-color: rgba(239, 68, 68, 0.2);
+                    }
+
+                    @keyframes fadeIn {
+                        from { opacity: 0; transform: translateY(10px); }
+                        to { opacity: 1; transform: translateY(0); }
+                    }
+                ` }} />
 
                 {!loading && totalPages > 1 && (
                     <div style={{ padding: '20px', borderTop: '1px solid var(--color-border)' }}>

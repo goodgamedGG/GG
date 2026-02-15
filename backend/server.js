@@ -68,7 +68,7 @@ const startServer = async () => {
         await createDefaultAdmin();
 
         // Start server
-        app.listen(PORT, () => {
+        const server = app.listen(PORT, () => {
             console.log('');
             console.log('='.repeat(50));
             console.log(`🚀 Server running in ${process.env.NODE_ENV || 'development'} mode`);
@@ -78,6 +78,17 @@ const startServer = async () => {
             console.log('='.repeat(50));
             console.log('');
         });
+
+        // Handle server errors (e.g., EADDRINUSE)
+        server.on('error', (err) => {
+            if (err.code === 'EADDRINUSE') {
+                console.error(`❌ Port ${PORT} is already in use.`);
+            } else {
+                console.error('❌ Server error:', err.message);
+            }
+            process.exit(1);
+        });
+
     } catch (error) {
         console.error('❌ Server startup failed:', error.message);
         process.exit(1);
@@ -85,14 +96,17 @@ const startServer = async () => {
 };
 
 // Handle unhandled promise rejections
-process.on('unhandledRejection', (err) => {
-    console.error('❌ Unhandled Promise Rejection:', err);
+process.on('unhandledRejection', (reason, promise) => {
+    console.error('❌ Unhandled Promise Rejection:');
+    console.error('  Reason:', reason instanceof Error ? reason.stack : reason);
+    // In production, we might want to shut down gracefully
     process.exit(1);
 });
 
 // Handle uncaught exceptions
 process.on('uncaughtException', (err) => {
-    console.error('❌ Uncaught Exception:', err);
+    console.error('❌ Uncaught Exception:');
+    console.error('  Error:', err.stack);
     process.exit(1);
 });
 

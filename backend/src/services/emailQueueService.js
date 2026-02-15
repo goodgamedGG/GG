@@ -33,8 +33,8 @@ const processEmailQueue = async () => {
             status: { $in: ['pending', 'failed'] },
             $expr: { $lt: ['$attempts', { $ifNull: ['$maxAttempts', 3] }] }
         })
-        .sort({ createdAt: 1 })
-        .limit(10); // Process 10 at a time
+            .sort({ createdAt: 1 })
+            .limit(10); // Process 10 at a time
 
         for (const emailQueue of pendingEmails) {
             try {
@@ -80,7 +80,7 @@ const sendEmailByType = async (emailQueue) => {
     // For now, we'll use the transporter directly since we have the HTML
     // In a more advanced setup, you'd reconstruct the email from queue data
     const transporter = require('../config/email');
-    
+
     await transporter.sendMail({
         from: `${process.env.EMAIL_FROM_NAME} <${process.env.EMAIL_FROM}>`,
         to: emailQueue.to,
@@ -98,8 +98,8 @@ const retryFailedEmails = async () => {
             status: 'failed',
             attempts: { $lt: 3 }
         })
-        .sort({ lastAttemptAt: 1 })
-        .limit(20);
+            .sort({ lastAttemptAt: 1 })
+            .limit(20);
 
         for (const email of failedEmails) {
             // Reset to pending for retry
@@ -114,10 +114,18 @@ const retryFailedEmails = async () => {
 };
 
 // Process email queue every 30 seconds
-setInterval(processEmailQueue, 30 * 1000);
+setInterval(() => {
+    processEmailQueue().catch(err => {
+        logger.error('Critical error in processEmailQueue interval', { error: err.message, stack: err.stack });
+    });
+}, 30 * 1000);
 
 // Retry failed emails every 5 minutes
-setInterval(retryFailedEmails, 5 * 60 * 1000);
+setInterval(() => {
+    retryFailedEmails().catch(err => {
+        logger.error('Critical error in retryFailedEmails interval', { error: err.message, stack: err.stack });
+    });
+}, 5 * 60 * 1000);
 
 module.exports = {
     queueEmail,

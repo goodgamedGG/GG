@@ -639,234 +639,417 @@ const Products = () => {
                             onAction={handleOpenAddModal}
                         />
                     ) : (
-                        <table className="data-table enhanced-table">
-                            <thead>
-                                <tr>
-                                    <th style={{ width: '40px' }}>
-                                        <input
-                                            type="checkbox"
-                                            checked={selectedProducts.length === products.length}
-                                            onChange={toggleSelectAll}
-                                            style={{ cursor: 'pointer' }}
-                                        />
-                                    </th>
-                                    <th style={{ width: '80px' }}>Image</th>
-                                    <th>Product Details</th>
-                                    <th style={{ width: '120px' }}>Category</th>
-                                    <th style={{ width: '150px' }}>Attributes</th>
-                                    <th style={{ width: '140px' }}>Performance</th>
-                                    <th style={{ width: '150px' }}>Price & Stock</th>
-                                    <th style={{ width: '100px' }}>Status</th>
-                                    <th style={{ textAlign: 'right', width: '100px' }}>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
+                        <div className="product-grid-container">
+                            {/* Sticky Header */}
+                            <div className="product-grid-header">
+                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                    <input
+                                        type="checkbox"
+                                        checked={selectedProducts.length === products.length && products.length > 0}
+                                        onChange={toggleSelectAll}
+                                        style={{ cursor: 'pointer' }}
+                                    />
+                                </div>
+                                <div>Image</div>
+                                <div>Product Details</div>
+                                <div>Category</div>
+                                <div>Attributes</div>
+                                <div>Performance</div>
+                                <div>Price & Stock</div>
+                                <div>Status</div>
+                                <div style={{ textAlign: 'right' }}>Actions</div>
+                            </div>
+
+                            {/* Grid Body */}
+                            <div className="product-grid-body">
                                 {products.map((product, index) => (
-                                    <tr key={product._id} style={{ animationDelay: `${index * 50}ms` }}>
-                                        <td>
+                                    <div
+                                        key={product._id}
+                                        className="product-grid-row"
+                                        style={{ animationDelay: `${index * 50}ms` }}
+                                    >
+                                        {/* Checkbox */}
+                                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                             <input
                                                 type="checkbox"
                                                 checked={selectedProducts.includes(product._id)}
                                                 onChange={() => toggleSelectProduct(product._id)}
                                                 style={{ cursor: 'pointer' }}
                                             />
-                                        </td>
-                                        <td>
+                                        </div>
+
+                                        {/* Image */}
+                                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                             <img
                                                 src={getImageUrl(product.images?.[0] || product.image)}
                                                 alt={product.name}
-                                                style={{
-                                                    width: '60px',
-                                                    height: '60px',
-                                                    objectFit: 'cover',
-                                                    borderRadius: 'var(--radius-md)',
-                                                    border: '1px solid var(--color-border)'
-                                                }}
+                                                className="product-grid-img"
                                                 onError={(e) => { e.target.src = 'https://placehold.co/60x60/1a212c/64748b?text=No+Image'; }}
                                             />
-                                        </td>
-                                        <td className="col-primary">
-                                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-                                                <div style={{ fontWeight: '600', fontSize: '15px' }}>{product.name}</div>
-                                                {product.isFeatured && (
-                                                    <span style={{
-                                                        background: 'rgba(250, 204, 21, 0.1)',
-                                                        color: '#facc15',
-                                                        fontSize: '10px',
-                                                        padding: '2px 6px',
-                                                        borderRadius: '4px',
-                                                        border: '1px solid rgba(250, 204, 21, 0.2)',
-                                                        fontWeight: '600',
-                                                        textTransform: 'uppercase'
-                                                    }}>Featured</span>
-                                                )}
-                                                {product.isFlashSale && (
-                                                    <span style={{
-                                                        background: 'rgba(244, 63, 94, 0.1)',
-                                                        color: '#f43f5e',
-                                                        fontSize: '10px',
-                                                        padding: '2px 6px',
-                                                        borderRadius: '4px',
-                                                        border: '1px solid rgba(244, 63, 94, 0.2)',
-                                                        fontWeight: '600',
-                                                        textTransform: 'uppercase'
-                                                    }}>Flash Sale</span>
-                                                )}
+                                        </div>
+
+                                        {/* Product Details */}
+                                        <div className="product-details-col">
+                                            <div className="product-title">{product.name}</div>
+                                            <div className="product-subtitle">{product.description || 'No description'}</div>
+                                            <div className="product-badges">
+                                                {product.isFeatured && <span className="badge-featured">Featured</span>}
+                                                {product.isFlashSale && <span className="badge-flash">Flash Sale</span>}
                                             </div>
-                                            <div style={{
-                                                fontSize: '12px',
-                                                color: 'var(--color-text-muted)',
-                                                marginBottom: '6px',
-                                                overflow: 'hidden',
-                                                textOverflow: 'ellipsis',
-                                                whiteSpace: 'nowrap',
-                                                maxWidth: '300px'
-                                            }}>
-                                                {product.description || 'No description'}
-                                            </div>
-                                            {product.tags && product.tags.length > 0 && (
-                                                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
-                                                    {product.tags.map((tag, i) => (
-                                                        <span key={i} style={{
-                                                            fontSize: '10px',
-                                                            color: 'var(--color-text-secondary)',
-                                                            background: 'rgba(255, 255, 255, 0.05)',
-                                                            padding: '1px 5px',
-                                                            borderRadius: '3px',
-                                                            border: '1px solid var(--color-border)'
-                                                        }}>#{tag}</span>
-                                                    ))}
-                                                </div>
-                                            )}
-                                        </td>
-                                        <td>
-                                            <span style={{
-                                                background: 'var(--color-bg-secondary)',
-                                                padding: '6px 10px',
-                                                borderRadius: '6px',
-                                                fontSize: '12px',
-                                                color: 'var(--color-text-primary)',
-                                                fontWeight: '500',
-                                                border: '1px solid var(--color-border)'
-                                            }}>
+                                        </div>
+
+                                        {/* Category */}
+                                        <div className="product-category-col">
+                                            <span className="category-tag">
                                                 {product.category?.name || product.category || 'Uncategorized'}
                                             </span>
-                                        </td>
-                                        <td>
-                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', fontSize: '12px' }}>
-                                                <div style={{ display: 'flex', gap: '6px' }}>
-                                                    <span style={{ color: 'var(--color-text-muted)', width: '60px' }}>Type:</span>
-                                                    <span style={{ color: 'var(--color-text-secondary)' }}>{product.type}</span>
+                                        </div>
+
+                                        {/* Attributes */}
+                                        <div className="product-attributes-col">
+                                            <div className="attribute-item">
+                                                <span className="attr-key">Type:</span>
+                                                <span className="attr-val">{product.type || 'N/A'}</span>
+                                            </div>
+                                            <div className="attribute-item">
+                                                <span className="attr-key">Platform:</span>
+                                                <span className="attr-val">{product.platform || 'N/A'}</span>
+                                            </div>
+                                            <div className="attribute-item">
+                                                <span className="attr-key">Region:</span>
+                                                <span className="attr-val">{product.region || 'N/A'}</span>
+                                            </div>
+                                        </div>
+
+                                        {/* Performance */}
+                                        <div className="product-performance-col">
+                                            <div className="performance-rating">
+                                                <span className="star-icon">★</span>
+                                                <span className="rating-val">{product.averageRating?.toFixed(1) || '0.0'}</span>
+                                                <span className="rating-count">({product.totalReviews || 0})</span>
+                                            </div>
+                                            <div className="performance-stats">
+                                                <div className="stat-item">
+                                                    <span className="stat-icon">👁</span>
+                                                    <span>{formatCompactNumber(product.viewCount || 0)}</span>
                                                 </div>
-                                                <div style={{ display: 'flex', gap: '6px' }}>
-                                                    <span style={{ color: 'var(--color-text-muted)', width: '60px' }}>Platform:</span>
-                                                    <span style={{ color: 'var(--color-text-secondary)' }}>{product.platform}</span>
-                                                </div>
-                                                <div style={{ display: 'flex', gap: '6px' }}>
-                                                    <span style={{ color: 'var(--color-text-muted)', width: '60px' }}>Region:</span>
-                                                    <span style={{ color: 'var(--color-text-secondary)' }}>{product.region}</span>
+                                                <div className="stat-item">
+                                                    <span className="stat-icon">🛒</span>
+                                                    <span>{formatCompactNumber(product.purchaseCount || 0)}</span>
                                                 </div>
                                             </div>
-                                        </td>
-                                        <td>
-                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                                                <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                                                    <span style={{ color: '#facc15', display: 'flex' }}>★</span>
-                                                    <span style={{ fontSize: '13px', fontWeight: '600' }}>{product.averageRating?.toFixed(1) || '0.0'}</span>
-                                                    <span style={{ color: 'var(--color-text-muted)', fontSize: '11px' }}>({product.totalReviews || 0})</span>
-                                                </div>
-                                                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', fontSize: '12px' }}>
-                                                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px', color: 'var(--color-text-muted)' }}>
-                                                        <span style={{ fontSize: '10px' }}>👁</span>
-                                                        <span>{product.viewCount || 0}</span>
-                                                    </div>
-                                                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px', color: 'var(--color-text-muted)' }}>
-                                                        <span style={{ fontSize: '10px' }}>🛒</span>
-                                                        <span>{product.purchaseCount || 0}</span>
-                                                    </div>
-                                                </div>
+                                        </div>
+
+                                        {/* Price & Stock */}
+                                        <div className="product-price-stock-col">
+                                            <div className="product-price">{formatPrice(product.price)}</div>
+                                            <div className="product-stock">
+                                                <span className="stock-bullet"></span>
+                                                <span className="stock-label">Stock: {product.stock || 0}</span>
                                             </div>
-                                        </td>
-                                        <td>
-                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                                    <span style={{ fontWeight: '700', color: 'var(--color-primary)', fontSize: '16px', fontFamily: 'Orbitron, sans-serif' }}>
-                                                        {formatPrice(product.price)}
-                                                    </span>
-                                                    {product.discountPrice > 0 && (
-                                                        <span style={{
-                                                            fontSize: '11px',
-                                                            color: 'var(--color-bg-secondary)',
-                                                            background: 'var(--color-success)',
-                                                            padding: '1px 5px',
-                                                            borderRadius: '4px',
-                                                            fontWeight: '700'
-                                                        }}>
-                                                            -{Math.round(((product.price - product.discountPrice) / product.price) * 100)}%
-                                                        </span>
-                                                    )}
-                                                </div>
-                                                <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-                                                    {product.discountPrice > 0 && (
-                                                        <div style={{ fontSize: '11px', color: 'var(--color-text-muted)', textDecoration: 'line-through' }}>
-                                                            {formatPrice(product.price)}
-                                                        </div>
-                                                    )}
-                                                    <div style={{
-                                                        fontSize: '12px',
-                                                        fontWeight: '600',
-                                                        color: product.stock < 10 ? 'var(--color-warning)' : 'var(--color-success)',
-                                                        display: 'flex',
-                                                        alignItems: 'center',
-                                                        gap: '4px'
-                                                    }}>
-                                                        <div style={{
-                                                            width: '6px',
-                                                            height: '6px',
-                                                            borderRadius: '50%',
-                                                            background: product.stock < 10 ? 'var(--color-warning)' : 'var(--color-success)'
-                                                        }}></div>
-                                                        Stock: {product.stock}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <span className={`status-badge ${product.isActive ? 'status-active' : 'status-inactive'}`} style={{
-                                                padding: '6px 12px',
-                                                borderRadius: '20px',
-                                                fontSize: '11px',
-                                                fontWeight: '600',
-                                                textTransform: 'uppercase',
-                                                letterSpacing: '0.5px'
-                                            }}>
-                                                {product.isActive ? 'Active' : 'Inactive'}
+                                        </div>
+
+                                        {/* Status */}
+                                        <div className="product-status-col">
+                                            <span className={`status-pill ${product.isActive ? 'active' : 'inactive'}`}>
+                                                <span className="status-dot"></span>
+                                                {product.isActive ? 'ACTIVE' : 'INACTIVE'}
                                             </span>
-                                        </td>
-                                        <td>
-                                            <div className="action-btn-group" style={{ justifyContent: 'flex-end' }}>
-                                                <button
-                                                    onClick={() => handleOpenEditModal(product)}
-                                                    className="action-btn"
-                                                    title="Edit Product"
-                                                >
-                                                    <Edit2 size={16} />
-                                                </button>
-                                                <button
-                                                    onClick={() => handleDelete(product._id)}
-                                                    className="action-btn delete"
-                                                    title="Delete Product"
-                                                >
-                                                    <Trash2 size={16} />
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
+                                        </div>
+
+                                        {/* Actions */}
+                                        <div className="product-actions-col">
+                                            <button onClick={() => handleOpenEditModal(product)} className="action-btn" title="Edit">
+                                                <Edit2 size={16} />
+                                            </button>
+                                            <button onClick={() => handleDelete(product._id)} className="action-btn danger" title="Delete">
+                                                <Trash2 size={16} />
+                                            </button>
+                                        </div>
+                                    </div>
                                 ))}
-                            </tbody>
-                        </table>
+                            </div>
+                        </div>
                     )}
                 </div>
+
+                <style dangerouslySetInnerHTML={{
+                    __html: `
+                    .product-grid-container {
+                        background: #0f172a;
+                        border: 1px solid #1e293b;
+                        border-radius: 12px;
+                        overflow: visible;
+                    }
+
+                    .product-grid-header {
+                        display: grid;
+                        grid-template-columns: 40px 80px 2fr 1fr 2fr 1.5fr 1.5fr 1fr 120px;
+                        padding: 16px 20px;
+                        background: #1e293b;
+                        color: #94a3b8;
+                        font-size: 13px;
+                        font-weight: 600;
+                        text-transform: uppercase;
+                        letter-spacing: 0.05em;
+                        border-bottom: 2px solid #334155;
+                        position: sticky;
+                        top: 0;
+                        z-index: 10;
+                        border-radius: 12px 12px 0 0;
+                    }
+
+                    .product-grid-row {
+                        display: grid;
+                        grid-template-columns: 40px 80px 2fr 1fr 2fr 1.5fr 1.5fr 1fr 120px;
+                        padding: 20px 20px;
+                        align-items: center;
+                        border-bottom: 1px solid #1e293b;
+                        transition: all 0.2s ease;
+                        animation: fadeIn 0.3s ease forwards;
+                    }
+
+                    .product-grid-row:hover {
+                        background: rgba(30, 41, 59, 0.5);
+                    }
+
+                    .product-grid-row:last-child {
+                        border-bottom: none;
+                        border-radius: 0 0 12px 12px;
+                    }
+
+                    .product-grid-img {
+                        width: 60px;
+                        height: 60px;
+                        object-fit: cover;
+                        border-radius: 8px;
+                        border: 1px solid #334155;
+                    }
+
+                    .product-details-col {
+                        display: flex;
+                        flex-direction: column;
+                        gap: 4px;
+                        padding-right: 15px;
+                    }
+
+                    .product-title {
+                        font-weight: 700;
+                        font-size: 16px;
+                        color: #f8fafc;
+                    }
+
+                    .product-subtitle {
+                        font-size: 13px;
+                        color: #94a3b8;
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                        white-space: nowrap;
+                        max-width: 250px;
+                    }
+
+                    .product-badges {
+                        display: flex;
+                        gap: 6px;
+                        margin-top: 4px;
+                    }
+
+                    .badge-featured {
+                        background: rgba(250, 204, 21, 0.1);
+                        color: #facc15;
+                        font-size: 10px;
+                        padding: 2px 6px;
+                        border-radius: 4px;
+                        border: 1px solid rgba(250, 204, 21, 0.2);
+                        font-weight: 600;
+                        text-transform: uppercase;
+                    }
+
+                    .badge-flash {
+                        background: rgba(244, 63, 94, 0.1);
+                        color: #f43f5e;
+                        font-size: 10px;
+                        padding: 2px 6px;
+                        border-radius: 4px;
+                        border: 1px solid rgba(244, 63, 94, 0.2);
+                        font-weight: 600;
+                        text-transform: uppercase;
+                    }
+
+                    .category-tag {
+                        background: #1e293b;
+                        padding: 6px 10px;
+                        border-radius: 6px;
+                        font-size: 12px;
+                        color: #f1f5f9;
+                        font-weight: 500;
+                        border: 1px solid #334155;
+                    }
+
+                    .product-attributes-col {
+                        display: flex;
+                        flex-direction: column;
+                        gap: 6px;
+                    }
+
+                    .attribute-item {
+                        display: flex;
+                        justify-content: space-between;
+                        font-size: 12px;
+                        padding-right: 20px;
+                    }
+
+                    .attr-key {
+                        color: #64748b;
+                        font-weight: 500;
+                    }
+
+                    .attr-val {
+                        color: #cbd5e1;
+                        font-weight: 600;
+                    }
+
+                    .product-performance-col {
+                        display: flex;
+                        flex-direction: column;
+                        gap: 10px;
+                    }
+
+                    .performance-rating {
+                        display: flex;
+                        align-items: center;
+                        gap: 6px;
+                    }
+
+                    .star-icon {
+                        color: #facc15;
+                        font-size: 14px;
+                    }
+
+                    .rating-val {
+                        font-weight: 700;
+                        color: #f8fafc;
+                    }
+
+                    .rating-count {
+                        color: #64748b;
+                        font-size: 11px;
+                    }
+
+                    .performance-stats {
+                        display: flex;
+                        gap: 16px;
+                        color: #94a3b8;
+                        font-size: 12px;
+                    }
+
+                    .stat-item {
+                        display: flex;
+                        align-items: center;
+                        gap: 5px;
+                    }
+
+                    .product-price-stock-col {
+                        display: flex;
+                        flex-direction: column;
+                        gap: 8px;
+                    }
+
+                    .product-price {
+                        font-weight: 800;
+                        color: #00d9ff;
+                        font-size: 20px;
+                        font-family: 'Orbitron', sans-serif;
+                        text-shadow: 0 0 10px rgba(0, 217, 255, 0.2);
+                    }
+
+                    .product-stock {
+                        display: flex;
+                        align-items: center;
+                        gap: 8px;
+                    }
+
+                    .stock-bullet {
+                        width: 6px;
+                        height: 6px;
+                        border-radius: 50%;
+                        background: #f97316;
+                        box-shadow: 0 0 8px #f97316;
+                    }
+
+                    .stock-label {
+                        color: #cbd5e1;
+                        font-size: 13px;
+                        font-weight: 500;
+                    }
+
+                    .status-pill {
+                        display: inline-flex;
+                        align-items: center;
+                        gap: 6px;
+                        padding: 6px 12px;
+                        border-radius: 20px;
+                        font-size: 11px;
+                        font-weight: 700;
+                        letter-spacing: 0.05em;
+                    }
+
+                    .status-pill.active {
+                        background: rgba(16, 185, 129, 0.1);
+                        color: #10b981;
+                        border: 1px solid rgba(16, 185, 129, 0.2);
+                    }
+
+                    .status-pill.inactive {
+                        background: rgba(239, 68, 68, 0.1);
+                        color: #ef4444;
+                        border: 1px solid rgba(239, 68, 68, 0.2);
+                    }
+
+                    .status-dot {
+                        width: 6px;
+                        height: 6px;
+                        border-radius: 50%;
+                        background: currentColor;
+                        box-shadow: 0 0 6px currentColor;
+                    }
+
+                    .product-actions-col {
+                        display: flex;
+                        gap: 10px;
+                        justify-content: flex-end;
+                    }
+
+                    .action-btn {
+                        width: 36px;
+                        height: 36px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        background: #1e293b;
+                        color: #94a3b8;
+                        border-radius: 10px;
+                        border: 1px solid #334155;
+                        transition: all 0.2s;
+                        cursor: pointer;
+                    }
+
+                    .action-btn:hover {
+                        color: #f8fafc;
+                        background: #334155;
+                        transform: translateY(-2px);
+                    }
+
+                    .action-btn.danger:hover {
+                        background: #ef4444;
+                        border-color: #ef4444;
+                    }
+
+                    @keyframes fadeIn {
+                        from { opacity: 0; transform: translateY(10px); }
+                        to { opacity: 1; transform: translateY(0); }
+                    }
+                ` }} />
 
                 {/* Pagination */}
                 {!loading && totalPages > 1 && (
