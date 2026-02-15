@@ -204,72 +204,73 @@ const Loyalty = () => {
             ) : (
                 <>
 
-                    <div className="loyalty-grid-container">
-                        {/* Sticky Header */}
-                        <div className="loyalty-grid-header">
+                    <div className="loyalty-list-minimal">
+                        {/* Grid Header */}
+                        <div className="loyalty-grid-header-minimal">
                             <div>User</div>
-                            <div>Current Points</div>
-                            <div>Total Earned</div>
-                            <div>Total Spent</div>
-                            <div>Tier</div>
-                            <div>Transactions</div>
-                            <div style={{ textAlign: 'right' }}>Actions</div>
+                            <div style={{ textAlign: 'center' }}>Current Points</div>
+                            <div style={{ textAlign: 'center' }}>Total Earned</div>
+                            <div style={{ textAlign: 'center' }}>Total Spent</div>
+                            <div style={{ textAlign: 'center' }}>Tier</div>
+                            <div style={{ textAlign: 'center' }}>Transactions</div>
+                            <div style={{ textAlign: 'center' }}>Actions</div>
                         </div>
 
                         {/* Grid Body */}
-                        <div className="loyalty-grid-body">
+                        <div className="loyalty-grid-body-minimal">
                             {loyaltyPoints.map((loyalty, index) => (
                                 <div
                                     key={loyalty._id}
-                                    className="loyalty-grid-row"
+                                    className="loyalty-grid-row-minimal"
                                     style={{ animationDelay: `${index * 50}ms` }}
                                 >
                                     {/* User Identity */}
-                                    <div className="user-info-col">
-                                        <div className="user-name">{loyalty.user?.name || '-'}</div>
-                                        <div className="user-email">{loyalty.user?.email || '-'}</div>
+                                    <div className="user-info-col-minimal">
+                                        <div className="user-name-minimal">{loyalty.user?.name || '-'}</div>
+                                        <div className="user-email-minimal">{loyalty.user?.email || '-'}</div>
                                     </div>
 
                                     {/* Current Points */}
-                                    <div className="points-col">
-                                        <span className="points-current">
+                                    <div style={{ textAlign: 'center' }}>
+                                        <span className="points-current-minimal">
                                             {loyalty.points || 0}
                                         </span>
                                     </div>
 
                                     {/* Total Earned */}
-                                    <div className="earned-col">
-                                        <span className="points-earned">
+                                    <div style={{ textAlign: 'center' }}>
+                                        <span className="points-earned-minimal">
                                             {loyalty.totalEarned || 0}
                                         </span>
                                     </div>
 
                                     {/* Total Spent */}
-                                    <div className="spent-col">
-                                        <span className="points-spent">
+                                    <div style={{ textAlign: 'center' }}>
+                                        <span className="points-spent-minimal">
                                             {loyalty.totalSpent || 0}
                                         </span>
                                     </div>
 
                                     {/* Tier */}
-                                    <div className="tier-col">
-                                        <span className={`tier-badge tier-${loyalty.tier?.toLowerCase() || 'bronze'}`}>
+                                    <div style={{ display: 'flex', justifyContent: 'center' }}>
+                                        <span className={`tier-badge-minimal tier-${loyalty.tier?.toLowerCase() || 'bronze'}`}>
+                                            <span className="tier-dot"></span>
                                             {getTierName(loyalty.tier)}
                                         </span>
                                     </div>
 
                                     {/* Transactions */}
-                                    <div className="transactions-col">
-                                        <span className="transactions-info">
+                                    <div style={{ textAlign: 'center' }}>
+                                        <span className="transactions-link-minimal">
                                             {loyalty.transactions?.length || 0} transactions
                                         </span>
                                     </div>
 
                                     {/* Actions */}
-                                    <div className="actions-col">
+                                    <div style={{ display: 'flex', justifyContent: 'center' }}>
                                         <button
                                             onClick={() => handleAdjust(loyalty)}
-                                            className="action-btn"
+                                            className="action-btn-minimal"
                                             title="Adjust Points"
                                         >
                                             <TrendingUp size={18} />
@@ -282,103 +283,97 @@ const Loyalty = () => {
 
                     <style dangerouslySetInnerHTML={{
                         __html: `
-                            .loyalty-grid-container {
-                                background: #0f172a;
-                                border: 1px solid #1e293b;
-                                border-radius: 12px;
-                                overflow: visible;
+                            .loyalty-list-minimal {
+                                margin-top: 24px;
+                                font-family: 'Inter', sans-serif;
                             }
 
-                            .loyalty-grid-header {
+                            .loyalty-grid-header-minimal {
                                 display: grid;
                                 grid-template-columns: 2.5fr 1.5fr 1.5fr 1.5fr 1.5fr 1.5fr 1fr;
-                                padding: 16px 20px;
-                                background: #1e293b;
+                                padding: 12px 0;
                                 color: #94a3b8;
                                 font-size: 13px;
-                                font-weight: 600;
+                                font-weight: 700;
                                 text-transform: uppercase;
                                 letter-spacing: 0.05em;
-                                border-bottom: 2px solid #334155;
-                                position: sticky;
-                                top: 0;
-                                z-index: 10;
-                                border-radius: 12px 12px 0 0;
+                                border-bottom: 2px solid #1e293b;
                             }
 
-                            .loyalty-grid-row {
+                            .loyalty-grid-row-minimal {
                                 display: grid;
                                 grid-template-columns: 2.5fr 1.5fr 1.5fr 1.5fr 1.5fr 1.5fr 1fr;
-                                padding: 16px 20px;
+                                padding: 16px 0;
                                 align-items: center;
                                 border-bottom: 1px solid #1e293b;
                                 transition: all 0.2s ease;
                                 animation: fadeIn 0.3s ease forwards;
                             }
 
-                            .loyalty-grid-row:hover {
-                                background: rgba(30, 41, 59, 0.5);
+                            .loyalty-grid-row-minimal:hover {
+                                background: rgba(30, 41, 59, 0.2);
                             }
 
-                            .loyalty-grid-row:last-child {
-                                border-bottom: none;
-                                border-radius: 0 0 12px 12px;
-                            }
-
-                            .user-name {
+                            .user-name-minimal {
                                 font-weight: 700;
                                 font-size: 16px;
                                 color: #ffffff;
                                 text-transform: capitalize;
                             }
 
-                            .user-email {
+                            .user-email-minimal {
                                 font-size: 12px;
-                                color: #94a3b8;
-                                margin-top: 4px;
+                                color: #64748b;
+                                margin-top: 2px;
                             }
 
-                            .points-current {
+                            .points-current-minimal {
                                 color: #00d9ff;
                                 font-weight: 800;
-                                font-size: 20px;
-                                text-shadow: 0 0 10px rgba(0, 217, 255, 0.2);
+                                font-size: 18px;
                             }
 
-                            .points-earned {
+                            .points-earned-minimal {
                                 color: #10b981;
                                 font-weight: 600;
-                                font-size: 16px;
+                                font-size: 15px;
                             }
 
-                            .points-spent {
+                            .points-spent-minimal {
                                 color: #94a3b8;
-                                font-size: 16px;
+                                font-size: 15px;
                             }
 
-                            .tier-badge {
+                            .tier-badge-minimal {
                                 display: inline-flex;
                                 align-items: center;
-                                padding: 6px 14px;
+                                gap: 8px;
+                                padding: 6px 16px;
                                 border-radius: 20px;
-                                font-size: 12px;
+                                font-size: 11px;
                                 font-weight: 700;
                                 text-transform: uppercase;
-                                letter-spacing: 0.03em;
+                                letter-spacing: 0.05em;
+                            }
+
+                            .tier-dot {
+                                width: 6px;
+                                height: 6px;
+                                border-radius: 50%;
+                                background: currentColor;
+                                box-shadow: 0 0 8px currentColor;
                             }
 
                             .tier-platinum {
                                 background: rgba(64, 224, 208, 0.1);
                                 color: #40E0D0;
                                 border: 1px solid rgba(64, 224, 208, 0.2);
-                                box-shadow: 0 0 15px rgba(64, 224, 208, 0.1);
                             }
 
                             .tier-gold {
                                 background: rgba(251, 191, 36, 0.1);
                                 color: #fbbf24;
                                 border: 1px solid rgba(251, 191, 36, 0.2);
-                                box-shadow: 0 0 15px rgba(251, 191, 36, 0.1);
                             }
 
                             .tier-silver {
@@ -393,35 +388,30 @@ const Loyalty = () => {
                                 border: 1px solid rgba(180, 83, 9, 0.2);
                             }
 
-                            .transactions-info {
+                            .transactions-link-minimal {
                                 font-size: 13px;
                                 color: #64748b;
+                                font-weight: 500;
                             }
 
-                            .actions-col {
-                                display: flex;
-                                justify-content: flex-end;
-                            }
-
-                            .action-btn {
+                            .action-btn-minimal {
                                 width: 36px;
                                 height: 36px;
                                 display: flex;
                                 align-items: center;
                                 justify-content: center;
-                                background: #1e293b;
+                                background: transparent;
                                 color: #94a3b8;
                                 border-radius: 10px;
-                                border: 1px solid #334155;
-                                transition: all 0.2s;
+                                border: 1px solid #1e293b;
+                                transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
                                 cursor: pointer;
                             }
 
-                            .action-btn:hover {
+                            .action-btn-minimal:hover {
                                 color: #ffffff;
-                                background: #334155;
+                                background: #1e293b;
                                 transform: translateY(-2px);
-                                border-color: #475569;
                                 box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
                             }
 

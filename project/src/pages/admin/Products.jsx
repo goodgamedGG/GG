@@ -607,218 +607,217 @@ const Products = () => {
             </div>
 
             {/* Products Table */}
-            <div className="admin-card">
-                <div className="card-header">
-                    <div className="card-title">
-                        <Package size={20} color="var(--color-primary)" />
-                        <span>Product List</span>
-                        <span style={{
-                            fontSize: '12px',
-                            background: 'var(--color-bg-secondary)',
-                            padding: '2px 8px',
-                            borderRadius: '10px',
-                            color: 'var(--color-text-secondary)',
-                            marginLeft: '8px'
-                        }}>
-                            {products.length} items
-                        </span>
+            <div className="card-title" style={{
+                marginBottom: '24px',
+                display: 'flex',
+                alignItems: 'center'
+            }}>
+                <Package size={20} color="var(--color-primary)" style={{ marginRight: '12px' }} />
+                <span style={{
+                    fontWeight: '600',
+                    letterSpacing: '0.5px'
+                }}>
+                    Product List
+                </span>
+                <span style={{
+                    fontSize: '12px',
+                    background: 'var(--color-bg-secondary)',
+                    padding: '2px 8px',
+                    borderRadius: '10px',
+                    color: 'var(--color-text-secondary)',
+                    marginLeft: '8px',
+                    fontWeight: '500'
+                }}>
+                    {products.length} items
+                </span>
+            </div>
+
+            <div className="minimal-table-container">
+                {loading ? (
+                    <div style={{ textAlign: 'center', padding: '60px' }}>
+                        <div className="loading-spinner" style={{ margin: '0 auto' }}></div>
                     </div>
-                </div>
-
-                <div className="table-container">
-                    {loading ? (
-                        <div style={{ textAlign: 'center', padding: '60px' }}>
-                            <div className="loading-spinner" style={{ margin: '0 auto' }}></div>
-                        </div>
-                    ) : products.length === 0 ? (
-                        <EmptyState
-                            icon={Archive}
-                            title="No products found"
-                            message="No products match your current filters. Try adjusting your search criteria or add your first product."
-                            actionLabel="Add Product"
-                            onAction={handleOpenAddModal}
-                        />
-                    ) : (
-                        <div className="product-grid-container">
-                            {/* Sticky Header */}
-                            <div className="product-grid-header">
-                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                    <input
-                                        type="checkbox"
-                                        checked={selectedProducts.length === products.length && products.length > 0}
-                                        onChange={toggleSelectAll}
-                                        style={{ cursor: 'pointer' }}
-                                    />
-                                </div>
-                                <div>Image</div>
-                                <div>Product Details</div>
-                                <div>Category</div>
-                                <div>Attributes</div>
-                                <div>Performance</div>
-                                <div>Price & Stock</div>
-                                <div>Status</div>
-                                <div style={{ textAlign: 'right' }}>Actions</div>
+                ) : products.length === 0 ? (
+                    <EmptyState
+                        icon={Archive}
+                        title="No products found"
+                        message="No products match your current filters. Try adjusting your search criteria or add your first product."
+                        actionLabel="Add Product"
+                        onAction={handleOpenAddModal}
+                    />
+                ) : (
+                    <div className="product-grid-minimal">
+                        {/* Minimalism Header */}
+                        <div className="product-grid-header-minimal">
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                <input
+                                    type="checkbox"
+                                    checked={selectedProducts.length === products.length && products.length > 0}
+                                    onChange={toggleSelectAll}
+                                    style={{ cursor: 'pointer' }}
+                                />
                             </div>
+                            <div>IMAGE</div>
+                            <div>PRODUCT DETAILS</div>
+                            <div>CATEGORY</div>
+                            <div>ATTRIBUTES</div>
+                            <div>PERFORMANCE</div>
+                            <div>PRICE & STOCK</div>
+                            <div>STATUS</div>
+                            <div style={{ textAlign: 'right' }}>ACTIONS</div>
+                        </div>
 
-                            {/* Grid Body */}
-                            <div className="product-grid-body">
-                                {products.map((product, index) => (
-                                    <div
-                                        key={product._id}
-                                        className="product-grid-row"
-                                        style={{ animationDelay: `${index * 50}ms` }}
-                                    >
-                                        {/* Checkbox */}
-                                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                            <input
-                                                type="checkbox"
-                                                checked={selectedProducts.includes(product._id)}
-                                                onChange={() => toggleSelectProduct(product._id)}
-                                                style={{ cursor: 'pointer' }}
-                                            />
-                                        </div>
+                        {/* Grid Body */}
+                        <div className="product-grid-body-minimal">
+                            {products.map((product, index) => (
+                                <div
+                                    key={product._id}
+                                    className="product-grid-row-minimal"
+                                    style={{ animationDelay: `${index * 50}ms` }}
+                                >
+                                    {/* Checkbox */}
+                                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                        <input
+                                            type="checkbox"
+                                            checked={selectedProducts.includes(product._id)}
+                                            onChange={() => toggleSelectProduct(product._id)}
+                                            style={{ cursor: 'pointer' }}
+                                        />
+                                    </div>
 
-                                        {/* Image */}
-                                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                            <img
-                                                src={getImageUrl(product.images?.[0] || product.image)}
-                                                alt={product.name}
-                                                className="product-grid-img"
-                                                onError={(e) => { e.target.src = 'https://placehold.co/60x60/1a212c/64748b?text=No+Image'; }}
-                                            />
-                                        </div>
+                                    {/* Image */}
+                                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                        <img
+                                            src={getImageUrl(product.images?.[0] || product.image)}
+                                            alt={product.name}
+                                            className="product-grid-minimal-img"
+                                            onError={(e) => { e.target.src = 'https://placehold.co/60x60/1a212c/64748b?text=No+Image'; }}
+                                        />
+                                    </div>
 
-                                        {/* Product Details */}
-                                        <div className="product-details-col">
-                                            <div className="product-title">{product.name}</div>
-                                            <div className="product-subtitle">{product.description || 'No description'}</div>
-                                            <div className="product-badges">
-                                                {product.isFeatured && <span className="badge-featured">Featured</span>}
-                                                {product.isFlashSale && <span className="badge-flash">Flash Sale</span>}
-                                            </div>
-                                        </div>
-
-                                        {/* Category */}
-                                        <div className="product-category-col">
-                                            <span className="category-tag">
-                                                {product.category?.name || product.category || 'Uncategorized'}
-                                            </span>
-                                        </div>
-
-                                        {/* Attributes */}
-                                        <div className="product-attributes-col">
-                                            <div className="attribute-item">
-                                                <span className="attr-key">Type:</span>
-                                                <span className="attr-val">{product.type || 'N/A'}</span>
-                                            </div>
-                                            <div className="attribute-item">
-                                                <span className="attr-key">Platform:</span>
-                                                <span className="attr-val">{product.platform || 'N/A'}</span>
-                                            </div>
-                                            <div className="attribute-item">
-                                                <span className="attr-key">Region:</span>
-                                                <span className="attr-val">{product.region || 'N/A'}</span>
-                                            </div>
-                                        </div>
-
-                                        {/* Performance */}
-                                        <div className="product-performance-col">
-                                            <div className="performance-rating">
-                                                <span className="star-icon">★</span>
-                                                <span className="rating-val">{product.averageRating?.toFixed(1) || '0.0'}</span>
-                                                <span className="rating-count">({product.totalReviews || 0})</span>
-                                            </div>
-                                            <div className="performance-stats">
-                                                <div className="stat-item">
-                                                    <span className="stat-icon">👁</span>
-                                                    <span>{formatCompactNumber(product.viewCount || 0)}</span>
-                                                </div>
-                                                <div className="stat-item">
-                                                    <span className="stat-icon">🛒</span>
-                                                    <span>{formatCompactNumber(product.purchaseCount || 0)}</span>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        {/* Price & Stock */}
-                                        <div className="product-price-stock-col">
-                                            <div className="product-price">{formatPrice(product.price)}</div>
-                                            <div className="product-stock">
-                                                <span className="stock-bullet"></span>
-                                                <span className="stock-label">Stock: {product.stock || 0}</span>
-                                            </div>
-                                        </div>
-
-                                        {/* Status */}
-                                        <div className="product-status-col">
-                                            <span className={`status-pill ${product.isActive ? 'active' : 'inactive'}`}>
-                                                <span className="status-dot"></span>
-                                                {product.isActive ? 'ACTIVE' : 'INACTIVE'}
-                                            </span>
-                                        </div>
-
-                                        {/* Actions */}
-                                        <div className="product-actions-col">
-                                            <button onClick={() => handleOpenEditModal(product)} className="action-btn" title="Edit">
-                                                <Edit2 size={16} />
-                                            </button>
-                                            <button onClick={() => handleDelete(product._id)} className="action-btn danger" title="Delete">
-                                                <Trash2 size={16} />
-                                            </button>
+                                    {/* Product Details */}
+                                    <div className="product-details-col">
+                                        <div className="product-title">{product.name}</div>
+                                        <div className="product-subtitle">{product.description || 'No description'}</div>
+                                        <div className="product-badges">
+                                            {product.isFeatured && <span className="badge-featured">Featured</span>}
+                                            {product.isFlashSale && <span className="badge-flash">Flash Sale</span>}
                                         </div>
                                     </div>
-                                ))}
-                            </div>
-                        </div>
-                    )}
-                </div>
 
-                <style dangerouslySetInnerHTML={{
-                    __html: `
-                    .product-grid-container {
-                        background: #0f172a;
-                        border: 1px solid #1e293b;
-                        border-radius: 12px;
-                        overflow: visible;
+                                    {/* Category */}
+                                    <div className="product-category-col">
+                                        <span className="category-tag-minimal">
+                                            {product.category?.name || product.category || 'Uncategorized'}
+                                        </span>
+                                    </div>
+
+                                    {/* Attributes */}
+                                    <div className="product-attributes-col">
+                                        <div className="attribute-item">
+                                            <span className="attr-key">Type:</span>
+                                            <span className="attr-val">{product.type || 'N/A'}</span>
+                                        </div>
+                                        <div className="attribute-item">
+                                            <span className="attr-key">Platform:</span>
+                                            <span className="attr-val">{product.platform || 'N/A'}</span>
+                                        </div>
+                                        <div className="attribute-item">
+                                            <span className="attr-key">Region:</span>
+                                            <span className="attr-val">{product.region || 'N/A'}</span>
+                                        </div>
+                                    </div>
+
+                                    {/* Performance */}
+                                    <div className="product-performance-col">
+                                        <div className="performance-rating">
+                                            <span className="star-icon">★</span>
+                                            <span className="rating-val">{product.averageRating?.toFixed(1) || '0.0'}</span>
+                                            <span className="rating-count">({product.totalReviews || 0})</span>
+                                        </div>
+                                        <div className="performance-stats">
+                                            <div className="stat-item">
+                                                <span className="stat-icon">👁</span>
+                                                <span>{formatCompactNumber(product.viewCount || 0)}</span>
+                                            </div>
+                                            <div className="stat-item">
+                                                <span className="stat-icon">🛒</span>
+                                                <span>{formatCompactNumber(product.purchaseCount || 0)}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Price & Stock */}
+                                    <div className="product-price-stock-col">
+                                        <div className="product-price-minimal">{formatPrice(product.price)}</div>
+                                        <div className="product-stock-minimal">
+                                            <span className="stock-bullet-minimal"></span>
+                                            <span className="stock-label-minimal">Stock: {product.stock || 0}</span>
+                                        </div>
+                                    </div>
+
+                                    {/* Status */}
+                                    <div className="product-status-col">
+                                        <span className={`status-pill-minimal ${product.isActive ? 'active' : 'inactive'}`}>
+                                            <span className="status-dot-minimal"></span>
+                                            {product.isActive ? 'ACTIVE' : 'INACTIVE'}
+                                        </span>
+                                    </div>
+
+                                    {/* Actions */}
+                                    <div className="product-actions-col">
+                                        <button onClick={() => handleOpenEditModal(product)} className="action-btn-minimal" title="Edit">
+                                            <Edit2 size={16} />
+                                        </button>
+                                        <button onClick={() => handleDelete(product._id)} className="action-btn-minimal danger" title="Delete">
+                                            <Trash2 size={16} />
+                                        </button>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
+            </div>
+
+            <style dangerouslySetInnerHTML={{
+                __html: `
+                    .product-grid-minimal {
+                        display: flex;
+                        flex-direction: column;
+                        font-family: 'Inter', sans-serif;
                     }
 
-                    .product-grid-header {
+                    .product-grid-header-minimal {
                         display: grid;
-                        grid-template-columns: 40px 80px 2fr 1fr 2fr 1.5fr 1.5fr 1fr 120px;
-                        padding: 16px 20px;
-                        background: #1e293b;
+                        grid-template-columns: 40px 80px 3fr 1.5fr 2fr 1.5fr 1.5fr 1fr 120px;
+                        padding: 12px 0;
                         color: #94a3b8;
                         font-size: 13px;
-                        font-weight: 600;
+                        font-weight: 700;
                         text-transform: uppercase;
                         letter-spacing: 0.05em;
-                        border-bottom: 2px solid #334155;
+                        border-bottom: 2px solid #1e293b;
                         position: sticky;
                         top: 0;
                         z-index: 10;
-                        border-radius: 12px 12px 0 0;
                     }
 
-                    .product-grid-row {
+                    .product-grid-row-minimal {
                         display: grid;
-                        grid-template-columns: 40px 80px 2fr 1fr 2fr 1.5fr 1.5fr 1fr 120px;
-                        padding: 20px 20px;
+                        grid-template-columns: 40px 80px 3fr 1.5fr 2fr 1.5fr 1.5fr 1fr 120px;
+                        padding: 16px 0;
                         align-items: center;
                         border-bottom: 1px solid #1e293b;
                         transition: all 0.2s ease;
                         animation: fadeIn 0.3s ease forwards;
                     }
 
-                    .product-grid-row:hover {
-                        background: rgba(30, 41, 59, 0.5);
+                    .product-grid-row-minimal:hover {
+                        background: rgba(30, 41, 59, 0.2);
                     }
 
-                    .product-grid-row:last-child {
-                        border-bottom: none;
-                        border-radius: 0 0 12px 12px;
-                    }
-
-                    .product-grid-img {
+                    .product-grid-minimal-img {
                         width: 60px;
                         height: 60px;
                         object-fit: cover;
@@ -830,219 +829,106 @@ const Products = () => {
                         display: flex;
                         flex-direction: column;
                         gap: 4px;
-                        padding-right: 15px;
+                        padding-left: 20px;
                     }
 
                     .product-title {
                         font-weight: 700;
                         font-size: 16px;
-                        color: #f8fafc;
+                        color: #ffffff;
                     }
 
                     .product-subtitle {
                         font-size: 13px;
                         color: #94a3b8;
-                        overflow: hidden;
-                        text-overflow: ellipsis;
-                        white-space: nowrap;
-                        max-width: 250px;
                     }
 
-                    .product-badges {
-                        display: flex;
-                        gap: 6px;
-                        margin-top: 4px;
-                    }
-
-                    .badge-featured {
-                        background: rgba(250, 204, 21, 0.1);
-                        color: #facc15;
-                        font-size: 10px;
-                        padding: 2px 6px;
-                        border-radius: 4px;
-                        border: 1px solid rgba(250, 204, 21, 0.2);
-                        font-weight: 600;
-                        text-transform: uppercase;
-                    }
-
-                    .badge-flash {
-                        background: rgba(244, 63, 94, 0.1);
-                        color: #f43f5e;
-                        font-size: 10px;
-                        padding: 2px 6px;
-                        border-radius: 4px;
-                        border: 1px solid rgba(244, 63, 94, 0.2);
-                        font-weight: 600;
-                        text-transform: uppercase;
-                    }
-
-                    .category-tag {
+                    .category-tag-minimal {
                         background: #1e293b;
                         padding: 6px 10px;
                         border-radius: 6px;
                         font-size: 12px;
-                        color: #f1f5f9;
+                        color: #ffffff;
                         font-weight: 500;
                         border: 1px solid #334155;
                     }
 
-                    .product-attributes-col {
-                        display: flex;
-                        flex-direction: column;
-                        gap: 6px;
-                    }
-
-                    .attribute-item {
-                        display: flex;
-                        justify-content: space-between;
-                        font-size: 12px;
-                        padding-right: 20px;
-                    }
-
-                    .attr-key {
-                        color: #64748b;
-                        font-weight: 500;
-                    }
-
-                    .attr-val {
-                        color: #cbd5e1;
-                        font-weight: 600;
-                    }
-
-                    .product-performance-col {
-                        display: flex;
-                        flex-direction: column;
-                        gap: 10px;
-                    }
-
-                    .performance-rating {
-                        display: flex;
-                        align-items: center;
-                        gap: 6px;
-                    }
-
-                    .star-icon {
-                        color: #facc15;
-                        font-size: 14px;
-                    }
-
-                    .rating-val {
-                        font-weight: 700;
-                        color: #f8fafc;
-                    }
-
-                    .rating-count {
-                        color: #64748b;
-                        font-size: 11px;
-                    }
-
-                    .performance-stats {
-                        display: flex;
-                        gap: 16px;
-                        color: #94a3b8;
-                        font-size: 12px;
-                    }
-
-                    .stat-item {
-                        display: flex;
-                        align-items: center;
-                        gap: 5px;
-                    }
-
-                    .product-price-stock-col {
-                        display: flex;
-                        flex-direction: column;
-                        gap: 8px;
-                    }
-
-                    .product-price {
+                    .product-price-minimal {
                         font-weight: 800;
                         color: #00d9ff;
-                        font-size: 20px;
+                        font-size: 18px;
                         font-family: 'Orbitron', sans-serif;
-                        text-shadow: 0 0 10px rgba(0, 217, 255, 0.2);
                     }
 
-                    .product-stock {
-                        display: flex;
-                        align-items: center;
-                        gap: 8px;
-                    }
-
-                    .stock-bullet {
+                    .stock-bullet-minimal {
                         width: 6px;
                         height: 6px;
                         border-radius: 50%;
                         background: #f97316;
-                        box-shadow: 0 0 8px #f97316;
                     }
 
-                    .stock-label {
-                        color: #cbd5e1;
+                    .stock-label-minimal {
+                        color: #94a3b8;
                         font-size: 13px;
-                        font-weight: 500;
                     }
 
-                    .status-pill {
+                    .status-pill-minimal {
                         display: inline-flex;
                         align-items: center;
                         gap: 6px;
-                        padding: 6px 12px;
+                        padding: 4px 10px;
                         border-radius: 20px;
                         font-size: 11px;
                         font-weight: 700;
-                        letter-spacing: 0.05em;
                     }
 
-                    .status-pill.active {
+                    .status-pill-minimal.active {
                         background: rgba(16, 185, 129, 0.1);
                         color: #10b981;
-                        border: 1px solid rgba(16, 185, 129, 0.2);
                     }
 
-                    .status-pill.inactive {
+                    .status-pill-minimal.inactive {
                         background: rgba(239, 68, 68, 0.1);
                         color: #ef4444;
-                        border: 1px solid rgba(239, 68, 68, 0.2);
                     }
 
-                    .status-dot {
+                    .status-dot-minimal {
                         width: 6px;
                         height: 6px;
                         border-radius: 50%;
                         background: currentColor;
-                        box-shadow: 0 0 6px currentColor;
                     }
 
                     .product-actions-col {
                         display: flex;
                         gap: 10px;
-                        justify-content: flex-end;
+                        justify-content: center;
+                        align-items: center;
                     }
 
-                    .action-btn {
+                    .action-btn-minimal {
                         width: 36px;
                         height: 36px;
                         display: flex;
                         align-items: center;
                         justify-content: center;
-                        background: #1e293b;
+                        background: transparent;
                         color: #94a3b8;
-                        border-radius: 10px;
-                        border: 1px solid #334155;
+                        border-radius: 8px;
+                        border: 1px solid #1e293b;
                         transition: all 0.2s;
                         cursor: pointer;
                     }
 
-                    .action-btn:hover {
-                        color: #f8fafc;
-                        background: #334155;
+                    .action-btn-minimal:hover {
+                        color: #ffffff;
+                        background: #1e293b;
                         transform: translateY(-2px);
                     }
 
-                    .action-btn.danger:hover {
-                        background: #ef4444;
-                        border-color: #ef4444;
+                    .action-btn-minimal.danger:hover {
+                        background: rgba(239, 68, 68, 0.1);
+                        color: #ef4444;
                     }
 
                     @keyframes fadeIn {
@@ -1051,17 +937,16 @@ const Products = () => {
                     }
                 ` }} />
 
-                {/* Pagination */}
-                {!loading && totalPages > 1 && (
-                    <div style={{ padding: '20px', borderTop: '1px solid var(--color-border)' }}>
-                        <Pagination
-                            currentPage={currentPage}
-                            totalPages={totalPages}
-                            onPageChange={setCurrentPage}
-                        />
-                    </div>
-                )}
-            </div>
+            {/* Pagination */}
+            {!loading && totalPages > 1 && (
+                <div style={{ padding: '32px 0 20px', display: 'flex', justifyContent: 'center' }}>
+                    <Pagination
+                        currentPage={currentPage}
+                        totalPages={totalPages}
+                        onPageChange={setCurrentPage}
+                    />
+                </div>
+            )}
 
             {/* Product Form Modal */}
             <ProductFormModal

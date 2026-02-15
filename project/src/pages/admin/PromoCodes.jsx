@@ -208,38 +208,38 @@ const PromoCodes = () => {
                     </button>
                 </div>
             ) : (
-                <div className="promo-data-table">
+                <div className="promo-list-minimal">
                     {/* Grid Header */}
-                    <div className="promo-grid-header">
+                    <div className="promo-grid-header-minimal">
                         <div>Code</div>
-                        <div>Discount</div>
-                        <div>Min Purchase</div>
-                        <div>Usage Limit</div>
-                        <div>Analytics</div>
-                        <div>Expires</div>
-                        <div>Status</div>
-                        <div style={{ textAlign: 'right' }}>Actions</div>
+                        <div style={{ textAlign: 'center' }}>Discount</div>
+                        <div style={{ textAlign: 'center' }}>Min Purchase</div>
+                        <div style={{ textAlign: 'center' }}>Usage Limit</div>
+                        <div style={{ textAlign: 'center' }}>Analytics</div>
+                        <div style={{ textAlign: 'center' }}>Expires</div>
+                        <div style={{ textAlign: 'center' }}>Status</div>
+                        <div style={{ textAlign: 'center' }}>Actions</div>
                     </div>
 
                     {/* Grid Body */}
-                    <div className="promo-grid-body">
+                    <div className="promo-grid-body-minimal">
                         {promoCodes.map(promo => {
                             const active = promo.isActive && !isExpired(promo.expirationDate);
                             return (
-                                <div key={promo._id} className="promo-grid-row">
+                                <div key={promo._id} className="promo-grid-row-minimal">
                                     {/* Code Column */}
-                                    <div className="promo-code-col">
-                                        <div className="promo-code-container">
-                                            <code className="promo-code-tag">{promo.code}</code>
-                                            <button onClick={() => copyCode(promo.code)} className="copy-btn" title="Copy Code">
+                                    <div className="promo-code-col-minimal">
+                                        <div className="promo-code-container-minimal">
+                                            <code className="promo-code-tag-minimal">{promo.code}</code>
+                                            <button onClick={() => copyCode(promo.code)} className="copy-btn-minimal" title="Copy Code">
                                                 <Copy size={12} />
                                             </button>
                                         </div>
                                     </div>
 
                                     {/* Discount Column */}
-                                    <div className="promo-discount-col">
-                                        <span className="high-contrast-discount">
+                                    <div style={{ textAlign: 'center' }}>
+                                        <span className="discount-value-minimal">
                                             {promo.discountType === 'percentage'
                                                 ? `${promo.discountValue}%`
                                                 : `$${promo.discountValue}`
@@ -248,52 +248,49 @@ const PromoCodes = () => {
                                     </div>
 
                                     {/* Min Purchase Column */}
-                                    <div className="promo-min-purchase-col">
-                                        <span style={{ color: 'var(--color-text-secondary)' }}>
+                                    <div style={{ textAlign: 'center' }}>
+                                        <span style={{ color: 'var(--color-text-secondary)', fontSize: '14px' }}>
                                             {promo.minPurchaseAmount ? `$${promo.minPurchaseAmount}` : 'No minimum'}
                                         </span>
                                     </div>
 
                                     {/* Usage Column */}
-                                    <div className="promo-usage-col">
-                                        <div className="usage-info">
-                                            <span className="usage-count">{promo.usedCount || 0} / {promo.usageLimit || '∞'}</span>
-                                            {promo.usageLimit && (
-                                                <div className="usage-progress-mini">
-                                                    <div
-                                                        className="usage-progress-bar"
-                                                        style={{ width: `${Math.min(100, Math.round(((promo.usedCount || 0) / promo.usageLimit) * 100))}%` }}
-                                                    ></div>
-                                                </div>
-                                            )}
-                                        </div>
+                                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
+                                        <span className="usage-text-minimal">{promo.usedCount || 0} / {promo.usageLimit || '∞'}</span>
+                                        {promo.usageLimit && (
+                                            <div className="usage-progress-minimal">
+                                                <div
+                                                    className="usage-progress-fill-minimal"
+                                                    style={{ width: `${Math.min(100, Math.round(((promo.usedCount || 0) / promo.usageLimit) * 100))}%` }}
+                                                ></div>
+                                            </div>
+                                        )}
                                     </div>
 
                                     {/* Analytics Column */}
-                                    <div className="promo-analytics-col">
+                                    <div style={{ display: 'flex', justifyContent: 'center' }}>
                                         <button
                                             onClick={() => loadPromoDetails(promo._id)}
-                                            className="analytics-trigger"
+                                            className="stats-btn-minimal"
                                             title="View Performance"
                                         >
-                                            <TrendingUp size={16} />
+                                            <TrendingUp size={14} />
                                             <span>Stats</span>
                                         </button>
                                     </div>
 
                                     {/* Expires Column */}
-                                    <div className="promo-expires-col">
+                                    <div style={{ textAlign: 'center' }}>
                                         <span style={{
                                             fontSize: '13px',
                                             color: isExpired(promo.expirationDate) ? '#ef4444' : 'var(--color-text-muted)'
                                         }}>
                                             {formatDate(promo.expirationDate)}
-                                            {isExpired(promo.expirationDate) && <span style={{ display: 'block', fontSize: '10px', textTransform: 'uppercase' }}>Expired</span>}
                                         </span>
                                     </div>
 
                                     {/* Status Column */}
-                                    <div className="promo-status-col">
+                                    <div style={{ display: 'flex', justifyContent: 'center' }}>
                                         <span className={`status-pill ${active ? 'active' : 'inactive'}`}>
                                             <span className="status-dot"></span>
                                             {active ? 'Active' : 'Inactive'}
@@ -301,21 +298,19 @@ const PromoCodes = () => {
                                     </div>
 
                                     {/* Actions Column */}
-                                    <div className="promo-actions-col">
-                                        <div className="action-group">
-                                            <button onClick={() => loadPromoDetails(promo._id)} className="action-btn" title="View Details">
-                                                <Eye size={16} />
-                                            </button>
-                                            <button onClick={() => handleToggle(promo._id)} className="action-btn" title={promo.isActive ? 'Deactivate' : 'Activate'}>
-                                                {promo.isActive ? <EyeOff size={16} /> : <Eye size={16} />}
-                                            </button>
-                                            <button onClick={() => handleEdit(promo)} className="action-btn" title="Edit">
-                                                <Pencil size={16} />
-                                            </button>
-                                            <button onClick={() => handleDelete(promo._id)} className="action-btn danger" title="Delete">
-                                                <Trash2 size={16} />
-                                            </button>
-                                        </div>
+                                    <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
+                                        <button onClick={() => loadPromoDetails(promo._id)} className="action-btn-minimal" title="View Details">
+                                            <Eye size={16} />
+                                        </button>
+                                        <button onClick={() => handleToggle(promo._id)} className="action-btn-minimal" title={promo.isActive ? 'Deactivate' : 'Activate'}>
+                                            {promo.isActive ? <EyeOff size={16} /> : <Eye size={16} />}
+                                        </button>
+                                        <button onClick={() => handleEdit(promo)} className="action-btn-minimal" title="Edit">
+                                            <Pencil size={16} />
+                                        </button>
+                                        <button onClick={() => handleDelete(promo._id)} className="action-btn-minimal danger" title="Delete">
+                                            <Trash2 size={16} />
+                                        </button>
                                     </div>
                                 </div>
                             );
@@ -324,63 +319,54 @@ const PromoCodes = () => {
 
                     <style dangerouslySetInnerHTML={{
                         __html: `
-                        .promo-data-table {
-                            background: #0f172a;
-                            border: 1px solid #1e293b;
-                            border-radius: 12px;
-                            overflow: hidden;
-                            margin-top: 16px;
-                            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+                        .promo-list-minimal {
+                            margin-top: 24px;
+                            font-family: 'Inter', sans-serif;
                         }
 
-                        .promo-grid-header {
+                        .promo-grid-header-minimal {
                             display: grid;
-                            grid-template-columns: 2fr 1fr 1.5fr 1.5fr 1fr 2fr 1.5fr 1.5fr;
-                            padding: 16px 24px;
-                            background: #1e293b;
+                            grid-template-columns: 1.5fr 1fr 1.2fr 1.2fr 1fr 1.2fr 1fr 1.5fr;
+                            padding: 12px 0;
                             color: #94a3b8;
                             font-size: 13px;
-                            font-weight: 600;
+                            font-weight: 700;
                             text-transform: uppercase;
                             letter-spacing: 0.05em;
-                            border-bottom: 1px solid #334155;
+                            border-bottom: 2px solid #1e293b;
                         }
 
-                        .promo-grid-row {
+                        .promo-grid-row-minimal {
                             display: grid;
-                            grid-template-columns: 2fr 1fr 1.5fr 1.5fr 1fr 2fr 1.5fr 1.5fr;
-                            padding: 16px 24px;
+                            grid-template-columns: 1.5fr 1fr 1.2fr 1.2fr 1fr 1.2fr 1fr 1.5fr;
+                            padding: 16px 0;
                             align-items: center;
                             border-bottom: 1px solid #1e293b;
                             transition: all 0.2s ease;
                         }
 
-                        .promo-grid-row:last-child {
-                            border-bottom: none;
+                        .promo-grid-row-minimal:hover {
+                            background: rgba(30, 41, 59, 0.2);
                         }
 
-                        .promo-grid-row:hover {
-                            background: rgba(30, 41, 59, 0.5);
-                        }
-
-                        .promo-code-container {
+                        .promo-code-container-minimal {
                             display: flex;
                             align-items: center;
                             gap: 8px;
                         }
 
-                        .promo-code-tag {
-                            background: rgba(30, 41, 59, 0.8);
+                        .promo-code-tag-minimal {
+                            background: rgba(30, 41, 59, 0.5);
                             color: #00d9ff;
-                            padding: 6px 10px;
+                            padding: 6px 12px;
                             border-radius: 6px;
                             font-family: 'JetBrains Mono', monospace;
                             font-weight: 700;
                             font-size: 14px;
-                            border: 1px solid rgba(0, 217, 255, 0.2);
+                            border: 1px solid rgba(0, 217, 255, 0.1);
                         }
 
-                        .copy-btn {
+                        .copy-btn-minimal {
                             background: transparent;
                             color: #64748b;
                             display: flex;
@@ -391,44 +377,37 @@ const PromoCodes = () => {
                             transition: all 0.2s;
                         }
 
-                        .copy-btn:hover {
+                        .copy-btn-minimal:hover {
                             color: #00d9ff;
                             background: rgba(0, 217, 255, 0.1);
                         }
 
-                        .high-contrast-discount {
+                        .discount-value-minimal {
                             color: #00ff88;
-                            font-weight: 800;
+                            font-weight: 700;
                             font-size: 18px;
-                            text-shadow: 0 0 15px rgba(0, 255, 136, 0.3);
                         }
 
-                        .usage-info {
-                            display: flex;
-                            flex-direction: column;
-                            gap: 4px;
-                        }
-
-                        .usage-count {
+                        .usage-text-minimal {
                             font-weight: 600;
                             color: #f1f5f9;
                             font-size: 14px;
                         }
 
-                        .usage-progress-mini {
+                        .usage-progress-minimal {
                             width: 60px;
                             height: 4px;
-                            background: #334155;
+                            background: #1e293b;
                             border-radius: 2px;
                             overflow: hidden;
                         }
 
-                        .usage-progress-bar {
+                        .usage-progress-fill-minimal {
                             height: 100%;
                             background: #00d9ff;
                         }
 
-                        .analytics-trigger {
+                        .stats-btn-minimal {
                             display: flex;
                             align-items: center;
                             gap: 6px;
@@ -442,7 +421,7 @@ const PromoCodes = () => {
                             transition: all 0.2s;
                         }
 
-                        .analytics-trigger:hover {
+                        .stats-btn-minimal:hover {
                             background: rgba(56, 189, 248, 0.1);
                             border-color: #38bdf8;
                         }
@@ -450,18 +429,18 @@ const PromoCodes = () => {
                         .status-pill {
                             display: inline-flex;
                             align-items: center;
-                            gap: 6px;
-                            padding: 6px 12px;
+                            gap: 8px;
+                            padding: 6px 16px;
                             border-radius: 20px;
-                            font-size: 12px;
-                            font-weight: 600;
+                            font-size: 11px;
+                            font-weight: 700;
+                            letter-spacing: 0.05em;
                         }
 
                         .status-pill.active {
                             background: rgba(16, 185, 129, 0.1);
                             color: #10b981;
                             border: 1px solid rgba(16, 185, 129, 0.2);
-                            box-shadow: 0 0 10px rgba(16, 185, 129, 0.1);
                         }
 
                         .status-pill.inactive {
@@ -475,39 +454,32 @@ const PromoCodes = () => {
                             height: 6px;
                             border-radius: 50%;
                             background: currentColor;
-                            box-shadow: 0 0 6px currentColor;
+                            box-shadow: 0 0 8px currentColor;
                         }
 
-                        .action-group {
-                            display: flex;
-                            gap: 8px;
-                            justify-content: flex-end;
-                        }
-
-                        .action-btn {
-                            width: 32px;
-                            height: 32px;
+                        .action-btn-minimal {
+                            width: 36px;
+                            height: 36px;
                             display: flex;
                             align-items: center;
                             justify-content: center;
                             background: transparent;
                             color: #94a3b8;
-                            border-radius: 8px;
-                            border: 1px solid #334155;
+                            border-radius: 10px;
+                            border: 1px solid #1e293b;
                             transition: all 0.2s;
                         }
 
-                        .action-btn:hover {
-                            color: #f1f5f9;
-                            background: #334155;
-                            border-color: #475569;
-                            transform: translateY(-1px);
+                        .action-btn-minimal:hover {
+                            color: #ffffff;
+                            background: #1e293b;
+                            transform: translateY(-2px);
                         }
 
-                        .action-btn.danger:hover {
-                            color: #ffffff;
+                        .action-btn-minimal.danger:hover {
                             background: #ef4444;
                             border-color: #ef4444;
+                            box-shadow: 0 0 15px rgba(239, 68, 68, 0.3);
                         }
                     ` }} />
                 </div>

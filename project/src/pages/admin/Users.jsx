@@ -223,17 +223,17 @@ const Users = () => {
             </div>
 
             {/* Users Table */}
-            <div className="admin-card">
-                <div className="card-header">
-                    <div className="card-title">
-                        <UsersIcon size={20} color="var(--color-primary)" />
-                        User Directory
+            <div className="users-list-minimal">
+                <div className="users-header-minimal">
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <UsersIcon size={20} color="var(--color-primary)" style={{ marginRight: '12px' }} />
+                        <span className="users-header-title-minimal">User Directory</span>
                     </div>
                 </div>
 
-                <div className="users-grid-container">
-                    {/* Sticky Header */}
-                    <div className="users-grid-header">
+                <div className="users-grid-container-minimal">
+                    {/* Grid Header */}
+                    <div className="users-grid-header-minimal">
                         <div style={{ display: 'flex', alignItems: 'center' }}>
                             <input
                                 type="checkbox"
@@ -242,17 +242,17 @@ const Users = () => {
                                 style={{ cursor: 'pointer' }}
                             />
                         </div>
-                        <div>User</div>
-                        <div>Phone</div>
-                        <div>Role</div>
-                        <div>Status</div>
-                        <div>Loyalty</div>
-                        <div>Joined</div>
-                        <div style={{ textAlign: 'right' }}>Actions</div>
+                        <div>USER</div>
+                        <div>PHONE</div>
+                        <div>ROLE</div>
+                        <div>STATUS</div>
+                        <div style={{ textAlign: 'center' }}>LOYALTY</div>
+                        <div>JOINED</div>
+                        <div style={{ textAlign: 'center' }}>ACTIONS</div>
                     </div>
 
                     {/* Grid Body */}
-                    <div className="users-grid-body">
+                    <div className="users-grid-body-minimal">
                         {loading ? (
                             <div style={{ textAlign: 'center', padding: '60px', color: 'var(--color-text-muted)' }}>
                                 Loading users...
@@ -265,7 +265,7 @@ const Users = () => {
                             filteredUsers.map((user, index) => (
                                 <div
                                     key={user._id}
-                                    className="users-grid-row"
+                                    className="users-grid-row-minimal"
                                     style={{ animationDelay: `${index * 50}ms` }}
                                 >
                                     {/* Checkbox */}
@@ -279,39 +279,39 @@ const Users = () => {
                                     </div>
 
                                     {/* User Profile */}
-                                    <div className="user-profile-col">
-                                        <div className="user-avatar">
+                                    <div className="user-profile-col-minimal">
+                                        <div className="user-avatar-minimal">
                                             {user.name ? user.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) : 'U'}
                                         </div>
-                                        <div className="user-info">
-                                            <div className="user-name">{user.name || 'Anonymous'}</div>
-                                            <div className="user-email">{user.email}</div>
+                                        <div className="user-info-minimal">
+                                            <div className="user-name-minimal">{user.name || 'Anonymous'}</div>
+                                            <div className="user-email-minimal">{user.email}</div>
                                         </div>
                                     </div>
 
                                     {/* Phone */}
-                                    <div className="phone-col">
+                                    <div className="phone-col-minimal">
                                         {user.phone || '-'}
                                     </div>
 
                                     {/* Role */}
-                                    <div className="role-col">
-                                        <span className={`role-badge ${user.role}`}>
+                                    <div className="role-col-minimal">
+                                        <span className={`role-badge-minimal ${user.role}`}>
                                             {user.role}
                                         </span>
                                     </div>
 
                                     {/* Status */}
-                                    <div className="status-col">
-                                        <span className={`status-text ${user.isEmailVerified ? 'verified' : 'pending'}`}>
+                                    <div className="status-col-minimal">
+                                        <span className={`status-text-minimal ${user.isEmailVerified ? 'verified' : 'pending'}`}>
                                             {user.isEmailVerified ? 'VERIFIED' : 'PENDING'}
                                         </span>
                                     </div>
 
                                     {/* Loyalty */}
-                                    <div className="loyalty-col">
+                                    <div className="loyalty-col-minimal" style={{ textAlign: 'center', display: 'flex', justifyContent: 'center' }}>
                                         {user.loyaltyPoints !== undefined ? (
-                                            <div className="loyalty-info">
+                                            <div className="loyalty-info-minimal">
                                                 <Award size={14} color={getTierColor(user.loyaltyTier || 'bronze')} />
                                                 <span>{user.loyaltyPoints}</span>
                                             </div>
@@ -321,19 +321,19 @@ const Users = () => {
                                     </div>
 
                                     {/* Joined */}
-                                    <div className="joined-col">
+                                    <div className="joined-col-minimal">
                                         {formatDate(user.createdAt)}
                                     </div>
 
                                     {/* Actions */}
-                                    <div className="actions-col">
-                                        <button onClick={() => loadUserDetails(user._id)} className="action-btn" title="View Details">
+                                    <div className="actions-col-minimal">
+                                        <button onClick={() => loadUserDetails(user._id)} className="action-btn-minimal" title="View Details">
                                             <Eye size={16} />
                                         </button>
-                                        <button onClick={() => handleEdit(user)} className="action-btn" title="Edit">
+                                        <button onClick={() => handleEdit(user)} className="action-btn-minimal" title="Edit">
                                             <Pencil size={16} />
                                         </button>
-                                        <button onClick={() => handleDelete(user._id)} className="action-btn danger" title="Delete">
+                                        <button onClick={() => handleDelete(user._id)} className="action-btn-minimal danger" title="Delete">
                                             <Trash2 size={16} />
                                         </button>
                                     </div>
@@ -345,56 +345,57 @@ const Users = () => {
 
                 <style dangerouslySetInnerHTML={{
                     __html: `
-                    .users-grid-container {
-                        background: #0f172a;
-                        border: 1px solid #1e293b;
-                        border-radius: 12px;
-                        overflow: visible;
+                    .users-list-minimal {
+                        font-family: 'Inter', sans-serif;
                     }
 
-                    .users-grid-header {
+                    .users-header-minimal {
+                        padding: 12px 0;
+                        margin-bottom: 8px;
+                        display: flex;
+                        align-items: center;
+                    }
+
+                    .users-header-title-minimal {
+                        font-size: 18px;
+                        font-weight: 700;
+                        color: #ffffff;
+                        letter-spacing: -0.01em;
+                    }
+
+                    .users-grid-header-minimal {
                         display: grid;
-                        grid-template-columns: 40px 3fr 1.5fr 1fr 1fr 1fr 1.5fr 150px;
-                        padding: 16px 20px;
-                        background: #1e293b;
+                        grid-template-columns: 40px 3.5fr 1.5fr 1fr 1fr 1fr 1.5fr 150px;
+                        padding: 12px 0;
                         color: #94a3b8;
                         font-size: 13px;
-                        font-weight: 600;
+                        font-weight: 700;
                         text-transform: uppercase;
                         letter-spacing: 0.05em;
-                        border-bottom: 2px solid #334155;
-                        position: sticky;
-                        top: 0;
-                        z-index: 10;
-                        border-radius: 12px 12px 0 0;
+                        border-bottom: 2px solid #1e293b;
                     }
 
-                    .users-grid-row {
+                    .users-grid-row-minimal {
                         display: grid;
-                        grid-template-columns: 40px 3fr 1.5fr 1fr 1fr 1fr 1.5fr 150px;
-                        padding: 12px 20px;
+                        grid-template-columns: 40px 3.5fr 1.5fr 1fr 1fr 1fr 1.5fr 150px;
+                        padding: 16px 0;
                         align-items: center;
                         border-bottom: 1px solid #1e293b;
                         transition: all 0.2s ease;
                         animation: fadeIn 0.3s ease forwards;
                     }
 
-                    .users-grid-row:hover {
-                        background: rgba(30, 41, 59, 0.5);
+                    .users-grid-row-minimal:hover {
+                        background: rgba(30, 41, 59, 0.2);
                     }
 
-                    .users-grid-row:last-child {
-                        border-bottom: none;
-                        border-radius: 0 0 12px 12px;
-                    }
-
-                    .user-profile-col {
+                    .user-profile-col-minimal {
                         display: flex;
                         align-items: center;
-                        gap: 12px;
+                        gap: 16px;
                     }
 
-                    .user-avatar {
+                    .user-avatar-minimal {
                         width: 40px;
                         height: 40px;
                         border-radius: 10px;
@@ -405,107 +406,110 @@ const Users = () => {
                         justify-content: center;
                         color: #ffffff;
                         font-weight: 700;
-                        font-size: 14px;
+                        font-size: 13px;
                     }
 
-                    .user-info {
+                    .user-info-minimal {
                         display: flex;
                         flex-direction: column;
                     }
 
-                    .user-name {
+                    .user-name-minimal {
                         font-weight: 700;
                         font-size: 15px;
                         color: #ffffff;
                     }
 
-                    .user-email {
+                    .user-email-minimal {
                         font-size: 12px;
-                        color: #94a3b8;
+                        color: #64748b;
+                        margin-top: 2px;
                     }
 
-                    .phone-col {
+                    .phone-col-minimal {
                         font-size: 13px;
                         color: #94a3b8;
+                        font-weight: 500;
                     }
 
-                    .role-badge {
+                    .role-badge-minimal {
                         display: inline-flex;
-                        padding: 4px 10px;
+                        padding: 4px 12px;
                         border-radius: 6px;
                         font-size: 11px;
                         font-weight: 700;
                         text-transform: uppercase;
-                        letter-spacing: 0.03em;
+                        letter-spacing: 0.05em;
                     }
 
-                    .role-badge.admin {
+                    .role-badge-minimal.admin {
                         background: rgba(0, 217, 255, 0.1);
                         color: #00d9ff;
                         border: 1px solid rgba(0, 217, 255, 0.2);
                     }
 
-                    .role-badge.user {
+                    .role-badge-minimal.user {
                         background: rgba(148, 163, 184, 0.1);
                         color: #94a3b8;
                         border: 1px solid rgba(148, 163, 184, 0.2);
                     }
 
-                    .status-text {
+                    .status-text-minimal {
                         font-size: 12px;
                         font-weight: 800;
                         letter-spacing: 0.02em;
                     }
 
-                    .status-text.verified {
+                    .status-text-minimal.verified {
                         color: #10b981;
                     }
 
-                    .status-text.pending {
+                    .status-text-minimal.pending {
                         color: #f59e0b;
                     }
 
-                    .loyalty-info {
+                    .loyalty-info-minimal {
                         display: flex;
                         align-items: center;
                         gap: 8px;
                         font-size: 13px;
                         color: #ffffff;
+                        font-weight: 600;
                     }
 
-                    .joined-col {
+                    .joined-col-minimal {
                         font-size: 13px;
                         color: #64748b;
+                        font-weight: 500;
                     }
 
-                    .actions-col {
+                    .actions-col-minimal {
                         display: flex;
                         gap: 8px;
-                        justify-content: flex-end;
+                        justify-content: center;
                     }
 
-                    .action-btn {
+                    .action-btn-minimal {
                         width: 32px;
                         height: 32px;
                         display: flex;
                         align-items: center;
                         justify-content: center;
-                        background: #1e293b;
+                        background: transparent;
                         color: #94a3b8;
                         border-radius: 8px;
-                        border: 1px solid #334155;
-                        transition: all 0.2s;
+                        border: 1px solid #1e293b;
+                        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
                         cursor: pointer;
                     }
 
-                    .action-btn:hover {
+                    .action-btn-minimal:hover {
                         color: #ffffff;
-                        background: #334155;
+                        background: #1e293b;
                         transform: translateY(-2px);
-                        border-color: #475569;
                     }
 
-                    .action-btn.danger:hover {
+                    .action-btn-minimal.danger:hover {
                         background: rgba(239, 68, 68, 0.1);
                         color: #ef4444;
                         border-color: rgba(239, 68, 68, 0.2);

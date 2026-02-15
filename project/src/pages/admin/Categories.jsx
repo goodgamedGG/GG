@@ -156,185 +156,161 @@ const Categories = () => {
             </div>
 
             {/* Filters */}
-            <div className="admin-card" style={{ marginBottom: '40px', padding: '32px' }}>
-                <div style={{ position: 'relative', maxWidth: '600px' }}>
-                    <Search size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-muted)' }} />
-                    <input
-                        type="text"
-                        placeholder="Search categories..."
-                        className="form-input"
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        onFocus={(e) => {
-                            e.currentTarget.style.borderColor = 'var(--color-primary)';
-                            e.currentTarget.style.boxShadow = '0 0 0 3px rgba(0, 217, 255, 0.1)';
-                        }}
-                        onBlur={(e) => {
-                            e.currentTarget.style.borderColor = 'var(--color-border)';
-                            e.currentTarget.style.boxShadow = 'none';
-                        }}
-                        style={{
-                            width: '100%',
-                            padding: '14px 14px 14px 48px',
-                            background: 'var(--color-bg-secondary)',
-                            border: '1px solid var(--color-border)',
-                            borderRadius: 'var(--radius-md)',
-                            color: 'var(--color-text-primary)',
-                            fontSize: '15px',
-                            transition: 'all 0.3s ease',
-                            outline: 'none'
-                        }}
-                    />
-                </div>
+            <div style={{ marginBottom: '40px', position: 'relative', maxWidth: '600px' }}>
+                <Search size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-muted)' }} />
+                <input
+                    type="text"
+                    placeholder="Search categories..."
+                    className="form-input-minimal"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    style={{
+                        width: '100%',
+                        padding: '14px 14px 14px 48px',
+                        background: 'transparent',
+                        border: '1px solid #1e293b',
+                        borderRadius: 'var(--radius-md)',
+                        color: 'var(--color-text-primary)',
+                        fontSize: '15px',
+                        transition: 'all 0.3s ease',
+                        outline: 'none'
+                    }}
+                />
             </div>
 
-            {/* Categories Table */}
-            <div className="admin-card" style={{ background: 'transparent', border: 'none', boxShadow: 'none', padding: 0 }}>
-                <div className="card-header" style={{ marginBottom: '16px', padding: '10px 0' }}>
-                    <div className="card-title">
-                        <Folder size={20} color="var(--color-primary)" />
-                        Category List
-                    </div>
+            {/* Categories List */}
+            <div className="card-title-minimal" style={{
+                marginBottom: '24px',
+                display: 'flex',
+                alignItems: 'center'
+            }}>
+                <Folder size={20} color="var(--color-primary)" style={{ marginRight: '12px' }} />
+                <span style={{
+                    fontWeight: '600',
+                    letterSpacing: '0.3px',
+                    fontSize: '18px'
+                }}>
+                    Category List
+                </span>
+            </div>
+
+            {loading ? (
+                <div style={{ textAlign: 'center', padding: '60px', color: 'var(--color-text-muted)' }}>
+                    Loading categories...
                 </div>
-
-                {loading ? (
-                    <div className="admin-card" style={{ textAlign: 'center', padding: '60px', color: 'var(--color-text-muted)' }}>
-                        Loading categories...
+            ) : filteredCategories.length === 0 ? (
+                <div style={{ textAlign: 'center', padding: '60px', color: 'var(--color-text-muted)' }}>
+                    No categories found.
+                </div>
+            ) : (
+                <div className="category-grid-container-minimal">
+                    {/* Header */}
+                    <div className="category-grid-header-minimal">
+                        <div style={{ textAlign: 'center' }}>Image</div>
+                        <div style={{ paddingLeft: '24px' }}>Name</div>
+                        <div style={{ paddingLeft: '24px' }}>Description</div>
+                        <div style={{ textAlign: 'center' }}>Status</div>
+                        <div style={{ textAlign: 'center' }}>Actions</div>
                     </div>
-                ) : filteredCategories.length === 0 ? (
-                    <div className="admin-card" style={{ textAlign: 'center', padding: '60px', color: 'var(--color-text-muted)' }}>
-                        No categories found.
-                    </div>
-                ) : (
-                    <div className="category-grid-container">
-                        {/* Sticky Header */}
-                        <div className="category-grid-header">
-                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>Image</div>
-                            <div>Name</div>
-                            <div>Description</div>
-                            <div>Status</div>
-                            <div style={{ textAlign: 'right' }}>Actions</div>
-                        </div>
 
-                        {/* Grid Body */}
-                        <div className="category-grid-body">
-                            {filteredCategories.map((category, index) => (
-                                <div
-                                    key={category._id}
-                                    className="category-grid-row"
-                                    style={{ animationDelay: `${index * 50}ms` }}
-                                >
-                                    {/* Image */}
-                                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                        <img
-                                            src={category.image ? getImageUrl(category.image) : 'https://placehold.co/80'}
-                                            alt={category.name}
-                                            className="category-grid-img"
-                                            onError={(e) => { e.target.src = 'https://placehold.co/80x80/1a212c/64748b?text=Category'; }}
-                                        />
-                                    </div>
+                    {/* Body */}
+                    <div className="category-grid-body-minimal">
+                        {filteredCategories.map((category) => (
+                            <div key={category._id} className="category-grid-row-minimal">
+                                {/* Image */}
+                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                    <img
+                                        src={category.image ? getImageUrl(category.image) : 'https://placehold.co/80'}
+                                        alt={category.name}
+                                        className="category-img-minimal"
+                                        onError={(e) => { e.target.src = 'https://placehold.co/80x80/1a212c/64748b?text=Category'; }}
+                                    />
+                                </div>
 
-                                    {/* Name */}
-                                    <div className="category-name-col">
-                                        <div className="category-name">{category.name}</div>
-                                    </div>
+                                {/* Name */}
+                                <div style={{ paddingLeft: '24px' }}>
+                                    <div className="category-name-minimal">{category.name}</div>
+                                </div>
 
-                                    {/* Description */}
-                                    <div className="category-desc-col">
-                                        <div className="category-description">
-                                            {category.description || 'No description provided.'}
-                                        </div>
-                                    </div>
-
-                                    {/* Status */}
-                                    <div className="category-status-col">
-                                        <span className={`status-pill ${category.isActive !== false ? 'active' : 'inactive'}`}>
-                                            <span className="status-dot"></span>
-                                            {category.isActive !== false ? 'ACTIVE' : 'INACTIVE'}
-                                        </span>
-                                    </div>
-
-                                    {/* Actions */}
-                                    <div className="category-actions-col">
-                                        <button onClick={() => openEditModal(category)} className="action-btn" title="Edit">
-                                            <Edit2 size={16} />
-                                        </button>
-                                        <button onClick={() => handleDelete(category._id)} className="action-btn danger" title="Delete">
-                                            <Trash2 size={16} />
-                                        </button>
+                                {/* Description */}
+                                <div style={{ paddingLeft: '24px' }}>
+                                    <div className="category-desc-minimal">
+                                        {category.description || 'No description provided.'}
                                     </div>
                                 </div>
-                            ))}
-                        </div>
+
+                                {/* Status */}
+                                <div style={{ display: 'flex', justifyContent: 'center' }}>
+                                    <span className={`status-pill ${category.isActive !== false ? 'active' : 'inactive'}`}>
+                                        <span className="status-dot"></span>
+                                        {category.isActive !== false ? 'ACTIVE' : 'INACTIVE'}
+                                    </span>
+                                </div>
+
+                                {/* Actions */}
+                                <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
+                                    <button onClick={() => openEditModal(category)} className="action-btn-minimal" title="Edit">
+                                        <Edit2 size={16} />
+                                    </button>
+                                    <button onClick={() => handleDelete(category._id)} className="action-btn-minimal danger" title="Delete">
+                                        <Trash2 size={16} />
+                                    </button>
+                                </div>
+                            </div>
+                        ))}
                     </div>
-                )}
-            </div>
+                </div>
+            )}
 
             <style dangerouslySetInnerHTML={{
                 __html: `
-                .category-grid-container {
-                    background: #0f172a;
-                    border: 1px solid #1e293b;
-                    border-radius: 12px;
-                    overflow: visible;
+                .category-grid-container-minimal {
+                    display: flex;
+                    flex-direction: column;
+                    font-family: 'Inter', sans-serif;
                 }
 
-                .category-grid-header {
+                .category-grid-header-minimal {
                     display: grid;
                     grid-template-columns: 120px 1.5fr 2fr 1fr 120px;
-                    padding: 16px 20px;
-                    background: #1e293b;
+                    padding: 12px 0;
                     color: #94a3b8;
                     font-size: 13px;
-                    font-weight: 600;
+                    font-weight: 700;
                     text-transform: uppercase;
                     letter-spacing: 0.05em;
-                    border-bottom: 2px solid #334155;
-                    position: sticky;
-                    top: 0;
-                    z-index: 10;
-                    border-radius: 12px 12px 0 0;
+                    border-bottom: 2px solid #1e293b;
                 }
 
-                .category-grid-row {
+                .category-grid-row-minimal {
                     display: grid;
                     grid-template-columns: 120px 1.5fr 2fr 1fr 120px;
-                    padding: 20px 20px;
+                    padding: 20px 0;
                     align-items: center;
                     border-bottom: 1px solid #1e293b;
                     transition: all 0.2s ease;
-                    animation: fadeIn 0.3s ease forwards;
                 }
 
-                .category-grid-row:hover {
-                    background: rgba(30, 41, 59, 0.5);
+                .category-grid-row-minimal:hover {
+                    background: rgba(30, 41, 59, 0.2);
                 }
 
-                .category-grid-row:last-child {
-                    border-bottom: none;
-                    border-radius: 0 0 12px 12px;
-                }
-
-                .category-grid-img {
-                    width: 80px;
-                    height: 80px;
+                .category-img-minimal {
+                    width: 70px;
+                    height: 70px;
                     object-fit: cover;
-                    border-radius: 8px;
-                    border: 1px solid #334155;
-                    background: #1e293b;
+                    border-radius: 10px;
+                    border: 1px solid #1e293b;
+                    background: #0f172a;
                 }
 
-                .category-name-col {
-                    padding-right: 15px;
-                }
-
-                .category-name {
-                    font-weight: 700;
+                .category-name-minimal {
+                    font-weight: 600;
                     font-size: 18px;
                     color: #ffffff;
                 }
 
-                .category-description {
+                .category-desc-minimal {
                     font-size: 14px;
                     color: #94a3b8;
                     line-height: 1.5;
@@ -342,7 +318,6 @@ const Categories = () => {
                     -webkit-line-clamp: 2;
                     -webkit-box-orient: vertical;
                     overflow: hidden;
-                    padding-right: 20px;
                 }
 
                 .status-pill {
@@ -354,14 +329,12 @@ const Categories = () => {
                     font-size: 11px;
                     font-weight: 700;
                     letter-spacing: 0.05em;
-                    text-transform: uppercase;
                 }
 
                 .status-pill.active {
                     background: rgba(16, 185, 129, 0.1);
                     color: #10b981;
                     border: 1px solid rgba(16, 185, 129, 0.2);
-                    box-shadow: 0 0 15px rgba(16, 185, 129, 0.1);
                 }
 
                 .status-pill.inactive {
@@ -378,43 +351,35 @@ const Categories = () => {
                     box-shadow: 0 0 8px currentColor;
                 }
 
-                .category-actions-col {
-                    display: flex;
-                    gap: 12px;
-                    justify-content: flex-end;
-                }
-
-                .action-btn {
+                .action-btn-minimal {
                     width: 36px;
                     height: 36px;
                     display: flex;
                     align-items: center;
                     justify-content: center;
-                    background: #1e293b;
+                    background: transparent;
                     color: #94a3b8;
                     border-radius: 10px;
-                    border: 1px solid #334155;
+                    border: 1px solid #1e293b;
                     transition: all 0.2s;
                     cursor: pointer;
                 }
 
-                .action-btn:hover {
+                .action-btn-minimal:hover {
                     color: #ffffff;
-                    background: #334155;
+                    background: #1e293b;
                     transform: translateY(-2px);
-                    border-color: #475569;
                 }
 
-                .action-btn.danger:hover {
+                .action-btn-minimal.danger:hover {
                     background: #ef4444;
                     border-color: #ef4444;
-                    color: #ffffff;
                     box-shadow: 0 0 15px rgba(239, 68, 68, 0.3);
                 }
 
-                @keyframes fadeIn {
-                    from { opacity: 0; transform: translateY(10px); }
-                    to { opacity: 1; transform: translateY(0); }
+                .form-input-minimal:focus {
+                    border-color: #00d9ff !important;
+                    box-shadow: 0 0 0 3px rgba(0, 217, 255, 0.1) !important;
                 }
             ` }} />
 

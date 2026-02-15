@@ -79,122 +79,134 @@ const Orders = () => {
                 </div>
             </div>
 
-            {/* Orders Table */}
-            <div className="admin-card">
-                <div className="card-header">
-                    <div className="card-title">
-                        <ShoppingCart size={20} color="var(--color-primary)" />
-                        Recent Orders
-                    </div>
+            {/* Orders List */}
+            <div className="card-title" style={{
+                marginBottom: '24px',
+                display: 'flex',
+                alignItems: 'center'
+            }}>
+                <ShoppingCart size={20} color="var(--color-primary)" style={{ marginRight: '12px' }} />
+                <span style={{
+                    fontWeight: '600',
+                    letterSpacing: '0.5px'
+                }}>
+                    Recent Orders
+                </span>
+            </div>
+
+            <div className="orders-grid-minimal">
+                {/* Header */}
+                <div className="orders-grid-header-minimal">
+                    <div>Order ID</div>
+                    <div>Customer</div>
+                    <div>Date</div>
+                    <div>Total</div>
+                    <div>Payment</div>
+                    <div>Status</div>
+                    <div style={{ textAlign: 'right' }}>Actions</div>
                 </div>
 
-                <div className="table-container" style={{ overflowX: 'auto' }}>
-                    <table className="data-table" style={{ width: '100%', borderCollapse: 'separate', borderSpacing: '0' }}>
-                        <thead>
-                            <tr style={{ background: 'var(--color-bg-secondary)' }}>
-                                <th style={{ padding: '16px', textAlign: 'left', minWidth: '120px' }}>Order ID</th>
-                                <th style={{ padding: '16px', textAlign: 'left', minWidth: '200px' }}>Customer</th>
-                                <th style={{ padding: '16px', textAlign: 'left', minWidth: '140px' }}>Date</th>
-                                <th style={{ padding: '16px', textAlign: 'left', minWidth: '100px' }}>Total</th>
-                                <th style={{ padding: '16px', textAlign: 'left', minWidth: '120px' }}>Payment</th>
-                                <th style={{ padding: '16px', textAlign: 'left', minWidth: '140px' }}>Status</th>
-                                <th style={{ padding: '16px', textAlign: 'right', minWidth: '100px' }}>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {loading ? (
-                                <tr>
-                                    <td colSpan="7" style={{ textAlign: 'center', padding: '40px', color: 'var(--color-text-muted)' }}>Loading orders...</td>
-                                </tr>
-                            ) : orders.length === 0 ? (
-                                <tr>
-                                    <td colSpan="7" style={{ textAlign: 'center', padding: '40px', color: 'var(--color-text-muted)' }}>No orders found.</td>
-                                </tr>
-                            ) : (
-                                orders.map((order) => (
-                                    <tr key={order._id} style={{ borderBottom: '1px solid var(--color-border)', transition: 'background 0.2s' }}>
-                                        <td style={{ padding: '16px', fontFamily: 'monospace', color: 'var(--color-cyan-primary)', fontWeight: 'bold' }}>
-                                            #{order.orderNumber}
-                                        </td>
-                                        <td style={{ padding: '16px' }}>
-                                            <div style={{ fontWeight: '500', color: 'var(--color-text-primary)' }}>
-                                                {order.customerInfo?.name || order.user?.name || 'Guest'}
-                                            </div>
-                                            <div style={{ fontSize: '12px', color: 'var(--color-text-muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '180px' }} title={order.customerInfo?.email || order.user?.email}>
-                                                {order.customerInfo?.email || order.user?.email}
-                                            </div>
-                                        </td>
-                                        <td style={{ padding: '16px', color: 'var(--color-text-secondary)', fontSize: '14px' }}>{formatDate(order.createdAt)}</td>
-                                        <td style={{ padding: '16px', fontWeight: 'bold', color: 'white' }}>{formatCurrency(order.total)}</td>
-                                        <td style={{ padding: '16px' }}>
-                                            <span style={{
-                                                padding: '4px 10px',
-                                                borderRadius: '20px',
-                                                fontSize: '11px',
-                                                fontWeight: '600',
-                                                textTransform: 'uppercase',
-                                                background: order.paymentStatus === 'confirmed' ? 'rgba(74, 222, 128, 0.1)' : 'rgba(250, 204, 21, 0.1)',
-                                                color: order.paymentStatus === 'confirmed' ? '#4ade80' : '#facc15',
-                                                border: `1px solid ${order.paymentStatus === 'confirmed' ? 'rgba(74, 222, 128, 0.3)' : 'rgba(250, 204, 21, 0.3)'}`
-                                            }}>
-                                                {order.paymentStatus}
-                                            </span>
-                                        </td>
-                                        <td style={{ padding: '16px' }}>
-                                            <select
-                                                value={order.orderStatus}
-                                                onChange={async (e) => {
-                                                    const newStatus = e.target.value;
-                                                    // Optimistic update
-                                                    const updatedOrders = orders.map(o => o._id === order._id ? { ...o, orderStatus: newStatus } : o);
-                                                    setOrders(updatedOrders);
-
-                                                    try {
-                                                        await adminAPI.updateOrderStatus(order._id, newStatus);
-                                                        // Ideally generic toast or reliable notification
-                                                    } catch (err) {
-                                                        console.error('Update failed', err);
-                                                        fetchOrders(); // Revert
-                                                    }
-                                                }}
-                                                style={{
-                                                    padding: '6px 10px',
-                                                    borderRadius: '6px',
-                                                    border: '1px solid var(--color-border)',
-                                                    background: 'var(--color-bg-primary)',
-                                                    color: 'white',
-                                                    fontSize: '13px',
-                                                    cursor: 'pointer'
-                                                }}
-                                            >
-                                                <option value="new">New</option>
-                                                <option value="processing">Processing</option>
-                                                <option value="shipped">Shipped</option>
-                                                <option value="completed">Completed</option>
-                                                <option value="cancelled">Cancelled</option>
-                                            </select>
-                                        </td>
-                                        <td style={{ padding: '16px', textAlign: 'right' }}>
-                                            <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
-                                                <button
-                                                    className="icon-btn"
-                                                    title="View Details"
-                                                    style={{ padding: '6px', background: 'var(--color-bg-secondary)', borderRadius: '6px' }}
-                                                    onClick={() => setSelectedOrder(order)}
-                                                >
-                                                    <Eye size={16} color="var(--color-text-secondary)" />
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                ))
-                            )}
-                        </tbody>
-                    </table>
+                {/* Body */}
+                <div className="orders-grid-body-minimal">
+                    {loading ? (
+                        <div style={{ textAlign: 'center', padding: '60px', color: 'var(--color-text-muted)' }}>
+                            Loading orders...
+                        </div>
+                    ) : orders.length === 0 ? (
+                        <div style={{ textAlign: 'center', padding: '60px', color: 'var(--color-text-muted)' }}>
+                            No orders found.
+                        </div>
+                    ) : (
+                        orders.map((order) => (
+                            <div key={order._id} className="orders-grid-row-minimal">
+                                <div style={{ fontFamily: 'monospace', color: 'var(--color-cyan-primary)', fontWeight: 'bold' }}>
+                                    #{order.orderNumber}
+                                </div>
+                                <div>
+                                    <div style={{ fontWeight: '500', color: 'var(--color-text-primary)' }}>
+                                        {order.customerInfo?.name || order.user?.name || 'Guest'}
+                                    </div>
+                                    <div style={{ fontSize: '12px', color: 'var(--color-text-muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '180px' }} title={order.customerInfo?.email || order.user?.email}>
+                                        {order.customerInfo?.email || order.user?.email}
+                                    </div>
+                                </div>
+                                <div style={{ color: 'var(--color-text-secondary)', fontSize: '14px' }}>
+                                    {formatDate(order.createdAt)}
+                                </div>
+                                <div style={{ fontWeight: 'bold', color: 'white' }}>
+                                    {formatCurrency(order.total)}
+                                </div>
+                                <div>
+                                    <span style={{
+                                        padding: '4px 10px',
+                                        borderRadius: '20px',
+                                        fontSize: '11px',
+                                        fontWeight: '600',
+                                        textTransform: 'uppercase',
+                                        background: order.paymentStatus === 'confirmed' ? 'rgba(74, 222, 128, 0.1)' : 'rgba(250, 204, 21, 0.1)',
+                                        color: order.paymentStatus === 'confirmed' ? '#4ade80' : '#facc15',
+                                        border: `1px solid ${order.paymentStatus === 'confirmed' ? 'rgba(74, 222, 128, 0.3)' : 'rgba(250, 204, 21, 0.3)'}`
+                                    }}>
+                                        {order.paymentStatus}
+                                    </span>
+                                </div>
+                                <div>
+                                    <select
+                                        value={order.orderStatus}
+                                        onChange={async (e) => {
+                                            const newStatus = e.target.value;
+                                            const updatedOrders = orders.map(o => o._id === order._id ? { ...o, orderStatus: newStatus } : o);
+                                            setOrders(updatedOrders);
+                                            try {
+                                                await adminAPI.updateOrderStatus(order._id, newStatus);
+                                            } catch (err) {
+                                                console.error('Update failed', err);
+                                                fetchOrders();
+                                            }
+                                        }}
+                                        style={{
+                                            padding: '6px 10px',
+                                            borderRadius: '6px',
+                                            border: '1px solid var(--color-border)',
+                                            background: 'var(--color-bg-primary)',
+                                            color: 'white',
+                                            fontSize: '13px',
+                                            cursor: 'pointer',
+                                            width: '130px'
+                                        }}
+                                    >
+                                        <option value="new">New</option>
+                                        <option value="processing">Processing</option>
+                                        <option value="shipped">Shipped</option>
+                                        <option value="completed">Completed</option>
+                                        <option value="cancelled">Cancelled</option>
+                                    </select>
+                                </div>
+                                <div style={{ textAlign: 'right' }}>
+                                    <button
+                                        className="icon-btn-minimal"
+                                        title="View Details"
+                                        style={{
+                                            padding: '8px',
+                                            background: 'transparent',
+                                            border: '1px solid #1e293b',
+                                            borderRadius: '8px',
+                                            cursor: 'pointer',
+                                            color: 'var(--color-text-secondary)',
+                                            transition: 'all 0.2s'
+                                        }}
+                                        onClick={() => setSelectedOrder(order)}
+                                    >
+                                        <Eye size={16} />
+                                    </button>
+                                </div>
+                            </div>
+                        ))
+                    )}
                 </div>
 
                 {!loading && totalPages > 1 && (
-                    <div style={{ padding: '20px', borderTop: '1px solid var(--color-border)' }}>
+                    <div style={{ padding: '32px 0 20px', display: 'flex', justifyContent: 'center' }}>
                         <Pagination
                             currentPage={page}
                             totalPages={totalPages}
@@ -203,6 +215,45 @@ const Orders = () => {
                     </div>
                 )}
             </div>
+
+            <style>{`
+                .orders-grid-minimal {
+                    display: flex;
+                    flex-direction: column;
+                    font-family: 'Inter', sans-serif;
+                }
+
+                .orders-grid-header-minimal {
+                    display: grid;
+                    grid-template-columns: 120px 2fr 1.5fr 100px 120px 150px 80px;
+                    padding: 12px 0;
+                    color: #94a3b8;
+                    font-size: 13px;
+                    font-weight: 700;
+                    text-transform: uppercase;
+                    letter-spacing: 0.05em;
+                    border-bottom: 2px solid #1e293b;
+                }
+
+                .orders-grid-row-minimal {
+                    display: grid;
+                    grid-template-columns: 120px 2fr 1.5fr 100px 120px 150px 80px;
+                    padding: 16px 0;
+                    align-items: center;
+                    border-bottom: 1px solid #1e293b;
+                    transition: all 0.2s ease;
+                }
+
+                .orders-grid-row-minimal:hover {
+                    background: rgba(30, 41, 59, 0.2);
+                }
+
+                .icon-btn-minimal:hover {
+                    color: #ffffff !important;
+                    background: #1e293b !important;
+                    transform: translateY(-2px);
+                }
+            `}</style>
 
             {selectedOrder && (
                 <OrderDetailsModal

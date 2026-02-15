@@ -188,155 +188,348 @@ const EmailQueue = () => {
                 </div>
             )}
 
-            <div className="admin-card">
-                <div className="card-header" style={{ borderBottom: '1px solid var(--color-border)', padding: '20px' }}>
-                    <div className="card-title" style={{ display: 'flex', alignItems: 'center', gap: '10px', margin: 0, fontSize: '18px' }}>
-                        <Mail size={20} color="var(--color-primary)" />
-                        Queue History
+            {/* Email Log Table */}
+            <div className="emails-list-minimal">
+                <div className="emails-header-minimal">
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <Mail size={20} color="var(--color-primary)" style={{ marginRight: '12px' }} />
+                        <span className="emails-header-title-minimal">Queue History</span>
                     </div>
                 </div>
 
-                {loading ? (
-                    <div style={{ padding: '60px', textAlign: 'center', color: 'var(--color-text-muted)' }}>
-                        <RefreshCw size={32} className="spinning" style={{ marginBottom: '16px' }} />
-                        <p>Loading email records...</p>
+                <div className="emails-grid-container-minimal">
+                    {/* Grid Header */}
+                    <div className="emails-grid-header-minimal">
+                        <div style={{ textAlign: 'left' }}>RECIPIENT</div>
+                        <div style={{ textAlign: 'left' }}>SUBJECT</div>
+                        <div style={{ textAlign: 'left' }}>TYPE</div>
+                        <div style={{ textAlign: 'left' }}>STATUS</div>
+                        <div style={{ textAlign: 'left' }}>ATTEMPTS</div>
+                        <div style={{ textAlign: 'left' }}>CREATED</div>
+                        <div style={{ textAlign: 'center' }}>ACTIONS</div>
                     </div>
-                ) : emails.length === 0 ? (
-                    <div className="empty-state" style={{ padding: '80px 20px' }}>
-                        <Mail size={48} style={{ marginBottom: '16px', opacity: 0.2 }} />
-                        <p style={{ fontSize: '18px', color: 'var(--color-text-muted)' }}>No emails found in the queue.</p>
-                    </div>
-                ) : (
-                    <>
-                        <div className="table-container" style={{ overflowX: 'auto' }}>
-                            <table className="data-table" style={{ width: '100%', borderCollapse: 'separate', borderSpacing: '0' }}>
-                                <thead>
-                                    <tr style={{ background: 'var(--color-bg-secondary)' }}>
-                                        <th style={{ padding: '16px', textAlign: 'left', minWidth: '180px', color: 'var(--color-text-secondary)', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '1px' }}>Recipient</th>
-                                        <th style={{ padding: '16px', textAlign: 'left', minWidth: '250px', color: 'var(--color-text-secondary)', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '1px' }}>Subject</th>
-                                        <th style={{ padding: '16px', textAlign: 'left', minWidth: '130px', color: 'var(--color-text-secondary)', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '1px' }}>Type</th>
-                                        <th style={{ padding: '16px', textAlign: 'left', minWidth: '120px', color: 'var(--color-text-secondary)', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '1px' }}>Status</th>
-                                        <th style={{ padding: '16px', textAlign: 'left', minWidth: '100px', color: 'var(--color-text-secondary)', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '1px' }}>Attempts</th>
-                                        <th style={{ padding: '16px', textAlign: 'left', minWidth: '150px', color: 'var(--color-text-secondary)', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '1px' }}>Created</th>
-                                        <th style={{ padding: '16px', textAlign: 'right', minWidth: '100px', color: 'var(--color-text-secondary)', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '1px' }}>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {emails.map(email => (
-                                        <tr key={email._id} style={{ borderBottom: '1px solid var(--color-border)', transition: 'background 0.2s' }}>
-                                            <td style={{ padding: '16px' }}>
-                                                <div style={{ fontFamily: 'monospace', fontSize: '13px', color: 'var(--color-cyan-primary)' }}>{email.to}</div>
-                                            </td>
-                                            <td style={{ padding: '16px' }}>
-                                                <div style={{ maxWidth: '300px' }}>
-                                                    <div style={{ fontWeight: 600, color: 'var(--color-text-primary)' }}>{email.subject}</div>
-                                                    {email.errorMessage && (
-                                                        <div style={{ fontSize: '11px', color: 'var(--color-danger)', marginTop: '4px', lineBreak: 'anywhere' }}>
-                                                            {email.errorMessage.length > 60 ? email.errorMessage.substring(0, 60) + '...' : email.errorMessage}
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            </td>
-                                            <td style={{ padding: '16px' }}>
-                                                <span style={{
-                                                    fontSize: '10px',
-                                                    padding: '4px 10px',
-                                                    background: 'var(--color-bg-secondary)',
-                                                    color: 'var(--color-text-secondary)',
-                                                    borderRadius: '4px',
-                                                    textTransform: 'uppercase',
-                                                    fontWeight: '700',
-                                                    border: '1px solid var(--color-border)'
-                                                }}>
-                                                    {email.emailType || 'other'}
-                                                </span>
-                                            </td>
-                                            <td style={{ padding: '16px' }}>
-                                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                                    <span className={`status-badge ${email.status === 'sent' ? 'status-confirmed' :
-                                                        email.status === 'failed' ? 'status-rejected' :
-                                                            email.status === 'sending' ? 'status-processing' :
-                                                                'status-pending'
-                                                        }`} style={{
-                                                            display: 'flex',
-                                                            alignItems: 'center',
-                                                            gap: '6px',
-                                                            padding: '4px 12px',
-                                                            borderRadius: '20px',
-                                                            fontSize: '11px',
-                                                            fontWeight: '600',
-                                                            textTransform: 'uppercase'
-                                                        }}>
-                                                        {getStatusIcon(email.status)}
-                                                        {email.status}
-                                                    </span>
-                                                </div>
-                                            </td>
-                                            <td style={{ padding: '16px' }}>
-                                                <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                                                    <span style={{ fontWeight: 'bold', color: email.attempts >= email.maxAttempts ? 'var(--color-danger)' : 'var(--color-text-primary)' }}>
-                                                        {email.attempts || 0}
-                                                    </span>
-                                                    <span style={{ color: 'var(--color-text-muted)', fontSize: '12px' }}>/ {email.maxAttempts || 3}</span>
-                                                </div>
-                                            </td>
-                                            <td style={{ padding: '16px' }}>
-                                                <div style={{ fontSize: '13px', color: 'var(--color-text-secondary)' }}>{formatDate(email.createdAt)}</div>
-                                            </td>
-                                            <td style={{ padding: '16px', textAlign: 'right' }}>
-                                                <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
-                                                    <button
-                                                        onClick={() => setSelectedEmail(email)}
-                                                        className="icon-btn"
-                                                        title="View Email Content"
-                                                        style={{ background: 'var(--color-bg-secondary)', borderRadius: '6px' }}
-                                                    >
-                                                        <EyeIcon size={16} color="var(--color-text-secondary)" />
-                                                    </button>
-                                                    {email.status === 'failed' && (
-                                                        <button
-                                                            onClick={() => handleDelete(email._id)}
-                                                            className="icon-btn danger"
-                                                            title="Remove from queue"
-                                                            style={{ background: 'rgba(239, 68, 68, 0.1)', color: 'var(--color-danger)', border: '1px solid rgba(239, 68, 68, 0.2)' }}
-                                                        >
-                                                            <Trash2 size={16} />
-                                                        </button>
-                                                    )}
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
 
-                        {/* Pagination */}
-                        {totalPages > 1 && (
-                            <div style={{ padding: '24px', borderTop: '1px solid var(--color-border)', display: 'flex', justifyContent: 'center', gap: '8px' }}>
-                                <button
-                                    onClick={() => setPage(p => Math.max(1, p - 1))}
-                                    disabled={page === 1}
-                                    className="btn-secondary"
-                                    style={{ padding: '8px 16px' }}
-                                >
-                                    Previous
-                                </button>
-                                <div style={{ display: 'flex', alignItems: 'center', padding: '0 20px', fontSize: '14px', color: 'var(--color-text-secondary)' }}>
-                                    Page <strong style={{ color: 'var(--color-text-primary)', margin: '0 4px' }}>{page}</strong> of {totalPages}
-                                </div>
-                                <button
-                                    onClick={() => setPage(p => Math.min(totalPages, p + 1))}
-                                    disabled={page === totalPages}
-                                    className="btn-secondary"
-                                    style={{ padding: '8px 16px' }}
-                                >
-                                    Next
-                                </button>
+                    {/* Grid Body */}
+                    <div className="emails-grid-body-minimal">
+                        {loading ? (
+                            <div style={{ padding: '60px', textAlign: 'center', color: 'var(--color-text-muted)' }}>
+                                <RefreshCw size={32} className="spinning" style={{ marginBottom: '16px' }} />
+                                <p>Loading email records...</p>
                             </div>
+                        ) : emails.length === 0 ? (
+                            <div className="empty-state" style={{ padding: '80px 20px', textAlign: 'center' }}>
+                                <Mail size={48} style={{ marginBottom: '16px', opacity: 0.2 }} />
+                                <p style={{ fontSize: '18px', color: 'var(--color-text-muted)' }}>No emails found in the queue.</p>
+                            </div>
+                        ) : (
+                            <>
+                                {emails.map((email, index) => (
+                                    <div
+                                        key={email._id}
+                                        className="emails-grid-row-minimal"
+                                        style={{ animationDelay: `${index * 30}ms` }}
+                                    >
+                                        {/* Recipient */}
+                                        <div className="recipient-col-minimal">
+                                            {email.to}
+                                        </div>
+
+                                        {/* Subject */}
+                                        <div className="subject-col-minimal">
+                                            <div className="subject-text-minimal">{email.subject}</div>
+                                            {email.errorMessage && (
+                                                <div className="error-text-minimal" title={email.errorMessage}>
+                                                    {email.errorMessage.length > 50 ? email.errorMessage.substring(0, 50) + '...' : email.errorMessage}
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        {/* Type */}
+                                        <div className="type-col-minimal">
+                                            <span className="type-badge-minimal">
+                                                {email.emailType || 'other'}
+                                            </span>
+                                        </div>
+
+                                        {/* Status */}
+                                        <div className="status-col-minimal">
+                                            <div className="status-badge-minimal">
+                                                {getStatusIcon(email.status)}
+                                                <span className={`status-label-minimal ${email.status}`}>
+                                                    {email.status}
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        {/* Attempts */}
+                                        <div className="attempts-col-minimal">
+                                            <span className="attempts-count-minimal" style={{
+                                                color: email.attempts >= (email.maxAttempts || 3) ? 'var(--color-danger)' : '#ffffff'
+                                            }}>
+                                                {email.attempts || 0}
+                                            </span>
+                                            <span className="attempts-max-minimal">/ {email.maxAttempts || 3}</span>
+                                        </div>
+
+                                        {/* Created */}
+                                        <div className="created-col-minimal">
+                                            {formatDate(email.createdAt)}
+                                        </div>
+
+                                        {/* Actions */}
+                                        <div className="actions-col-minimal">
+                                            <button
+                                                onClick={() => setSelectedEmail(email)}
+                                                className="action-btn-minimal"
+                                                title="View Email Content"
+                                            >
+                                                <EyeIcon size={16} />
+                                            </button>
+                                            {email.status === 'failed' && (
+                                                <button
+                                                    onClick={() => handleDelete(email._id)}
+                                                    className="action-btn-minimal danger"
+                                                    title="Remove from queue"
+                                                >
+                                                    <Trash2 size={16} />
+                                                </button>
+                                            )}
+                                        </div>
+                                    </div>
+                                ))}
+
+                                {/* Pagination */}
+                                {totalPages > 1 && (
+                                    <div className="pagination-minimal">
+                                        <button
+                                            onClick={() => setPage(p => Math.max(1, p - 1))}
+                                            disabled={page === 1}
+                                            className="pagination-btn-minimal"
+                                        >
+                                            Previous
+                                        </button>
+                                        <div className="pagination-info-minimal">
+                                            Page <strong>{page}</strong> of {totalPages}
+                                        </div>
+                                        <button
+                                            onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                                            disabled={page === totalPages}
+                                            className="pagination-btn-minimal"
+                                        >
+                                            Next
+                                        </button>
+                                    </div>
+                                )}
+                            </>
                         )}
-                    </>
-                )}
+                    </div>
+                </div>
+
+                <style dangerouslySetInnerHTML={{
+                    __html: `
+                    .emails-list-minimal {
+                        font-family: 'Inter', sans-serif;
+                    }
+
+                    .emails-header-minimal {
+                        padding: 12px 0;
+                        margin-bottom: 8px;
+                        display: flex;
+                        align-items: center;
+                    }
+
+                    .emails-header-title-minimal {
+                        font-size: 18px;
+                        font-weight: 700;
+                        color: #ffffff;
+                        letter-spacing: -0.01em;
+                    }
+
+                    .emails-grid-header-minimal {
+                        display: grid;
+                        grid-template-columns: 2fr 3fr 1.5fr 1fr 1fr 1.5fr 80px;
+                        padding: 12px 0;
+                        color: #94a3b8;
+                        font-size: 12px;
+                        font-weight: 700;
+                        text-transform: uppercase;
+                        letter-spacing: 0.05em;
+                        border-bottom: 2px solid #1e293b;
+                    }
+
+                    .emails-grid-row-minimal {
+                        display: grid;
+                        grid-template-columns: 2fr 3fr 1.5fr 1fr 1fr 1.5fr 80px;
+                        padding: 16px 0;
+                        align-items: center;
+                        border-bottom: 1px solid #1e293b;
+                        transition: all 0.2s ease;
+                        animation: fadeIn 0.3s ease forwards;
+                    }
+
+                    .emails-grid-row-minimal:hover {
+                        background: rgba(30, 41, 59, 0.2);
+                    }
+
+                    .recipient-col-minimal {
+                        font-size: 13px;
+                        color: #00d9ff;
+                    }
+
+                    .subject-col-minimal {
+                        display: flex;
+                        flex-direction: column;
+                        gap: 4px;
+                        padding-right: 20px;
+                    }
+
+                    .subject-text-minimal {
+                        font-weight: 700;
+                        color: #ffffff;
+                        font-size: 14px;
+                    }
+
+                    .error-text-minimal {
+                        font-size: 11px;
+                        color: #ef4444;
+                    }
+
+                    .type-col-minimal {
+                        display: flex;
+                    }
+
+                    .type-badge-minimal {
+                        font-size: 10px;
+                        padding: 4px 10px;
+                        background: rgba(15, 23, 42, 0.5);
+                        color: #94a3b8;
+                        border-radius: 6px;
+                        text-transform: uppercase;
+                        font-weight: 700;
+                        border: 1px solid #1e293b;
+                    }
+
+                    .status-col-minimal {
+                        display: flex;
+                        align-items: center;
+                    }
+
+                    .status-badge-minimal {
+                        display: flex;
+                        align-items: center;
+                        gap: 8px;
+                    }
+
+                    .status-label-minimal {
+                        font-size: 12px;
+                        font-weight: 800;
+                        text-transform: uppercase;
+                        letter-spacing: 0.02em;
+                    }
+
+                    .status-label-minimal.sent { color: #10b981; }
+                    .status-label-minimal.failed { color: #ef4444; }
+                    .status-label-minimal.sending { color: #f59e0b; }
+                    .status-label-minimal.pending { color: #0ea5e9; }
+
+                    .attempts-col-minimal {
+                        display: flex;
+                        align-items: center;
+                        gap: 4px;
+                    }
+
+                    .attempts-count-minimal {
+                        font-weight: 700;
+                        font-size: 14px;
+                    }
+
+                    .attempts-max-minimal {
+                        color: #64748b;
+                        font-size: 12px;
+                    }
+
+                    .created-col-minimal {
+                        font-size: 13px;
+                        color: #64748b;
+                        font-weight: 500;
+                    }
+
+                    .actions-col-minimal {
+                        display: flex;
+                        gap: 8px;
+                        justify-content: flex-end;
+                    }
+
+                    .action-btn-minimal {
+                        width: 32px;
+                        height: 32px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        background: transparent;
+                        color: #94a3b8;
+                        border-radius: 8px;
+                        border: 1px solid #1e293b;
+                        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+                        cursor: pointer;
+                    }
+
+                    .action-btn-minimal:hover {
+                        color: #ffffff;
+                        background: #1e293b;
+                        transform: translateY(-2px);
+                    }
+
+                    .action-btn-minimal.danger:hover {
+                        background: rgba(239, 68, 68, 0.1);
+                        color: #ef4444;
+                        border-color: rgba(239, 68, 68, 0.2);
+                    }
+
+                    .pagination-minimal {
+                        padding: 32px 0;
+                        display: flex;
+                        justify-content: center;
+                        align-items: center;
+                        gap: 20px;
+                    }
+
+                    .pagination-btn-minimal {
+                        padding: 8px 16px;
+                        background: transparent;
+                        color: #94a3b8;
+                        border: 1px solid #1e293b;
+                        border-radius: 8px;
+                        font-size: 14px;
+                        font-weight: 600;
+                        cursor: pointer;
+                        transition: all 0.2s;
+                    }
+
+                    .pagination-btn-minimal:hover:not(:disabled) {
+                        background: #1e293b;
+                        color: #ffffff;
+                    }
+
+                    .pagination-btn-minimal:disabled {
+                        opacity: 0.4;
+                        cursor: not-allowed;
+                    }
+
+                    .pagination-info-minimal {
+                        font-size: 14px;
+                        color: #64748b;
+                    }
+
+                    .pagination-info-minimal strong {
+                        color: #ffffff;
+                    }
+
+                    @keyframes fadeIn {
+                        from { opacity: 0; transform: translateY(10px); }
+                        to { opacity: 1; transform: translateY(0); }
+                    }
+                ` }} />
             </div>
 
             {/* Email View Modal */}
