@@ -14,6 +14,7 @@ const { getOrderStats, updateEstimatedDelivery } = require('../controllers/admin
 const { protect, requireEmailVerification } = require('../middleware/authMiddleware');
 const { requireAdmin } = require('../middleware/roleMiddleware');
 const validate = require('../middleware/validateMiddleware');
+const auditLog = require('../middleware/auditMiddleware');
 const {
     createOrderValidator,
     updateOrderStatusValidator,
@@ -45,13 +46,14 @@ router.get('/admin/all', protect, requireAdmin, paginationValidator, validate, g
 router.get('/admin/stats', protect, requireAdmin, getOrderStats);
 
 // @route   PATCH /api/orders/:id/status
-router.patch('/:id/status', protect, requireAdmin, updateOrderStatusValidator, validate, updateOrderStatus);
+router.patch('/:id/status', protect, requireAdmin, auditLog, updateOrderStatusValidator, validate, updateOrderStatus);
 
 // @route   PATCH /api/orders/:id/delivery
 router.patch(
     '/:id/delivery',
     protect,
     requireAdmin,
+    auditLog,
     mongoIdValidator,
     [
         body('estimatedDelivery').isISO8601().withMessage('Valid delivery date is required')

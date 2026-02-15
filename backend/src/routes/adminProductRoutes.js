@@ -9,6 +9,7 @@ const {
 const { protect } = require('../middleware/authMiddleware');
 const { requireAdmin } = require('../middleware/roleMiddleware');
 const validate = require('../middleware/validateMiddleware');
+const auditLog = require('../middleware/auditMiddleware');
 const { mongoIdValidator, paginationValidator } = require('../utils/validators');
 const { body } = require('express-validator');
 
@@ -22,11 +23,12 @@ router.get('/', paginationValidator, validate, getAdminProducts);
 router.get('/stats', getProductStats);
 
 // @route   PATCH /api/admin/products/:id/feature
-router.patch('/:id/feature', mongoIdValidator, validate, toggleFeatured);
+router.patch('/:id/feature', auditLog, mongoIdValidator, validate, toggleFeatured);
 
 // @route   PATCH /api/admin/products/:id/tags
 router.patch(
     '/:id/tags',
+    auditLog,
     mongoIdValidator,
     [
         body('tags').isArray().withMessage('Tags must be an array'),

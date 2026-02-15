@@ -50,6 +50,15 @@ const auditLogSchema = new mongoose.Schema(
         errorMessage: {
             type: String,
             default: null
+        },
+        location: {
+            city: String,
+            country: String,
+            countryCode: String,
+            lat: Number,
+            lon: Number,
+            timezone: String,
+            isp: String
         }
     },
     {

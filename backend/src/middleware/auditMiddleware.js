@@ -1,5 +1,6 @@
 const AuditLog = require('../models/AuditLog');
 const logger = require('../utils/logger');
+const axios = require('axios');
 
 /**
  * Audit middleware to log admin actions
@@ -37,8 +38,8 @@ const logAdminAction = async (req, res, responseData) => {
     try {
         const action = getActionFromRoute(req);
         const resource = getResourceFromRoute(req);
-        const resourceId = req.params.id || req.params.productId || req.params.orderId || 
-                          req.params.userId || req.params.categoryId || req.params.promoCodeId || null;
+        const resourceId = req.params.id || req.params.productId || req.params.orderId ||
+            req.params.userId || req.params.categoryId || req.params.promoCodeId || null;
 
         const auditData = {
             user: req.user._id,
@@ -51,12 +52,46 @@ const logAdminAction = async (req, res, responseData) => {
             userAgent: req.get('user-agent'),
             changes: req.method !== 'GET' ? getChanges(req, responseData) : null,
             status: res.statusCode >= 200 && res.statusCode < 300 ? 'success' : 'failure',
-            errorMessage: responseData?.error || null
+            errorMessage: responseData?.error || null,
+            location: await getLocationData(req.ip)
         };
 
         await AuditLog.create(auditData);
     } catch (error) {
         logger.error('Error creating audit log', { error: error.message });
+    }
+};
+
+/**
+ * Fetch location data from IP
+ */
+const getLocationData = async (ip) => {
+    try {
+        // Skip for localhost
+        if (ip === '::1' || ip === '127.0.0.1' || ip.startsWith('192.168.') || ip.startsWith('10.')) {
+            return {
+                city: 'Localhost',
+                country: 'Internal Network',
+                countryCode: 'LH'
+            };
+        }
+
+        const response = await axios.get(`http://ip-api.com/json/${ip}?fields=status,message,country,countryCode,city,lat,lon,timezone,isp`);
+
+        if (response.data && response.data.status === 'success') {
+            return {
+                city: response.data.city,
+                country: response.data.country,
+                countryCode: response.data.countryCode,
+                lat: response.data.lat,
+                lon: response.data.lon,
+                timezone: response.data.timezone,
+                isp: response.data.isp
+            };
+        }
+        return null;
+    } catch (error) {
+        return null;
     }
 };
 
@@ -88,7 +123,7 @@ const getActionFromRoute = (req) => {
  */
 const getResourceFromRoute = (req) => {
     const path = req.path.toLowerCase();
-    
+
     if (path.includes('product')) return 'product';
     if (path.includes('order')) return 'order';
     if (path.includes('user')) return 'user';
@@ -97,7 +132,15 @@ const getResourceFromRoute = (req) => {
     if (path.includes('payment')) return 'payment';
     if (path.includes('banner')) return 'banner';
     if (path.includes('featured')) return 'featured_product';
-    
+    if (path.includes('settings')) return 'settings';
+    if (path.includes('loyalty')) return 'loyalty';
+    if (path.includes('review')) return 'review';
+    if (path.includes('flash-sale')) return 'flash_sale';
+    if (path.includes('price-alert')) return 'price_alert';
+    if (path.includes('email')) return 'email';
+    if (path.includes('bulk')) return 'bulk_operation';
+    if (path.includes('upload')) return 'upload';
+
     return 'unknown';
 };
 
@@ -113,7 +156,7 @@ const getChanges = (req, responseData) => {
                 body: sanitizeSensitiveData(req.body)
             };
         }
-        
+
         // For creates, show what was created
         if (req.method === 'POST') {
             return {

@@ -23,6 +23,7 @@ const {
 } = require('../utils/validators');
 const { authLimiter } = require('../middleware/rateLimitMiddleware');
 const { protect } = require('../middleware/authMiddleware');
+const auditLog = require('../middleware/auditMiddleware');
 
 // Apply rate limiting to auth routes
 router.use(authLimiter);
@@ -61,9 +62,9 @@ router.post('/logout', protect, logout);
 router.get('/sessions', protect, getSessions);
 
 // @route   DELETE /api/auth/sessions/:sessionId
-router.delete('/sessions/:sessionId', protect, revokeSession);
+router.delete('/sessions/:sessionId', protect, auditLog, revokeSession);
 
 // @route   DELETE /api/auth/sessions
-router.delete('/sessions', protect, revokeAllOtherSessions);
+router.delete('/sessions', protect, auditLog, revokeAllOtherSessions);
 
 module.exports = router;

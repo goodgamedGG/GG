@@ -22,7 +22,6 @@ const orderRoutes = require('./routes/orderRoutes');
 const paymentRoutes = require('./routes/paymentRoutes');
 const promoCodeRoutes = require('./routes/promoCodeRoutes');
 const contentRoutes = require('./routes/contentRoutes');
-const auditRoutes = require('./routes/auditRoutes');
 const wishlistRoutes = require('./routes/wishlistRoutes');
 const reviewRoutes = require('./routes/reviewRoutes');
 const recentlyViewedRoutes = require('./routes/recentlyViewedRoutes');
@@ -33,6 +32,7 @@ const comparisonRoutes = require('./routes/comparisonRoutes');
 const loyaltyRoutes = require('./routes/loyaltyRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const adminProductRoutes = require('./routes/adminProductRoutes');
+const auditRoutes = require('./routes/auditRoutes');
 const imageRoutes = require('./routes/imageRoutes');
 
 // Initialize Express app
@@ -184,7 +184,7 @@ app.use('/api/orders', orderRoutes);
 app.use('/api/payments', paymentRoutes);
 app.use('/api/promo-codes', promoCodeRoutes);
 app.use('/api/content', contentRoutes);
-app.use('/api/audit-logs', auditRoutes);
+app.use('/api/admin/audit-logs', auditRoutes);
 app.use('/api/wishlist', wishlistRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/recently-viewed', recentlyViewedRoutes);
