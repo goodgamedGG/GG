@@ -13,6 +13,7 @@ const {
 const { protect, requireEmailVerification } = require('../middleware/authMiddleware');
 const { requireAdmin } = require('../middleware/roleMiddleware');
 const validate = require('../middleware/validateMiddleware');
+const auditLog = require('../middleware/auditMiddleware');
 const {
     createPromoCodeValidator,
     validatePromoCodeValidator,
@@ -34,15 +35,15 @@ router.get('/:id/stats', protect, requireAdmin, mongoIdValidator, validate, getP
 router.get('/', protect, requireAdmin, getPromoCodes);
 
 // @route   POST /api/promo-codes
-router.post('/', protect, requireAdmin, createPromoCodeValidator, validate, createPromoCode);
+router.post('/', protect, requireAdmin, auditLog, createPromoCodeValidator, validate, createPromoCode);
 
 // @route   PUT /api/promo-codes/:id
-router.put('/:id', protect, requireAdmin, mongoIdValidator, validate, updatePromoCode);
+router.put('/:id', protect, requireAdmin, auditLog, mongoIdValidator, validate, updatePromoCode);
 
 // @route   DELETE /api/promo-codes/:id
-router.delete('/:id', protect, requireAdmin, mongoIdValidator, validate, deletePromoCode);
+router.delete('/:id', protect, requireAdmin, auditLog, mongoIdValidator, validate, deletePromoCode);
 
 // @route   PATCH /api/promo-codes/:id/toggle
-router.patch('/:id/toggle', protect, requireAdmin, mongoIdValidator, validate, togglePromoCodeStatus);
+router.patch('/:id/toggle', protect, requireAdmin, auditLog, mongoIdValidator, validate, togglePromoCodeStatus);
 
 module.exports = router;

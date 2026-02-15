@@ -8,6 +8,7 @@ const {
 } = require('../controllers/reviewController');
 const { protect } = require('../middleware/authMiddleware');
 const validate = require('../middleware/validateMiddleware');
+const auditLog = require('../middleware/auditMiddleware');
 const { mongoIdValidator, paginationValidator } = require('../utils/validators');
 const { body } = require('express-validator');
 
@@ -33,6 +34,7 @@ router.post(
         body('comment').optional().trim().isLength({ max: 1000 }).withMessage('Comment must be less than 1000 characters')
     ],
     validate,
+    auditLog,
     createReview
 );
 
@@ -46,10 +48,11 @@ router.put(
         body('comment').optional().trim().isLength({ max: 1000 }).withMessage('Comment must be less than 1000 characters')
     ],
     validate,
+    auditLog,
     updateReview
 );
 
 // @route   DELETE /api/reviews/:id
-router.delete('/:id', mongoIdValidator, validate, deleteReview);
+router.delete('/:id', auditLog, mongoIdValidator, validate, deleteReview);
 
 module.exports = router;

@@ -8,6 +8,7 @@ const {
 const { protect } = require('../middleware/authMiddleware');
 const { requireAdmin } = require('../middleware/roleMiddleware');
 const validate = require('../middleware/validateMiddleware');
+const auditLog = require('../middleware/auditMiddleware');
 const { mongoIdValidator } = require('../utils/validators');
 const { body } = require('express-validator');
 
@@ -26,10 +27,11 @@ router.post(
         body('endsAt').isISO8601().withMessage('Valid end date is required')
     ],
     validate,
+    auditLog,
     createFlashSale
 );
 
 // @route   DELETE /api/flash-sales/:productId
-router.delete('/:productId', mongoIdValidator, validate, endFlashSale);
+router.delete('/:productId', auditLog, mongoIdValidator, validate, endFlashSale);
 
 module.exports = router;

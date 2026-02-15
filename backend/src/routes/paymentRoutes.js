@@ -12,6 +12,7 @@ const { requireAdmin } = require('../middleware/roleMiddleware');
 const { uploadSingle } = require('../middleware/uploadMiddleware');
 const { uploadLimiter } = require('../middleware/rateLimitMiddleware');
 const validate = require('../middleware/validateMiddleware');
+const auditLog = require('../middleware/auditMiddleware');
 const {
     submitPaymentValidator,
     mongoIdValidator,
@@ -23,10 +24,10 @@ const {
 router.get('/', protect, requireAdmin, paginationValidator, validate, getAllPayments);
 
 // @route   PATCH /api/payments/:id/confirm
-router.patch('/:id/confirm', protect, requireAdmin, mongoIdValidator, validate, confirmPayment);
+router.patch('/:id/confirm', protect, requireAdmin, auditLog, mongoIdValidator, validate, confirmPayment);
 
 // @route   PATCH /api/payments/:id/reject
-router.patch('/:id/reject', protect, requireAdmin, mongoIdValidator, validate, rejectPayment);
+router.patch('/:id/reject', protect, requireAdmin, auditLog, mongoIdValidator, validate, rejectPayment);
 
 // User routes
 // @route   POST /api/payments

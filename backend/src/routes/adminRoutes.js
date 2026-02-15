@@ -30,6 +30,7 @@ const {
 } = require('../controllers/adminEmailController');
 const { protect } = require('../middleware/authMiddleware');
 const { requireAdmin } = require('../middleware/roleMiddleware');
+const auditLog = require('../middleware/auditMiddleware');
 const validate = require('../middleware/validateMiddleware');
 const { mongoIdValidator, paginationValidator } = require('../utils/validators');
 const { body } = require('express-validator');
@@ -52,6 +53,7 @@ router.get('/loyalty', paginationValidator, validate, getAllLoyaltyPoints);
 // @route   PATCH /api/admin/loyalty/:userId
 router.patch(
     '/loyalty/:userId',
+    auditLog,
     mongoIdValidator,
     [
         body('points').isNumeric().withMessage('Points must be a number'),
@@ -67,6 +69,7 @@ router.get('/reviews', paginationValidator, validate, getAllReviews);
 // @route   PATCH /api/admin/reviews/:id
 router.patch(
     '/reviews/:id',
+    auditLog,
     mongoIdValidator,
     [
         body('isApproved').isBoolean().withMessage('isApproved must be a boolean')
@@ -78,6 +81,7 @@ router.patch(
 // @route   POST /api/admin/products/bulk
 router.post(
     '/products/bulk',
+    auditLog,
     [
         body('productIds').isArray({ min: 1 }).withMessage('Product IDs array is required'),
         body('productIds.*').isMongoId().withMessage('All product IDs must be valid'),
@@ -90,6 +94,7 @@ router.post(
 // @route   DELETE /api/admin/products/bulk
 router.delete(
     '/products/bulk',
+    auditLog,
     [
         body('productIds').isArray({ min: 1 }).withMessage('Product IDs array is required'),
         body('productIds.*').isMongoId().withMessage('All product IDs must be valid')
@@ -104,6 +109,7 @@ router.get('/settings', getSettings);
 // @route   PUT /api/admin/settings/:key
 router.put(
     '/settings/:key',
+    auditLog,
     [
         body('value').notEmpty().withMessage('Value is required'),
         body('description').optional().trim(),
@@ -125,6 +131,7 @@ router.get('/categories/stats', getCategoryStats);
 // @route   POST /api/admin/categories/bulk
 router.post(
     '/categories/bulk',
+    auditLog,
     [
         body('categoryIds').isArray({ min: 1 }).withMessage('Category IDs array is required'),
         body('categoryIds.*').isMongoId().withMessage('All category IDs must be valid'),
@@ -146,6 +153,7 @@ router.get('/content/featured', getAllFeaturedAdmin);
 // @route   PATCH /api/admin/content/banners/reorder
 router.patch(
     '/content/banners/reorder',
+    auditLog,
     [
         body('bannerOrders').isArray().withMessage('bannerOrders must be an array'),
         body('bannerOrders.*.bannerId').isMongoId().withMessage('Valid banner ID required'),
@@ -158,6 +166,7 @@ router.patch(
 // @route   PATCH /api/admin/content/featured/reorder
 router.patch(
     '/content/featured/reorder',
+    auditLog,
     [
         body('featuredOrders').isArray().withMessage('featuredOrders must be an array'),
         body('featuredOrders.*.featuredId').isMongoId().withMessage('Valid featured ID required'),
@@ -171,9 +180,9 @@ router.patch(
 router.get('/emails', paginationValidator, validate, getEmailQueue);
 
 // @route   POST /api/admin/emails/retry
-router.post('/emails/retry', retryEmails);
+router.post('/emails/retry', auditLog, retryEmails);
 
 // @route   DELETE /api/admin/emails/:id
-router.delete('/emails/:id', mongoIdValidator, validate, deleteEmailFromQueue);
+router.delete('/emails/:id', auditLog, mongoIdValidator, validate, deleteEmailFromQueue);
 
 module.exports = router;

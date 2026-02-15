@@ -11,6 +11,7 @@ const {
 } = require('../controllers/loyaltyController');
 const { protect, requireAdmin } = require('../middleware/authMiddleware');
 const validate = require('../middleware/validateMiddleware');
+const auditLog = require('../middleware/auditMiddleware');
 const { paginationValidator } = require('../utils/validators');
 
 // Public routes
@@ -30,10 +31,10 @@ router.post('/redeem', protect, redeemPointsHandler);
 router.get('/settings', protect, requireAdmin, getLoyaltySettings);
 
 // @route   PUT /api/loyalty/settings
-router.put('/settings', protect, requireAdmin, updateLoyaltySettings);
+router.put('/settings', protect, requireAdmin, auditLog, updateLoyaltySettings);
 
 // @route   POST /api/loyalty/adjust
-router.post('/adjust', protect, requireAdmin, adjustPoints);
+router.post('/adjust', protect, requireAdmin, auditLog, adjustPoints);
 
 // @route   GET /api/loyalty/all
 router.get('/all', protect, requireAdmin, paginationValidator, validate, getAllLoyalty);

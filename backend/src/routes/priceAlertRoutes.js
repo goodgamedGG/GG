@@ -9,6 +9,7 @@ const {
 const { protect } = require('../middleware/authMiddleware');
 const { requireAdmin } = require('../middleware/roleMiddleware');
 const validate = require('../middleware/validateMiddleware');
+const auditLog = require('../middleware/auditMiddleware');
 const { mongoIdValidator } = require('../utils/validators');
 const { body } = require('express-validator');
 
@@ -33,6 +34,6 @@ router.get('/', getPriceAlerts);
 router.delete('/:id', mongoIdValidator, validate, deletePriceAlert);
 
 // @route   POST /api/price-alerts/check (Admin only)
-router.post('/check', requireAdmin, checkPriceDrops);
+router.post('/check', requireAdmin, auditLog, checkPriceDrops);
 
 module.exports = router;

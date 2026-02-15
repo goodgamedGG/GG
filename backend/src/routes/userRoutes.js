@@ -15,6 +15,7 @@ const { protect } = require('../middleware/authMiddleware');
 const { requireAdmin } = require('../middleware/roleMiddleware');
 const { userApiLimiter, adminLimiter } = require('../middleware/rateLimitMiddleware');
 const validate = require('../middleware/validateMiddleware');
+const auditLog = require('../middleware/auditMiddleware');
 const { mongoIdValidator, paginationValidator } = require('../utils/validators');
 const { body } = require('express-validator');
 
@@ -28,10 +29,10 @@ router.use('/:id/role', adminLimiter);
 router.get('/profile', getProfile);
 
 // @route   PUT /api/users/profile
-router.put('/profile', updateProfile);
+router.put('/profile', auditLog, updateProfile);
 
 // @route   PUT /api/users/change-password
-router.put('/change-password', changePassword);
+router.put('/change-password', auditLog, changePassword);
 
 // Admin routes
 // @route   GET /api/users
@@ -44,6 +45,7 @@ router.get('/:id', requireAdmin, mongoIdValidator, validate, getUserById);
 router.put(
     '/:id',
     requireAdmin,
+    auditLog,
     mongoIdValidator,
     [
         body('name').optional().trim().notEmpty(),
@@ -60,6 +62,7 @@ router.put(
 router.put(
     '/:id/role',
     requireAdmin,
+    auditLog,
     mongoIdValidator,
     [body('role').isIn(['user', 'admin']).withMessage('Invalid role')],
     validate,
@@ -67,12 +70,13 @@ router.put(
 );
 
 // @route   DELETE /api/users/:id
-router.delete('/:id', requireAdmin, mongoIdValidator, validate, deleteUser);
+router.delete('/:id', requireAdmin, auditLog, mongoIdValidator, validate, deleteUser);
 
 // @route   POST /api/users/bulk
 router.post(
     '/bulk',
     requireAdmin,
+    auditLog,
     [
         body('userIds').isArray({ min: 1 }).withMessage('User IDs array is required'),
         body('userIds.*').isMongoId().withMessage('All user IDs must be valid'),
