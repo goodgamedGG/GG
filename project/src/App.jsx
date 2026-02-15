@@ -48,6 +48,7 @@ import Loyalty from './pages/admin/Loyalty';
 import Reviews from './pages/admin/Reviews';
 import Content from './pages/admin/Content';
 import EmailQueue from './pages/admin/EmailQueue';
+import EmailTemplates from './pages/admin/EmailTemplates';
 import AuditLogs from './pages/admin/AuditLogs';
 import Settings from './pages/admin/Settings';
 
@@ -117,6 +118,7 @@ const App = () => {
                                             <Route path="reviews" element={<Reviews />} />
                                             <Route path="content" element={<Content />} />
                                             <Route path="email-queue" element={<EmailQueue />} />
+                                            <Route path="email-templates" element={<EmailTemplates />} />
                                             <Route path="audit-logs" element={<AuditLogs />} />
                                             <Route path="settings" element={<Settings />} />
                                         </Route>

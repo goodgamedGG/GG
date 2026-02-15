@@ -62,7 +62,8 @@ const AdminLayout = () => {
                 { path: '/admin/loyalty', icon: <Award size={20} />, label: 'Loyalty Program' },
                 { path: '/admin/reviews', icon: <MessageSquare size={20} />, label: 'Reviews' },
                 { path: '/admin/content', icon: <Globe size={20} />, label: 'Content' },
-                { path: '/admin/email-queue', icon: <Mail size={20} />, label: 'Email Queue' }
+                { path: '/admin/email-queue', icon: <Mail size={20} />, label: 'Email Queue' },
+                { path: '/admin/email-templates', icon: <FileText size={20} />, label: 'Email Templates' }
             ]
         },
         {

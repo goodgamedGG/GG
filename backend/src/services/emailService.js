@@ -2,19 +2,55 @@ const transporter = require('../config/email');
 const { formatCurrency } = require('../utils/helpers');
 const { queueEmail } = require('./emailQueueService');
 const logger = require('../utils/logger');
+const Settings = require('../models/Settings');
+
+/**
+ * Helper to get template from Settings and replace placeholders
+ * @param {string} key - Settings key
+ * @param {object} data - Placeholder data
+ * @param {object} defaults - Default subject and html
+ */
+const getTemplate = async (key, data, defaults) => {
+  try {
+    const [setting, logoSetting] = await Promise.all([
+      Settings.findOne({ key }),
+      Settings.findOne({ key: 'email.logo_url' })
+    ]);
+
+    let subject = defaults.subject;
+    let html = defaults.html;
+    const logoUrl = logoSetting?.value || '';
+    const logoDisplay = logoUrl ? 'block' : 'none';
+
+    if (setting && setting.value) {
+      if (setting.value.subject) subject = setting.value.subject;
+      if (setting.value.html) html = setting.value.html;
+    }
+
+    // Merge placeholders into data
+    const replacementData = { ...data, logoUrl, logoDisplay };
+
+    // Replace placeholders: {{key}} -> replacementData[key]
+    Object.entries(replacementData).forEach(([k, v]) => {
+      const regex = new RegExp(`{{${k}}}`, 'g');
+      html = html.replace(regex, v);
+      subject = subject.replace(regex, v);
+    });
+
+    return { subject, html };
+  } catch (error) {
+    logger.error(`Error fetching template ${key}:`, error);
+    return defaults;
+  }
+};
 
 /**
  * Send verification email
- * @param {string} email - Recipient email
- * @param {string} name - Recipient name
- * @param {string} code - Verification code
  */
 const sendVerificationEmail = async (email, name, code) => {
-    const mailOptions = {
-        from: `${process.env.EMAIL_FROM_NAME} <${process.env.EMAIL_FROM}>`,
-        to: email,
-        subject: 'Verify Your Email Address',
-        html: `
+  const defaults = {
+    subject: 'Verify Your Email Address',
+    html: `
       <!DOCTYPE html>
       <html>
       <head>
@@ -30,12 +66,13 @@ const sendVerificationEmail = async (email, name, code) => {
       <body>
         <div class="container">
           <div class="header">
+            <img src="{{logoUrl}}" alt="Logo" style="max-height: 50px; margin-bottom: 10px; display: {{logoDisplay}};" />
             <h1>Welcome to Gaming Store!</h1>
           </div>
           <div class="content">
-            <p>Hi ${name},</p>
+            <p>Hi {{name}},</p>
             <p>Thank you for signing up! Please verify your email address using the code below:</p>
-            <div class="code">${code}</div>
+            <div class="code">{{code}}</div>
             <p>This code will expire in 15 minutes.</p>
             <p>If you didn't create an account, please ignore this email.</p>
           </div>
@@ -46,48 +83,60 @@ const sendVerificationEmail = async (email, name, code) => {
       </body>
       </html>
     `
-    };
+  };
 
-    try {
-        // Try to send directly first
-        await transporter.sendMail(mailOptions);
-        logger.info('Verification email sent', { email });
-    } catch (error) {
-        logger.error('Failed to send verification email directly, queuing', { email, error: error.message });
-        // Queue email for retry
-        await queueEmail({
-            to: email,
-            subject: mailOptions.subject,
-            html: mailOptions.html,
-            emailType: 'verification'
-        });
-    }
+  const { subject, html } = await getTemplate('email.template.verification', { name, code }, defaults);
+
+  const mailOptions = {
+    from: `${process.env.EMAIL_FROM_NAME} <${process.env.EMAIL_FROM}>`,
+    to: email,
+    subject,
+    html
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+    logger.info('Verification email sent', { email });
+
+    await queueEmail({
+      to: email,
+      subject: mailOptions.subject,
+      html: mailOptions.html,
+      emailType: 'verification',
+      status: 'sent',
+      sentAt: new Date()
+    });
+  } catch (error) {
+    logger.error('Failed to send verification email directly, queuing', { email, error: error.message });
+    await queueEmail({
+      to: email,
+      subject: mailOptions.subject,
+      html: mailOptions.html,
+      emailType: 'verification',
+      status: 'pending'
+    });
+  }
 };
 
 /**
  * Send order confirmation email
- * @param {string} email - Recipient email
- * @param {string} name - Recipient name
- * @param {object} order - Order object
  */
 const sendOrderConfirmationEmail = async (email, name, order) => {
-    const itemsHtml = order.items
-        .map(
-            (item) => `
+  const itemsHtml = order.items
+    .map(
+      (item) => `
       <tr>
         <td style="padding: 10px; border-bottom: 1px solid #ddd;">${item.name}</td>
         <td style="padding: 10px; border-bottom: 1px solid #ddd; text-align: center;">${item.quantity}</td>
         <td style="padding: 10px; border-bottom: 1px solid #ddd; text-align: right;">${formatCurrency(item.price)}</td>
       </tr>
     `
-        )
-        .join('');
+    )
+    .join('');
 
-    const mailOptions = {
-        from: `${process.env.EMAIL_FROM_NAME} <${process.env.EMAIL_FROM}>`,
-        to: email,
-        subject: `Order Confirmation - ${order.orderNumber}`,
-        html: `
+  const defaults = {
+    subject: `Order Confirmation - ${order.orderNumber}`,
+    html: `
       <!DOCTYPE html>
       <html>
       <head>
@@ -105,11 +154,12 @@ const sendOrderConfirmationEmail = async (email, name, order) => {
       <body>
         <div class="container">
           <div class="header">
+            <img src="{{logoUrl}}" alt="Logo" style="max-height: 50px; margin-bottom: 10px; display: {{logoDisplay}};" />
             <h1>Order Confirmed!</h1>
-            <p>Order #${order.orderNumber}</p>
+            <p>Order #{{orderNumber}}</p>
           </div>
           <div class="content">
-            <p>Hi ${name},</p>
+            <p>Hi {{name}},</p>
             <p>Thank you for your order! We've received your order and it's being processed.</p>
             
             <table>
@@ -121,18 +171,18 @@ const sendOrderConfirmationEmail = async (email, name, order) => {
                 </tr>
               </thead>
               <tbody>
-                ${itemsHtml}
+                {{itemsHtml}}
               </tbody>
             </table>
             
             <div class="total">
-              <p>Subtotal: ${formatCurrency(order.subtotal)}</p>
-              ${order.discount > 0 ? `<p style="color: #e74c3c;">Discount: -${formatCurrency(order.discount)}</p>` : ''}
-              <p style="font-size: 24px; color: #667eea;">Total: ${formatCurrency(order.total)}</p>
+              <p>Subtotal: {{subtotal}}</p>
+              ${order.discount > 0 ? `<p style="color: #e74c3c;">Discount: -{{discount}}</p>` : ''}
+              <p style="font-size: 24px; color: #667eea;">Total: {{total}}</p>
             </div>
             
-            <p><strong>Payment Method:</strong> ${order.paymentMethod}</p>
-            <p><strong>Payment Status:</strong> ${order.paymentStatus}</p>
+            <p><strong>Payment Method:</strong> {{paymentMethod}}</p>
+            <p><strong>Payment Status:</strong> {{paymentStatus}}</p>
             
             <p>Your order will be processed once payment is confirmed by our team.</p>
           </div>
@@ -143,34 +193,57 @@ const sendOrderConfirmationEmail = async (email, name, order) => {
       </body>
       </html>
     `
-    };
+  };
 
-    try {
-        await transporter.sendMail(mailOptions);
-        logger.info('Order confirmation email sent', { email });
-    } catch (error) {
-        logger.error('Failed to send order confirmation email directly, queuing', { email, error: error.message });
-        await queueEmail({
-            to: email,
-            subject: mailOptions.subject,
-            html: mailOptions.html,
-            emailType: 'order_confirmation'
-        });
-    }
+  const { subject, html } = await getTemplate('email.template.order_confirmation', {
+    name,
+    orderNumber: order.orderNumber,
+    itemsHtml,
+    subtotal: formatCurrency(order.subtotal),
+    discount: formatCurrency(order.discount),
+    total: formatCurrency(order.total),
+    paymentMethod: order.paymentMethod,
+    paymentStatus: order.paymentStatus
+  }, defaults);
+
+  const mailOptions = {
+    from: `${process.env.EMAIL_FROM_NAME} <${process.env.EMAIL_FROM}>`,
+    to: email,
+    subject,
+    html
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+    logger.info('Order confirmation email sent', { email });
+
+    await queueEmail({
+      to: email,
+      subject: mailOptions.subject,
+      html: mailOptions.html,
+      emailType: 'order_confirmation',
+      status: 'sent',
+      sentAt: new Date()
+    });
+  } catch (error) {
+    logger.error('Failed to send order confirmation email directly, queuing', { email, error: error.message });
+    await queueEmail({
+      to: email,
+      subject: mailOptions.subject,
+      html: mailOptions.html,
+      emailType: 'order_confirmation',
+      status: 'pending'
+    });
+  }
 };
 
 /**
  * Send payment confirmation email
- * @param {string} email - Recipient email
- * @param {string} name - Recipient name
- * @param {object} order - Order object
  */
 const sendPaymentConfirmationEmail = async (email, name, order) => {
-    const mailOptions = {
-        from: `${process.env.EMAIL_FROM_NAME} <${process.env.EMAIL_FROM}>`,
-        to: email,
-        subject: `Payment Confirmed - ${order.orderNumber}`,
-        html: `
+  const defaults = {
+    subject: `Payment Confirmed - ${order.orderNumber}`,
+    html: `
       <!DOCTYPE html>
       <html>
       <head>
@@ -187,17 +260,18 @@ const sendPaymentConfirmationEmail = async (email, name, order) => {
       <body>
         <div class="container">
           <div class="header">
+            <img src="{{logoUrl}}" alt="Logo" style="max-height: 50px; margin-bottom: 10px; display: {{logoDisplay}};" />
             <h1>Payment Confirmed!</h1>
           </div>
           <div class="content">
             <div class="success-icon">✅</div>
-            <p>Hi ${name},</p>
+            <p>Hi {{name}},</p>
             <p>Great news! Your payment has been confirmed and your order is now being processed.</p>
             
-            <div class="amount">${formatCurrency(order.total)}</div>
+            <div class="amount">{{total}}</div>
             
-            <p><strong>Order Number:</strong> ${order.orderNumber}</p>
-            <p><strong>Payment Method:</strong> ${order.paymentMethod}</p>
+            <p><strong>Order Number:</strong> {{orderNumber}}</p>
+            <p><strong>Payment Method:</strong> {{paymentMethod}}</p>
             
             <p>You will receive your digital products shortly. Thank you for shopping with us!</p>
           </div>
@@ -208,34 +282,53 @@ const sendPaymentConfirmationEmail = async (email, name, order) => {
       </body>
       </html>
     `
-    };
+  };
 
-    try {
-        await transporter.sendMail(mailOptions);
-        logger.info('Payment confirmation email sent', { email });
-    } catch (error) {
-        logger.error('Failed to send payment confirmation email directly, queuing', { email, error: error.message });
-        await queueEmail({
-            to: email,
-            subject: mailOptions.subject,
-            html: mailOptions.html,
-            emailType: 'payment_confirmation'
-        });
-    }
+  const { subject, html } = await getTemplate('email.template.payment_confirmation', {
+    name,
+    orderNumber: order.orderNumber,
+    total: formatCurrency(order.total),
+    paymentMethod: order.paymentMethod
+  }, defaults);
+
+  const mailOptions = {
+    from: `${process.env.EMAIL_FROM_NAME} <${process.env.EMAIL_FROM}>`,
+    to: email,
+    subject,
+    html
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+    logger.info('Payment confirmation email sent', { email });
+
+    await queueEmail({
+      to: email,
+      subject: mailOptions.subject,
+      html: mailOptions.html,
+      emailType: 'payment_confirmation',
+      status: 'sent',
+      sentAt: new Date()
+    });
+  } catch (error) {
+    logger.error('Failed to send payment confirmation email directly, queuing', { email, error: error.message });
+    await queueEmail({
+      to: email,
+      subject: mailOptions.subject,
+      html: mailOptions.html,
+      emailType: 'payment_confirmation',
+      status: 'pending'
+    });
+  }
 };
 
 /**
  * Send password reset code email
- * @param {string} email - Recipient email
- * @param {string} name - Recipient name
- * @param {string} code - Reset code
  */
 const sendPasswordResetCodeEmail = async (email, name, code) => {
-    const mailOptions = {
-        from: `${process.env.EMAIL_FROM_NAME} <${process.env.EMAIL_FROM}>`,
-        to: email,
-        subject: 'Password Reset Code',
-        html: `
+  const defaults = {
+    subject: 'Password Reset Code',
+    html: `
       <!DOCTYPE html>
       <html>
       <head>
@@ -251,12 +344,13 @@ const sendPasswordResetCodeEmail = async (email, name, code) => {
       <body>
         <div class="container">
           <div class="header">
+            <img src="{{logoUrl}}" alt="Logo" style="max-height: 50px; margin-bottom: 10px; display: {{logoUrl ? 'block' : 'none'}};" />
             <h1>Password Reset</h1>
           </div>
           <div class="content">
-            <p>Hi ${name},</p>
+            <p>Hi {{name}},</p>
             <p>You requested to reset your password. Use the code below to proceed:</p>
-            <div class="code">${code}</div>
+            <div class="code">{{code}}</div>
             <p>This code will expire in 15 minutes.</p>
             <p>If you didn't request a password reset, please ignore this email.</p>
           </div>
@@ -267,25 +361,44 @@ const sendPasswordResetCodeEmail = async (email, name, code) => {
       </body>
       </html>
     `
-    };
+  };
 
-    try {
-        await transporter.sendMail(mailOptions);
-        logger.info('Password reset email sent', { email });
-    } catch (error) {
-        logger.error('Failed to send password reset email directly, queuing', { email, error: error.message });
-        await queueEmail({
-            to: email,
-            subject: mailOptions.subject,
-            html: mailOptions.html,
-            emailType: 'password_reset'
-        });
-    }
+  const { subject, html } = await getTemplate('email.template.password_reset', { name, code }, defaults);
+
+  const mailOptions = {
+    from: `${process.env.EMAIL_FROM_NAME} <${process.env.EMAIL_FROM}>`,
+    to: email,
+    subject,
+    html
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+    logger.info('Password reset email sent', { email });
+
+    await queueEmail({
+      to: email,
+      subject: mailOptions.subject,
+      html: mailOptions.html,
+      emailType: 'password_reset',
+      status: 'sent',
+      sentAt: new Date()
+    });
+  } catch (error) {
+    logger.error('Failed to send password reset email directly, queuing', { email, error: error.message });
+    await queueEmail({
+      to: email,
+      subject: mailOptions.subject,
+      html: mailOptions.html,
+      emailType: 'password_reset',
+      status: 'pending'
+    });
+  }
 };
 
 module.exports = {
-    sendVerificationEmail,
-    sendOrderConfirmationEmail,
-    sendPaymentConfirmationEmail,
-    sendPasswordResetCodeEmail
+  sendVerificationEmail,
+  sendOrderConfirmationEmail,
+  sendPaymentConfirmationEmail,
+  sendPasswordResetCodeEmail
 };

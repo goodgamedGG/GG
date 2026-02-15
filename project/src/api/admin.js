@@ -138,11 +138,13 @@ const adminAPI = {
         return response.data.data;
     },
 
+    updateSetting: async (key, value, description, isPublic) => {
+        const response = await client.put(`/admin/settings/${key}`, { value, description, isPublic });
+        return response.data;
+    },
+
     updateSettings: async (settings) => {
-        // Assuming settings is an array or object to be updated one by one or bulk?
-        // Backend expects PUT /settings/:key. 
-        // Front end might need loop or bulk endpoint if implemented.
-        // For now, let's assume specific key updates or leave as placeholder
+        // Bulk update not implemented in backend yet
         console.warn("updateSettings bulk not fully implemented in backend");
         return null;
     },
@@ -224,6 +226,33 @@ const adminAPI = {
     adjustLoyaltyPoints: async (userId, points, reason) => {
         const response = await client.post('/loyalty/adjust', { userId, points, reason });
         return response.data.data;
+    },
+
+    // Email Queue
+    getEmailQueue: async (page = 1, limit = 50, status = '') => {
+        const params = { page, limit };
+        if (status) params.status = status;
+        const response = await client.get('/admin/emails', { params });
+        return response.data;
+    },
+
+    retryEmails: async () => {
+        const response = await client.post('/admin/emails/retry');
+        return response.data;
+    },
+
+    deleteEmailFromQueue: async (id) => {
+        const response = await client.delete(`/admin/emails/${id}`);
+        return response.data;
+    },
+
+    uploadFile: async (file) => {
+        const formData = new FormData();
+        formData.append('file', file);
+        const response = await client.post('/upload', formData, {
+            headers: { 'Content-Type': 'multipart/form-data' }
+        });
+        return response.data;
     }
 };
 

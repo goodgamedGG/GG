@@ -12,7 +12,10 @@ const queueEmail = async (emailData) => {
             subject: emailData.subject,
             html: emailData.html,
             emailType: emailData.emailType || 'other',
-            status: 'pending'
+            status: emailData.status || 'pending',
+            sentAt: emailData.sentAt || null,
+            attempts: emailData.status === 'sent' ? 1 : 0,
+            lastAttemptAt: emailData.status === 'sent' ? new Date() : null
         });
 
         logger.info('Email queued', { emailId: emailQueue._id, to: emailData.to });
@@ -33,8 +36,8 @@ const processEmailQueue = async () => {
             status: { $in: ['pending', 'failed'] },
             $expr: { $lt: ['$attempts', { $ifNull: ['$maxAttempts', 3] }] }
         })
-        .sort({ createdAt: 1 })
-        .limit(10); // Process 10 at a time
+            .sort({ createdAt: 1 })
+            .limit(10); // Process 10 at a time
 
         for (const emailQueue of pendingEmails) {
             try {
@@ -80,7 +83,7 @@ const sendEmailByType = async (emailQueue) => {
     // For now, we'll use the transporter directly since we have the HTML
     // In a more advanced setup, you'd reconstruct the email from queue data
     const transporter = require('../config/email');
-    
+
     await transporter.sendMail({
         from: `${process.env.EMAIL_FROM_NAME} <${process.env.EMAIL_FROM}>`,
         to: emailQueue.to,
@@ -98,8 +101,8 @@ const retryFailedEmails = async () => {
             status: 'failed',
             attempts: { $lt: 3 }
         })
-        .sort({ lastAttemptAt: 1 })
-        .limit(20);
+            .sort({ lastAttemptAt: 1 })
+            .limit(20);
 
         for (const email of failedEmails) {
             // Reset to pending for retry
