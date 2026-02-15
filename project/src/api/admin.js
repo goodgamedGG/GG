@@ -12,6 +12,11 @@ const adminAPI = {
         return response.data.data;
     },
 
+    getAnalytics: async (period = 30) => {
+        const response = await client.get('/admin/analytics', { params: { period } });
+        return response.data;
+    },
+
     getRecentOrders: async (limit = 5) => {
         // Using the admin/all endpoint but limiting logic might need to be query based or filtered
         const response = await client.get('/orders/admin/all', { params: { limit, page: 1 } });
