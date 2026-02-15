@@ -117,10 +117,18 @@ const retryFailedEmails = async () => {
 };
 
 // Process email queue every 30 seconds
-setInterval(processEmailQueue, 30 * 1000);
+setInterval(() => {
+    processEmailQueue().catch(err => {
+        logger.error('Critical error in processEmailQueue interval', { error: err.message, stack: err.stack });
+    });
+}, 30 * 1000);
 
 // Retry failed emails every 5 minutes
-setInterval(retryFailedEmails, 5 * 60 * 1000);
+setInterval(() => {
+    retryFailedEmails().catch(err => {
+        logger.error('Critical error in retryFailedEmails interval', { error: err.message, stack: err.stack });
+    });
+}, 5 * 60 * 1000);
 
 module.exports = {
     queueEmail,

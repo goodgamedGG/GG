@@ -77,12 +77,12 @@ const Loyalty = () => {
 
     const getTierColor = (tier) => {
         const colors = {
-            bronze: '#cd7f32',
-            silver: '#c0c0c0',
-            gold: '#ffd700',
-            platinum: '#e5e4e2'
+            bronze: '#b45309',
+            silver: '#94a3b8',
+            gold: '#fbbf24',
+            platinum: '#40E0D0'
         };
-        return colors[tier] || '#999';
+        return colors[tier?.toLowerCase()] || '#94a3b8';
     };
 
     const getTierName = (tier) => {
@@ -131,7 +131,7 @@ const Loyalty = () => {
                                     width: '32px',
                                     height: '32px',
                                     borderRadius: '50%',
-                                    background: index === 0 ? '#ffc800' : index === 1 ? '#c0c0c0' : index === 2 ? '#cd7f32' : 'var(--color-bg-card)',
+                                    background: index === 0 ? '#40E0D0' : index === 1 ? '#fbbf24' : index === 2 ? '#94a3b8' : 'var(--color-bg-card)',
                                     display: 'flex',
                                     alignItems: 'center',
                                     justifyContent: 'center',
@@ -143,8 +143,11 @@ const Loyalty = () => {
                                 </div>
                                 <div style={{ flex: 1 }}>
                                     <div style={{ fontWeight: 500, fontSize: '14px' }}>{entry.user?.name || '-'}</div>
-                                    <div style={{ fontSize: '12px', color: 'var(--color-text-muted)' }}>
-                                        {entry.points || 0} pts • {getTierName(entry.tier)}
+                                    <div style={{ fontSize: '12px', color: 'var(--color-text-muted)', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                        {entry.points || 0} pts •
+                                        <span style={{ color: getTierColor(entry.tier), fontWeight: '600' }}>
+                                            {getTierName(entry.tier)}
+                                        </span>
                                     </div>
                                 </div>
                             </div>
@@ -200,73 +203,234 @@ const Loyalty = () => {
                 </div>
             ) : (
                 <>
-                    <div className="table-container" style={{ overflowX: 'auto' }}>
-                        <table className="data-table">
-                            <thead>
-                                <tr>
-                                    <th>User</th>
-                                    <th>Current Points</th>
-                                    <th>Total Earned</th>
-                                    <th>Total Spent</th>
-                                    <th>Tier</th>
-                                    <th>Transactions</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {loyaltyPoints.map(loyalty => (
-                                    <tr key={loyalty._id}>
-                                        <td>
-                                            <div>
-                                                <div style={{ fontWeight: 500 }}>{loyalty.user?.name || '-'}</div>
-                                                <div style={{ fontSize: '12px', color: 'var(--color-text-muted)' }}>
-                                                    {loyalty.user?.email || '-'}
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <span style={{ fontSize: '18px', fontWeight: 'bold', color: 'var(--color-cyan-primary)' }}>
-                                                {loyalty.points || 0}
-                                            </span>
-                                        </td>
-                                        <td style={{ color: '#00ff80' }}>
+
+                    <div className="loyalty-grid-container">
+                        {/* Sticky Header */}
+                        <div className="loyalty-grid-header">
+                            <div>User</div>
+                            <div>Current Points</div>
+                            <div>Total Earned</div>
+                            <div>Total Spent</div>
+                            <div>Tier</div>
+                            <div>Transactions</div>
+                            <div style={{ textAlign: 'right' }}>Actions</div>
+                        </div>
+
+                        {/* Grid Body */}
+                        <div className="loyalty-grid-body">
+                            {loyaltyPoints.map((loyalty, index) => (
+                                <div
+                                    key={loyalty._id}
+                                    className="loyalty-grid-row"
+                                    style={{ animationDelay: `${index * 50}ms` }}
+                                >
+                                    {/* User Identity */}
+                                    <div className="user-info-col">
+                                        <div className="user-name">{loyalty.user?.name || '-'}</div>
+                                        <div className="user-email">{loyalty.user?.email || '-'}</div>
+                                    </div>
+
+                                    {/* Current Points */}
+                                    <div className="points-col">
+                                        <span className="points-current">
+                                            {loyalty.points || 0}
+                                        </span>
+                                    </div>
+
+                                    {/* Total Earned */}
+                                    <div className="earned-col">
+                                        <span className="points-earned">
                                             {loyalty.totalEarned || 0}
-                                        </td>
-                                        <td style={{ color: 'var(--color-text-muted)' }}>
+                                        </span>
+                                    </div>
+
+                                    {/* Total Spent */}
+                                    <div className="spent-col">
+                                        <span className="points-spent">
                                             {loyalty.totalSpent || 0}
-                                        </td>
-                                        <td>
-                                            <span style={{
-                                                padding: '4px 12px',
-                                                background: `rgba(${getTierColor(loyalty.tier)}, 0.2)`,
-                                                color: getTierColor(loyalty.tier),
-                                                borderRadius: '16px',
-                                                fontSize: '12px',
-                                                fontWeight: 'bold',
-                                                textTransform: 'capitalize'
-                                            }}>
-                                                {getTierName(loyalty.tier)}
-                                            </span>
-                                        </td>
-                                        <td>
-                                            <span style={{ fontSize: '12px', color: 'var(--color-text-muted)' }}>
-                                                {loyalty.transactions?.length || 0} transactions
-                                            </span>
-                                        </td>
-                                        <td>
-                                            <button
-                                                onClick={() => handleAdjust(loyalty)}
-                                                className="icon-btn"
-                                                title="Adjust Points"
-                                            >
-                                                <TrendingUp size={18} />
-                                            </button>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                                        </span>
+                                    </div>
+
+                                    {/* Tier */}
+                                    <div className="tier-col">
+                                        <span className={`tier-badge tier-${loyalty.tier?.toLowerCase() || 'bronze'}`}>
+                                            {getTierName(loyalty.tier)}
+                                        </span>
+                                    </div>
+
+                                    {/* Transactions */}
+                                    <div className="transactions-col">
+                                        <span className="transactions-info">
+                                            {loyalty.transactions?.length || 0} transactions
+                                        </span>
+                                    </div>
+
+                                    {/* Actions */}
+                                    <div className="actions-col">
+                                        <button
+                                            onClick={() => handleAdjust(loyalty)}
+                                            className="action-btn"
+                                            title="Adjust Points"
+                                        >
+                                            <TrendingUp size={18} />
+                                        </button>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
                     </div>
+
+                    <style dangerouslySetInnerHTML={{
+                        __html: `
+                            .loyalty-grid-container {
+                                background: #0f172a;
+                                border: 1px solid #1e293b;
+                                border-radius: 12px;
+                                overflow: visible;
+                            }
+
+                            .loyalty-grid-header {
+                                display: grid;
+                                grid-template-columns: 2.5fr 1.5fr 1.5fr 1.5fr 1.5fr 1.5fr 1fr;
+                                padding: 16px 20px;
+                                background: #1e293b;
+                                color: #94a3b8;
+                                font-size: 13px;
+                                font-weight: 600;
+                                text-transform: uppercase;
+                                letter-spacing: 0.05em;
+                                border-bottom: 2px solid #334155;
+                                position: sticky;
+                                top: 0;
+                                z-index: 10;
+                                border-radius: 12px 12px 0 0;
+                            }
+
+                            .loyalty-grid-row {
+                                display: grid;
+                                grid-template-columns: 2.5fr 1.5fr 1.5fr 1.5fr 1.5fr 1.5fr 1fr;
+                                padding: 16px 20px;
+                                align-items: center;
+                                border-bottom: 1px solid #1e293b;
+                                transition: all 0.2s ease;
+                                animation: fadeIn 0.3s ease forwards;
+                            }
+
+                            .loyalty-grid-row:hover {
+                                background: rgba(30, 41, 59, 0.5);
+                            }
+
+                            .loyalty-grid-row:last-child {
+                                border-bottom: none;
+                                border-radius: 0 0 12px 12px;
+                            }
+
+                            .user-name {
+                                font-weight: 700;
+                                font-size: 16px;
+                                color: #ffffff;
+                                text-transform: capitalize;
+                            }
+
+                            .user-email {
+                                font-size: 12px;
+                                color: #94a3b8;
+                                margin-top: 4px;
+                            }
+
+                            .points-current {
+                                color: #00d9ff;
+                                font-weight: 800;
+                                font-size: 20px;
+                                text-shadow: 0 0 10px rgba(0, 217, 255, 0.2);
+                            }
+
+                            .points-earned {
+                                color: #10b981;
+                                font-weight: 600;
+                                font-size: 16px;
+                            }
+
+                            .points-spent {
+                                color: #94a3b8;
+                                font-size: 16px;
+                            }
+
+                            .tier-badge {
+                                display: inline-flex;
+                                align-items: center;
+                                padding: 6px 14px;
+                                border-radius: 20px;
+                                font-size: 12px;
+                                font-weight: 700;
+                                text-transform: uppercase;
+                                letter-spacing: 0.03em;
+                            }
+
+                            .tier-platinum {
+                                background: rgba(64, 224, 208, 0.1);
+                                color: #40E0D0;
+                                border: 1px solid rgba(64, 224, 208, 0.2);
+                                box-shadow: 0 0 15px rgba(64, 224, 208, 0.1);
+                            }
+
+                            .tier-gold {
+                                background: rgba(251, 191, 36, 0.1);
+                                color: #fbbf24;
+                                border: 1px solid rgba(251, 191, 36, 0.2);
+                                box-shadow: 0 0 15px rgba(251, 191, 36, 0.1);
+                            }
+
+                            .tier-silver {
+                                background: rgba(148, 163, 184, 0.1);
+                                color: #94a3b8;
+                                border: 1px solid rgba(148, 163, 184, 0.2);
+                            }
+
+                            .tier-bronze {
+                                background: rgba(180, 83, 9, 0.1);
+                                color: #b45309;
+                                border: 1px solid rgba(180, 83, 9, 0.2);
+                            }
+
+                            .transactions-info {
+                                font-size: 13px;
+                                color: #64748b;
+                            }
+
+                            .actions-col {
+                                display: flex;
+                                justify-content: flex-end;
+                            }
+
+                            .action-btn {
+                                width: 36px;
+                                height: 36px;
+                                display: flex;
+                                align-items: center;
+                                justify-content: center;
+                                background: #1e293b;
+                                color: #94a3b8;
+                                border-radius: 10px;
+                                border: 1px solid #334155;
+                                transition: all 0.2s;
+                                cursor: pointer;
+                            }
+
+                            .action-btn:hover {
+                                color: #ffffff;
+                                background: #334155;
+                                transform: translateY(-2px);
+                                border-color: #475569;
+                                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+                            }
+
+                            @keyframes fadeIn {
+                                from { opacity: 0; transform: translateY(10px); }
+                                to { opacity: 1; transform: translateY(0); }
+                            }
+                        ` }} />
+
 
                     {/* Pagination */}
                     {totalPages > 1 && (
