@@ -224,137 +224,347 @@ const AuditLogs = () => {
                 </div>
             )}
 
-            {loading ? (
-                <div className="empty-state">Loading audit logs...</div>
-            ) : logs.length === 0 ? (
-                <div className="empty-state">
-                    <FileText size={48} style={{ marginBottom: '16px', opacity: 0.5 }} />
-                    <p>No audit logs found.</p>
-                </div>
-            ) : (
-                <>
-                    <div className="table-container" style={{ overflowX: 'auto' }}>
-                        <table className="data-table">
-                            <thead>
-                                <tr>
-                                    <th>Date</th>
-                                    <th>Admin User</th>
-                                    <th>Action</th>
-                                    <th>Resource</th>
-                                    <th>IP Address</th>
-                                    <th>Status</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {logs.map(log => (
-                                    <tr key={log._id}>
-                                        <td style={{ fontSize: '12px', color: 'var(--color-text-muted)' }}>
+            {/* Audit Logs Table */}
+            <div className="audit-logs-minimal">
+                <div className="audit-logs-grid-container-minimal">
+                    {/* Grid Header */}
+                    <div className="audit-logs-grid-header-minimal">
+                        <div style={{ textAlign: 'left' }}>DATE</div>
+                        <div style={{ textAlign: 'left' }}>ADMIN USER</div>
+                        <div style={{ textAlign: 'center' }}>ACTION</div>
+                        <div style={{ textAlign: 'left' }}>RESOURCE</div>
+                        <div style={{ textAlign: 'left' }}>IP ADDRESS</div>
+                        <div style={{ textAlign: 'center' }}>STATUS</div>
+                        <div style={{ textAlign: 'center' }}>ACTIONS</div>
+                    </div>
+
+                    {/* Grid Body */}
+                    <div className="audit-logs-grid-body-minimal">
+                        {loading ? (
+                            <div className="empty-state" style={{ padding: '60px' }}>Loading audit logs...</div>
+                        ) : logs.length === 0 ? (
+                            <div className="empty-state" style={{ textAlign: 'center', padding: '80px 20px' }}>
+                                <FileText size={48} style={{ marginBottom: '16px', opacity: 0.2 }} />
+                                <p style={{ color: 'var(--color-text-muted)' }}>No audit logs found.</p>
+                            </div>
+                        ) : (
+                            <>
+                                {logs.map((log, index) => (
+                                    <div
+                                        key={log._id}
+                                        className="audit-logs-grid-row-minimal"
+                                        style={{ animationDelay: `${index * 30}ms` }}
+                                    >
+                                        {/* Date */}
+                                        <div className="date-col-minimal">
                                             {formatDate(log.createdAt)}
-                                        </td>
-                                        <td>
-                                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                                <div style={{
-                                                    width: '24px',
-                                                    height: '24px',
-                                                    borderRadius: '50%',
-                                                    background: 'var(--color-bg-secondary)',
-                                                    display: 'flex',
-                                                    alignItems: 'center',
-                                                    justifyContent: 'center',
-                                                    fontSize: '10px',
-                                                    fontWeight: 'bold',
-                                                    color: 'var(--color-cyan-primary)'
-                                                }}>
-                                                    {log.user?.name?.charAt(0) || 'U'}
-                                                </div>
-                                                <div>
-                                                    <div style={{ fontWeight: 600 }}>{log.user?.name || 'Unknown User'}</div>
-                                                    <div style={{ fontSize: '11px', color: 'var(--color-text-muted)' }}>
-                                                        {log.user?.email || '-'}
-                                                    </div>
-                                                </div>
+                                        </div>
+
+                                        {/* Admin User */}
+                                        <div className="user-col-minimal">
+                                            <div className="user-avatar-minimal">
+                                                {log.user?.name?.charAt(0) || 'U'}
                                             </div>
-                                        </td>
-                                        <td>
-                                            <span style={{
-                                                padding: '4px 10px',
+                                            <div className="user-info-minimal">
+                                                <div className="user-name-minimal">{log.user?.name || 'Unknown User'}</div>
+                                                <div className="user-email-minimal">{log.user?.email || '-'}</div>
+                                            </div>
+                                        </div>
+
+                                        {/* Action Badge */}
+                                        <div className="action-col-minimal">
+                                            <span className="action-badge-pill-minimal" style={{
                                                 background: `${getActionColor(log.action)}20`,
                                                 color: getActionColor(log.action),
-                                                borderRadius: '12px',
-                                                fontSize: '11px',
-                                                fontWeight: 'bold',
-                                                textTransform: 'uppercase'
+                                                borderColor: `${getActionColor(log.action)}30`
                                             }}>
                                                 {log.action}
                                             </span>
-                                        </td>
-                                        <td style={{ textTransform: 'capitalize' }}>
-                                            <div style={{ display: 'flex', flexDirection: 'column' }}>
-                                                <span>{log.resource || '-'}</span>
-                                                <span style={{ fontSize: '10px', color: 'var(--color-text-muted)', fontFamily: 'monospace' }}>
-                                                    {log.resourceId ? '#' + log.resourceId.toString().substring(0, 8) : '-'}
-                                                </span>
+                                        </div>
+
+                                        {/* Resource */}
+                                        <div className="resource-col-minimal">
+                                            <div className="resource-name-minimal">{log.resource || '-'}</div>
+                                            <div className="resource-id-minimal">
+                                                {log.resourceId ? '#' + log.resourceId.toString().substring(0, 8) : '-'}
                                             </div>
-                                        </td>
-                                        <td>
-                                            <div style={{ display: 'flex', flexDirection: 'column' }}>
-                                                <code style={{ fontSize: '12px', opacity: 0.8 }}>{displayIP(log.ipAddress)}</code>
-                                                {log.location && log.location.city !== 'Localhost' && (
-                                                    <span style={{ fontSize: '10px', color: 'var(--color-cyan-primary)' }}>
-                                                        {log.location.city}, {log.location.countryCode}
-                                                    </span>
-                                                )}
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <span className={`status-badge ${log.status === 'success' ? 'status-confirmed' :
-                                                log.status === 'failure' ? 'status-rejected' :
-                                                    'status-pending'
-                                                }`}>
+                                        </div>
+
+                                        {/* IP Address */}
+                                        <div className="ip-col-minimal">
+                                            <div className="ip-text-minimal">{displayIP(log.ipAddress)}</div>
+                                            {log.location && log.location.city !== 'Localhost' && (
+                                                <div className="location-text-minimal">
+                                                    {log.location.city}, {log.location.countryCode}
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        {/* Status */}
+                                        <div className="status-col-minimal">
+                                            <span className={`status-pill-minimal ${log.status === 'success' ? 'success' : 'error'}`}>
                                                 {log.status === 'failure' ? 'Error' : 'Success'}
                                             </span>
-                                        </td>
-                                        <td>
+                                        </div>
+
+                                        {/* Actions */}
+                                        <div className="actions-col-minimal">
                                             <button
                                                 onClick={() => setSelectedLog(log)}
-                                                className="btn-secondary"
-                                                style={{ padding: '6px' }}
+                                                className="log-action-btn-minimal"
                                                 title="View Details"
                                             >
                                                 <Eye size={16} />
                                             </button>
-                                        </td>
-                                    </tr>
+                                        </div>
+                                    </div>
                                 ))}
-                            </tbody>
-                        </table>
-                    </div>
 
-                    {/* Pagination */}
-                    {totalPages > 1 && (
-                        <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', marginTop: '20px' }}>
-                            <button
-                                onClick={() => setPage(p => Math.max(1, p - 1))}
-                                disabled={page === 1}
-                                className="btn-secondary"
-                            >
-                                Previous
-                            </button>
-                            <span style={{ display: 'flex', alignItems: 'center', padding: '0 16px' }}>
-                                Page {page} of {totalPages}
-                            </span>
-                            <button
-                                onClick={() => setPage(p => Math.min(totalPages, p + 1))}
-                                disabled={page === totalPages}
-                                className="btn-secondary"
-                            >
-                                Next
-                            </button>
-                        </div>
-                    )}
-                </>
-            )}
+                                {/* Pagination */}
+                                {totalPages > 1 && (
+                                    <div className="pagination-minimal">
+                                        <button
+                                            onClick={() => setPage(p => Math.max(1, p - 1))}
+                                            disabled={page === 1}
+                                            className="pagination-btn-minimal"
+                                        >
+                                            Previous
+                                        </button>
+                                        <div className="pagination-info-minimal">
+                                            Page <strong>{page}</strong> of {totalPages}
+                                        </div>
+                                        <button
+                                            onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                                            disabled={page === totalPages}
+                                            className="pagination-btn-minimal"
+                                        >
+                                            Next
+                                        </button>
+                                    </div>
+                                )}
+                            </>
+                        )}
+                    </div>
+                </div>
+
+                <style dangerouslySetInnerHTML={{
+                    __html: `
+                    .audit-logs-minimal {
+                        font-family: 'Inter', sans-serif;
+                    }
+
+                    .audit-logs-grid-header-minimal {
+                        display: grid;
+                        grid-template-columns: 1.5fr 2.5fr 1fr 1.2fr 1.2fr 1fr 80px;
+                        padding: 12px 0;
+                        color: #64748b;
+                        font-size: 11px;
+                        font-weight: 700;
+                        text-transform: uppercase;
+                        letter-spacing: 0.05em;
+                        border-bottom: 2px solid #1e293b;
+                    }
+
+                    .audit-logs-grid-row-minimal {
+                        display: grid;
+                        grid-template-columns: 1.5fr 2.5fr 1fr 1.2fr 1.2fr 1fr 80px;
+                        padding: 16px 0;
+                        align-items: center;
+                        border-bottom: 1px solid #1e293b;
+                        transition: background 0.2s;
+                        animation: fadeIn 0.3s ease forwards;
+                    }
+
+                    .audit-logs-grid-row-minimal:hover {
+                        background: rgba(30, 41, 59, 0.2);
+                    }
+
+                    .date-col-minimal {
+                        font-size: 12px;
+                        color: #64748b;
+                    }
+
+                    .user-col-minimal {
+                        display: flex;
+                        align-items: center;
+                        gap: 12px;
+                    }
+
+                    .user-avatar-minimal {
+                        width: 32px;
+                        height: 32px;
+                        border-radius: 50%;
+                        background: rgba(0, 217, 255, 0.1);
+                        color: #00d9ff;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        font-size: 12px;
+                        font-weight: 700;
+                        border: 1px solid rgba(0, 217, 255, 0.2);
+                    }
+
+                    .user-info-minimal {
+                        display: flex;
+                        flex-direction: column;
+                    }
+
+                    .user-name-minimal {
+                        font-weight: 700;
+                        color: #ffffff;
+                        font-size: 14px;
+                    }
+
+                    .user-email-minimal {
+                        font-size: 11px;
+                        color: #64748b;
+                    }
+
+                    .action-col-minimal {
+                        display: flex;
+                        justify-content: center;
+                    }
+
+                    .action-badge-pill-minimal {
+                        padding: 4px 12px;
+                        border-radius: 20px;
+                        font-size: 10px;
+                        font-weight: 800;
+                        text-transform: uppercase;
+                        letter-spacing: 0.02em;
+                        border: 1px solid transparent;
+                    }
+
+                    .resource-col-minimal {
+                        display: flex;
+                        flex-direction: column;
+                    }
+
+                    .resource-name-minimal {
+                        color: #cbd5e1;
+                        font-weight: 600;
+                        font-size: 13px;
+                        text-transform: capitalize;
+                    }
+
+                    .resource-id-minimal {
+                        font-family: monospace;
+                        font-size: 10px;
+                        color: #64748b;
+                        letter-spacing: 0.02em;
+                    }
+
+                    .ip-col-minimal {
+                        display: flex;
+                        flex-direction: column;
+                    }
+
+                    .ip-text-minimal {
+                        font-family: monospace;
+                        font-size: 12px;
+                        color: #94a3b8;
+                    }
+
+                    .location-text-minimal {
+                        font-size: 10px;
+                        color: #00d9ff;
+                        font-weight: 500;
+                    }
+
+                    .status-col-minimal {
+                        display: flex;
+                        justify-content: center;
+                    }
+
+                    .status-pill-minimal {
+                        font-size: 10px;
+                        font-weight: 800;
+                        text-transform: uppercase;
+                        padding: 4px 10px;
+                        border-radius: 20px;
+                        letter-spacing: 0.02em;
+                    }
+
+                    .status-pill-minimal.success {
+                        background: rgba(16, 185, 129, 0.1);
+                        color: #10b981;
+                    }
+
+                    .status-pill-minimal.error {
+                        background: rgba(239, 68, 68, 0.1);
+                        color: #ef4444;
+                    }
+
+                    .actions-col-minimal {
+                        display: flex;
+                        justify-content: center;
+                    }
+
+                    .log-action-btn-minimal {
+                        width: 32px;
+                        height: 32px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        background: transparent;
+                        color: #94a3b8;
+                        border-radius: 8px;
+                        border: 1px solid #1e293b;
+                        transition: all 0.2s;
+                        cursor: pointer;
+                    }
+
+                    .log-action-btn-minimal:hover {
+                        background: #1e293b;
+                        color: #ffffff;
+                        transform: translateY(-2px);
+                    }
+
+                    .pagination-minimal {
+                        padding: 32px 0;
+                        display: flex;
+                        justify-content: center;
+                        align-items: center;
+                        gap: 20px;
+                    }
+
+                    .pagination-btn-minimal {
+                        padding: 8px 16px;
+                        background: transparent;
+                        color: #94a3b8;
+                        border: 1px solid #1e293b;
+                        border-radius: 8px;
+                        font-size: 14px;
+                        font-weight: 600;
+                        cursor: pointer;
+                        transition: all 0.2s;
+                    }
+
+                    .pagination-btn-minimal:hover:not(:disabled) {
+                        background: #1e293b;
+                        color: #ffffff;
+                    }
+
+                    .pagination-btn-minimal:disabled {
+                        opacity: 0.4;
+                        cursor: not-allowed;
+                    }
+
+                    .pagination-info-minimal {
+                        font-size: 14px;
+                        color: #64748b;
+                    }
+
+                    .pagination-info-minimal strong {
+                        color: #ffffff;
+                    }
+
+                    @keyframes fadeIn {
+                        from { opacity: 0; transform: translateY(10px); }
+                        to { opacity: 1; transform: translateY(0); }
+                    }
+                ` }} />
+            </div>
 
             {/* Log Details Modal */}
             {selectedLog && (
