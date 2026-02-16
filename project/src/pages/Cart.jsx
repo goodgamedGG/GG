@@ -9,8 +9,25 @@ import { getImageUrl } from '../utils/imageUtils';
 const Cart = () => {
     const { t, isRTL } = useLanguage();
     const { isAuthenticated } = useAuth();
-    const { cart, loading, updateCartItem, removeFromCart, clearCart, total } = useCart();
+    const { cart, loading, updateCartItem, removeFromCart, clearCart, total, applyPromoCode } = useCart();
+    const [promoCode, setPromoCode] = React.useState('');
+    const [promoLoading, setPromoLoading] = React.useState(false);
+    const [promoError, setPromoError] = React.useState('');
     const navigate = useNavigate();
+
+    const handleApplyPromoCode = async () => {
+        if (!promoCode.trim()) return;
+        setPromoLoading(true);
+        setPromoError('');
+        try {
+            await applyPromoCode(promoCode);
+            setPromoCode('');
+        } catch (error) {
+            setPromoError(error.response?.data?.message || 'Invalid promo code');
+        } finally {
+            setPromoLoading(false);
+        }
+    };
 
     // Helper to format price
     const formatPrice = (price) => {
@@ -76,17 +93,19 @@ const Cart = () => {
                     {cart.items.map((item) => (
                         <div key={item._id} style={{
                             display: 'grid',
-                            gridTemplateColumns: '100px 1fr auto',
-                            gap: '20px',
-                            background: 'var(--color-bg-card)',
-                            padding: '20px',
-                            borderRadius: '16px',
-                            border: '1px solid var(--color-border)',
+                            gridTemplateColumns: '120px 1fr auto',
+                            gap: '40px',
+                            background: 'linear-gradient(145deg, rgba(22, 22, 26, 0.8) 0%, rgba(18, 18, 20, 0.9) 100%)',
+                            padding: '30px',
+                            borderRadius: '20px',
+                            border: '1px solid rgba(255, 255, 255, 0.05)',
                             position: 'relative',
-                            overflow: 'hidden'
+                            overflow: 'hidden',
+                            backdropFilter: 'blur(10px)',
+                            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)'
                         }}>
                             {/* Product Image */}
-                            <div style={{ width: '100px', height: '100px', borderRadius: '8px', overflow: 'hidden' }}>
+                            <div style={{ width: '120px', height: '120px', borderRadius: '12px', overflow: 'hidden', border: '1px solid rgba(255, 255, 255, 0.1)' }}>
                                 <img
                                     src={getImageUrl(item.product?.images?.[0])}
                                     alt={item.name}
@@ -94,29 +113,56 @@ const Cart = () => {
                                 />
                             </div>
 
-                            {/* Product Details */}
-                            <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', justifyContent: 'center' }}>
                                 <div>
-                                    <h3 style={{ margin: '0 0 8px 0', color: 'var(--color-text-primary)', fontSize: '18px' }}>
-                                        <Link to={`/product/${item.product?._id}`} style={{ color: 'inherit', textDecoration: 'none' }}>
+                                    <h3 style={{ margin: '0 0 16px 0', color: 'var(--color-text-primary)', fontSize: '22px', fontFamily: 'Orbitron, sans-serif' }}>
+                                        <Link to={`/product/${item.product?._id}`} style={{ color: 'inherit', textDecoration: 'none', transition: 'color 0.2s' }} className="product-title-link">
                                             {item.name}
                                         </Link>
                                     </h3>
-                                    {item.variant && (
-                                        <span style={{
-                                            background: 'rgba(0, 217, 255, 0.1)',
-                                            color: 'var(--color-cyan-primary)',
-                                            padding: '4px 8px',
-                                            borderRadius: '4px',
-                                            fontSize: '12px',
-                                            fontWeight: '600',
-                                            textTransform: 'uppercase'
-                                        }}>
-                                            {item.variant.type}
-                                        </span>
-                                    )}
+
+                                    <div className="product-details-grid" style={{
+                                        display: 'grid',
+                                        gridTemplateColumns: 'repeat(2, 1fr)',
+                                        gap: '12px 40px',
+                                        maxWidth: '750px',
+                                        fontSize: '12px',
+                                        fontFamily: '"JetBrains Mono", monospace'
+                                    }}>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid rgba(255, 255, 255, 0.05)', paddingBottom: '4px' }}>
+                                            <span style={{ color: 'rgba(148, 163, 184, 0.7)' }}>Platform:</span>
+                                            <span style={{ color: '#ffffff' }}>{item.product?.platform || 'PC'}</span>
+                                        </div>
+
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid rgba(255, 255, 255, 0.05)', paddingBottom: '4px' }}>
+                                            <span style={{ color: 'rgba(148, 163, 184, 0.7)' }}>Edition:</span>
+                                            <span style={{ color: '#ffffff' }}>{item.variant?.type || 'Standard Edition'}</span>
+                                        </div>
+
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid rgba(255, 255, 255, 0.05)', paddingBottom: '4px' }}>
+                                            <span style={{ color: 'rgba(148, 163, 184, 0.7)' }}>Developer:</span>
+                                            <span style={{ color: '#ffffff' }}>{item.product?.developer || 'Official Game'}</span>
+                                        </div>
+
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid rgba(255, 255, 255, 0.05)', paddingBottom: '4px' }}>
+                                            <span style={{ color: 'rgba(148, 163, 184, 0.7)' }}>Release:</span>
+                                            <span style={{ color: '#ffffff' }}>{item.product?.releaseDate ? new Date(item.product.releaseDate).toLocaleDateString() : 'Now Available'}</span>
+                                        </div>
+
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid rgba(255, 255, 255, 0.05)', paddingBottom: '4px', gridColumn: 'span 2' }}>
+                                            <span style={{ color: 'rgba(148, 163, 184, 0.7)' }}>Format:</span>
+                                            <span style={{ color: '#ffffff', textTransform: 'capitalize' }}>{item.product?.type || 'Digital'}</span>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div style={{ color: 'var(--color-cyan-primary)', fontWeight: 'bold', fontSize: '18px' }}>
+                                <div style={{
+                                    color: 'var(--color-cyan-primary)',
+                                    fontWeight: '800',
+                                    fontSize: '28px',
+                                    fontFamily: 'Orbitron, sans-serif',
+                                    textShadow: '0 0 15px rgba(0, 217, 255, 0.5)',
+                                    marginTop: '8px'
+                                }}>
                                     {formatPrice(item.price * item.quantity)}
                                 </div>
                             </div>
@@ -206,37 +252,98 @@ const Cart = () => {
                 {/* Order Summary */}
                 <div style={{ position: 'sticky', top: '100px' }}>
                     <div style={{
-                        background: 'var(--color-bg-card)',
+                        background: 'linear-gradient(145deg, rgba(22, 22, 26, 0.8) 0%, rgba(18, 18, 20, 0.9) 100%)',
                         padding: '30px',
-                        borderRadius: '16px',
-                        border: '1px solid var(--color-border)',
-                        boxShadow: '0 4px 20px rgba(0,0,0,0.2)'
+                        borderRadius: '20px',
+                        border: '1px solid rgba(255, 255, 255, 0.05)',
+                        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)',
+                        backdropFilter: 'blur(10px)',
+                        position: 'relative'
                     }}>
                         <h2 style={{ fontSize: '24px', fontFamily: 'Orbitron, sans-serif', color: 'var(--color-text-primary)', marginBottom: '24px', borderBottom: '1px solid var(--color-border)', paddingBottom: '15px' }}>
                             {t('summary')}
                         </h2>
+
+                        <div style={{ marginBottom: '24px' }}>
+                            <div style={{ fontSize: '14px', color: 'var(--color-text-secondary)', marginBottom: '8px' }}>{isRTL ? 'لديك رمز ترويجي؟' : 'Have a promo code?'}</div>
+                            <div style={{ display: 'flex', gap: '8px' }}>
+                                <input
+                                    type="text"
+                                    placeholder={isRTL ? 'أدخل الرمز' : 'Enter code'}
+                                    value={promoCode}
+                                    onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
+                                    className="promo-input"
+                                    style={{
+                                        flex: 1,
+                                        background: 'rgba(255, 255, 255, 0.05)',
+                                        border: '1px solid rgba(255, 255, 255, 0.1)',
+                                        borderRadius: '8px',
+                                        padding: '10px 12px',
+                                        color: 'white',
+                                        fontSize: '14px',
+                                        outline: 'none'
+                                    }}
+                                />
+                                <button
+                                    onClick={handleApplyPromoCode}
+                                    disabled={!promoCode || promoLoading}
+                                    className="promo-apply-btn"
+                                    style={{
+                                        padding: '10px 20px',
+                                        fontSize: '14px',
+                                        borderRadius: '8px',
+                                        backgroundColor: 'transparent',
+                                        border: '1px solid var(--color-cyan-primary)',
+                                        color: 'var(--color-cyan-primary)',
+                                        fontWeight: 'bold',
+                                        cursor: 'pointer',
+                                        transition: 'all 0.3s ease'
+                                    }}
+                                >
+                                    {promoLoading ? '...' : (isRTL ? 'تطبيق' : 'Apply')}
+                                </button>
+                            </div>
+                            {promoError && <div style={{ color: '#ef4444', fontSize: '12px', marginTop: '6px', fontFamily: 'Inter, sans-serif' }}>{promoError}</div>}
+                            {cart.discount > 0 && (
+                                <div style={{ color: '#10b981', fontSize: '12px', marginTop: '4px' }}>
+                                    Applied: {cart.promoCode} (-{formatPrice(cart.discount)})
+                                </div>
+                            )}
+                        </div>
 
                         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '15px', color: 'var(--color-text-secondary)' }}>
                             <span>{t('subtotal')}</span>
                             <span>{formatPrice(total)}</span>
                         </div>
 
+                        {cart.discount > 0 && (
+                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '15px', color: '#10b981' }}>
+                                <span>Discount</span>
+                                <span>-{formatPrice(cart.discount)}</span>
+                            </div>
+                        )}
+
                         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '24px', fontSize: '20px', fontWeight: 'bold', color: 'var(--color-cyan-primary)' }}>
                             <span>{t('total')}</span>
-                            <span>{formatPrice(total)}</span>
+                            <span>{formatPrice(total - (cart.discount || 0))}</span>
                         </div>
 
                         <button
                             onClick={() => navigate('/checkout')}
-                            className="btn-primary"
+                            className="btn-primary checkout-btn"
                             style={{
                                 width: '100%',
                                 justifyContent: 'center',
-                                padding: '16px',
+                                padding: '18px',
                                 fontSize: '16px',
-                                fontWeight: 'bold',
+                                fontWeight: '800',
                                 textTransform: 'uppercase',
-                                letterSpacing: '1px'
+                                letterSpacing: '2px',
+                                borderRadius: '12px',
+                                boxShadow: '0 4px 15px rgba(0, 217, 255, 0.2)',
+                                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                                display: 'flex',
+                                alignItems: 'center'
                             }}
                         >
                             {t('checkout')}
@@ -256,6 +363,43 @@ const Cart = () => {
                     .cart-grid {
                         grid-template-columns: 1fr !important;
                     }
+                }
+
+                @media (max-width: 768px) {
+                    .product-details-grid {
+                        grid-template-columns: 1fr !important;
+                        gap: 12px 0 !important;
+                    }
+                }
+
+                .promo-input {
+                    transition: all 0.3s ease;
+                }
+
+                .promo-input:focus {
+                    border-color: var(--color-cyan-primary) !important;
+                    box-shadow: 0 0 10px rgba(0, 217, 255, 0.2) !important;
+                    background: rgba(255, 255, 255, 0.08) !important;
+                }
+
+                .promo-apply-btn:hover:not(:disabled) {
+                    background: var(--color-cyan-primary) !important;
+                    color: #000 !important;
+                    box-shadow: 0 0 15px rgba(0, 217, 255, 0.4);
+                }
+
+                .product-title-link:hover {
+                    color: var(--color-cyan-primary) !important;
+                }
+
+                .checkout-btn:hover {
+                    transform: translateY(-3px);
+                    box-shadow: 0 8px 25px rgba(0, 217, 255, 0.4) !important;
+                    filter: brightness(1.1);
+                }
+
+                .checkout-btn:active {
+                    transform: translateY(-1px);
                 }
             `}</style>
         </div>
