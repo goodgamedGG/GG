@@ -25,18 +25,27 @@ const Dashboard = () => {
     });
     const [recentOrders, setRecentOrders] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [lastUpdated, setLastUpdated] = useState(new Date());
 
     useEffect(() => {
         loadDashboardData();
+
+        // Auto-refresh every 30 seconds for "live" feel
+        const interval = setInterval(loadDashboardData, 30000);
+        return () => clearInterval(interval);
     }, []);
 
     const loadDashboardData = async () => {
         try {
-            setLoading(true);
+            // Only show loading on initial load to avoid flickering during auto-refresh
+            if (stats.products === 0 && loading) {
+                setLoading(true);
+            }
+
             const statsData = await adminAPI.getStats();
 
-            if (statsData?.data) {
-                const { overview, today, thisMonth, pending, topProducts, recentOrders } = statsData.data;
+            if (statsData) {
+                const { overview, today, thisMonth, pending, topProducts, recentOrders } = statsData;
 
                 setStats({
                     products: overview?.totalProducts || 0,
@@ -55,10 +64,10 @@ const Dashboard = () => {
                 });
 
                 setRecentOrders(recentOrders || []);
+                setLastUpdated(new Date());
             }
         } catch (error) {
             console.error('Failed to load dashboard data:', error);
-            // Fallback (omitted for brevity, assume API works or handled)
         } finally {
             setLoading(false);
         }
@@ -82,7 +91,7 @@ const Dashboard = () => {
         });
     };
 
-    if (loading) {
+    if (loading && stats.products === 0) {
         return (
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '400px', color: 'var(--color-text-muted)' }}>
                 Loading dashboard...
@@ -105,6 +114,39 @@ const Dashboard = () => {
                     display: flex;
                     align-items: center;
                     justify-content: space-between;
+                }
+
+                .live-badge {
+                    display: flex;
+                    align-items: center;
+                    gap: 6px;
+                    background: rgba(16, 185, 129, 0.1);
+                    color: var(--color-success);
+                    padding: 4px 12px;
+                    border-radius: 99px;
+                    font-size: 12px;
+                    font-weight: 600;
+                    border: 1px solid rgba(16, 185, 129, 0.2);
+                }
+
+                .live-dot {
+                    width: 8px;
+                    height: 8px;
+                    background: var(--color-success);
+                    border-radius: 50%;
+                    animation: pulse 2s infinite;
+                }
+
+                @keyframes pulse {
+                    0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+                    70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+                    100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+                }
+
+                .refresh-text {
+                    font-size: 12px;
+                    color: var(--color-text-muted);
+                    margin-left: 12px;
                 }
 
                 .section-title {
@@ -196,6 +238,25 @@ const Dashboard = () => {
                 }
             `}</style>
 
+            <div className="section-header">
+                <h2 className="section-title">Dashboard Overview</h2>
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                    <div className="live-badge">
+                        <div className="live-dot"></div>
+                        LIVE MONITORING
+                    </div>
+                    <span className="refresh-text">
+                        Updated {lastUpdated.toLocaleTimeString()}
+                    </span>
+                    <button
+                        onClick={loadDashboardData}
+                        style={{ background: 'none', color: 'var(--color-primary)', marginLeft: '16px', fontSize: '13px', fontWeight: 600, border: 'none', cursor: 'pointer', padding: '4px 8px', borderRadius: '4px' }}
+                    >
+                        REFRESH NOW
+                    </button>
+                </div>
+            </div>
+
             {/* 1. TOP STATS */}
             <div className="dashboard-grid">
                 <StatCard
@@ -218,14 +279,14 @@ const Dashboard = () => {
                     value={stats.users}
                     icon={Users}
                     color="16, 185, 129"
-                    subtitle="Active customers"
+                    subtitle={`${stats.totalLoyaltyUsers} loyalty members`}
                 />
                 <StatCard
                     title="Total Products"
                     value={stats.products}
                     icon={Gamepad2}
                     color="139, 92, 246"
-                    subtitle="In catalog"
+                    subtitle={`${stats.activeFlashSales} on flash sale`}
                 />
             </div>
 
@@ -275,7 +336,7 @@ const Dashboard = () => {
                     )}
                 </div>
 
-                {/* Quick Alerts / Side Widgets (Instead of Analytics Chart for now to keep it simple without chart lib) */}
+                {/* Quick Alerts / Side Widgets */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
                     {/* Pending Actions Widget */}
                     <div className="card">
@@ -308,7 +369,7 @@ const Dashboard = () => {
                     <div className="card" style={{ background: 'linear-gradient(135deg, rgba(0, 217, 255, 0.1), rgba(0, 0, 0, 0))' }}>
                         <div style={{ padding: '24px' }}>
                             <div style={{ fontSize: '13px', color: 'var(--color-text-muted)', marginBottom: '8px' }}>TODAY'S REVENUE</div>
-                            <div style={{ fontFamily: 'Orbitron', fontSize: '32px', fontWeight: 700, color: 'var(--color-primary)' }}>
+                            <div style={{ fontFamily: 'Inter', fontSize: '32px', fontWeight: 800, color: 'var(--color-primary)', letterSpacing: '-0.02em' }}>
                                 {formatCurrency(stats.todayRevenue)}
                             </div>
                             <div style={{ marginTop: '8px', fontSize: '13px', color: 'var(--color-text-secondary)' }}>

@@ -56,7 +56,7 @@ const getCategoryById = async (req, res, next) => {
 const createCategory = async (req, res, next) => {
     try {
         const { name, description } = req.body;
-        const image = req.file ? getFilePath(req.file) : null;
+        const image = req.uploadedImages?.image || null;
 
         const category = await Category.create({
             name,
@@ -82,7 +82,7 @@ const createCategory = async (req, res, next) => {
 const updateCategory = async (req, res, next) => {
     try {
         const { name, description } = req.body;
-        const image = req.file ? getFilePath(req.file) : undefined;
+        const image = req.uploadedImages?.image;
 
         const category = await Category.findById(req.params.id);
         if (!category) {

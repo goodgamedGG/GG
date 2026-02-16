@@ -12,6 +12,11 @@ const adminAPI = {
         return response.data.data;
     },
 
+    getAnalytics: async (period = 30) => {
+        const response = await client.get('/admin/analytics', { params: { period } });
+        return response.data;
+    },
+
     getRecentOrders: async (limit = 5) => {
         // Using the admin/all endpoint but limiting logic might need to be query based or filtered
         const response = await client.get('/orders/admin/all', { params: { limit, page: 1 } });
@@ -118,18 +123,27 @@ const adminAPI = {
     },
 
     createCategory: async (categoryData) => {
-        const response = await client.post('/categories', categoryData);
+        const response = await client.post('/categories', categoryData, {
+            headers: { 'Content-Type': undefined }
+        });
         return response.data.data;
     },
 
     updateCategory: async (id, categoryData) => {
-        const response = await client.put(`/categories/${id}`, categoryData);
+        const response = await client.put(`/categories/${id}`, categoryData, {
+            headers: { 'Content-Type': undefined }
+        });
         return response.data.data;
     },
 
     deleteCategory: async (id) => {
         const response = await client.delete(`/categories/${id}`);
         return response.data;
+    },
+
+    toggleCategoryStatus: async (id) => {
+        const response = await client.patch(`/categories/${id}/toggle`);
+        return response.data.data;
     },
 
     // Global Settings

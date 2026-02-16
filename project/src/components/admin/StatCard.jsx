@@ -57,11 +57,12 @@ const StatCard = ({ title, value, icon: Icon, color, subtitle, trend }) => {
                 }
 
                 .stat-value {
-                    font-family: 'Orbitron', sans-serif;
-                    font-size: 28px;
-                    font-weight: 700;
+                    font-family: 'Inter', sans-serif;
+                    font-size: 32px;
+                    font-weight: 800;
                     color: var(--color-text-primary);
                     line-height: 1.2;
+                    letter-spacing: -0.02em;
                 }
 
                 .stat-footer {

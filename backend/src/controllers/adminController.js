@@ -106,7 +106,7 @@ const getAdminStats = async (req, res, next) => {
                 thisMonth: {
                     orders: monthOrders,
                     revenue: monthRevenueAmount,
-                    growth: lastMonthRevenueAmount > 0 
+                    growth: lastMonthRevenueAmount > 0
                         ? ((monthRevenueAmount - lastMonthRevenueAmount) / lastMonthRevenueAmount * 100).toFixed(2)
                         : 0
                 },
@@ -588,6 +588,65 @@ const getAnalytics = async (req, res, next) => {
             { $sort: { revenue: -1 } }
         ]);
 
+        // Time distribution (Sales by hour and day)
+        const timeDistribution = await Order.aggregate([
+            {
+                $match: {
+                    createdAt: { $gte: startDate },
+                    paymentStatus: 'confirmed'
+                }
+            },
+            {
+                $group: {
+                    _id: {
+                        dayOfWeek: { $dayOfWeek: '$createdAt' },
+                        hour: { $hour: '$createdAt' }
+                    },
+                    orders: { $sum: 1 },
+                    revenue: { $sum: '$total' }
+                }
+            }
+        ]);
+
+        // VIP Customers
+        const topCustomers = await Order.aggregate([
+            {
+                $match: {
+                    createdAt: { $gte: startDate },
+                    paymentStatus: 'confirmed'
+                }
+            },
+            {
+                $group: {
+                    _id: '$user',
+                    totalSpent: { $sum: '$total' },
+                    orderCount: { $sum: 1 },
+                    lastOrder: { $max: '$createdAt' }
+                }
+            },
+            { $sort: { totalSpent: -1 } },
+            { $limit: 10 },
+            {
+                $lookup: {
+                    from: 'users',
+                    localField: '_id',
+                    foreignField: '_id',
+                    as: 'user'
+                }
+            },
+            { $unwind: '$user' },
+            {
+                $project: {
+                    _id: 1,
+                    totalSpent: 1,
+                    orderCount: 1,
+                    lastOrder: 1,
+                    name: '$user.name',
+                    email: '$user.email'
+                }
+            }
+        ]);
+
         res.status(HTTP_STATUS.OK).json({
             success: true,
             data: {
@@ -595,7 +654,9 @@ const getAnalytics = async (req, res, next) => {
                 salesData,
                 productPerformance: productPerformanceWithNames,
                 userGrowth,
-                categoryPerformance
+                categoryPerformance,
+                timeDistribution,
+                topCustomers
             }
         });
     } catch (error) {
