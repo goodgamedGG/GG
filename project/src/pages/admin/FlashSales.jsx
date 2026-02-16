@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, X, Save, Trash2, Clock, Zap, Timer, Search, Filter, AlertTriangle, Calendar } from 'lucide-react';
 import adminAPI from '../../api/admin';
+import { getImageUrl } from '../../utils/imageUtils';
 
 const FlashSales = () => {
     const [flashSales, setFlashSales] = useState([]);
@@ -424,7 +425,14 @@ const FlashSales = () => {
                         return (
                             <div key={product._id} className="sale-card">
                                 <div className="sale-image">
-                                    <img src={product.images?.[0]} alt={product.name} />
+                                    <img
+                                        src={getImageUrl(product.images?.[0] || product.image)}
+                                        alt={product.name}
+                                        onError={(e) => {
+                                            e.target.onerror = null; // Prevent infinite loops
+                                            e.target.src = 'https://placehold.co/400x300/1a212c/64748b?text=Image+Not+Found';
+                                        }}
+                                    />
                                     <div className="sale-overlay" />
                                     <div className="discount-badge">-{discount}%</div>
                                     <div className="timer-badge">

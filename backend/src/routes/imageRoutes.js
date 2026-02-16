@@ -44,7 +44,7 @@ router.get('/:filename', async (req, res) => {
         const file = files[0];
 
         // Check if image
-        if (file.contentType === 'image/jpeg' || file.contentType === 'image/png' || file.contentType === 'image/webp') {
+        if (file.contentType && file.contentType.startsWith('image/')) {
             // Stream response
             res.set('Content-Type', file.contentType);
             const readstream = gridfsBucket.openDownloadStreamByName(filename);

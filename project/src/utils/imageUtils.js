@@ -16,5 +16,11 @@ export const getImageUrl = (path) => {
     // Ensure path uses forward slashes
     const normalizedPath = cleanPath.replace(/\\/g, '/');
 
+    // If it's a GridFS image (just a filename) and doesn't have the prefix, add it
+    // GridFS images are served via /api/images/
+    if (!normalizedPath.startsWith('uploads/') && !normalizedPath.startsWith('api/')) {
+        return `${baseUrl}/api/images/${normalizedPath}`;
+    }
+
     return `${baseUrl}/${normalizedPath}`;
 };
