@@ -123,18 +123,27 @@ const adminAPI = {
     },
 
     createCategory: async (categoryData) => {
-        const response = await client.post('/categories', categoryData);
+        const response = await client.post('/categories', categoryData, {
+            headers: { 'Content-Type': undefined }
+        });
         return response.data.data;
     },
 
     updateCategory: async (id, categoryData) => {
-        const response = await client.put(`/categories/${id}`, categoryData);
+        const response = await client.put(`/categories/${id}`, categoryData, {
+            headers: { 'Content-Type': undefined }
+        });
         return response.data.data;
     },
 
     deleteCategory: async (id) => {
         const response = await client.delete(`/categories/${id}`);
         return response.data;
+    },
+
+    toggleCategoryStatus: async (id) => {
+        const response = await client.patch(`/categories/${id}/toggle`);
+        return response.data.data;
     },
 
     // Global Settings
