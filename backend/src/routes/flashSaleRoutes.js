@@ -10,7 +10,7 @@ const { requireAdmin } = require('../middleware/roleMiddleware');
 const validate = require('../middleware/validateMiddleware');
 const auditLog = require('../middleware/auditMiddleware');
 const { mongoIdValidator } = require('../utils/validators');
-const { body } = require('express-validator');
+const { body, param } = require('express-validator');
 
 // @route   GET /api/flash-sales
 router.get('/', getFlashSales);
@@ -31,7 +31,7 @@ router.post(
     createFlashSale
 );
 
-// @route   DELETE /api/flash-sales/:productId
-router.delete('/:productId', auditLog, mongoIdValidator, validate, endFlashSale);
+// @route   DELETE /api/flash-sales/:id
+router.delete('/:id', auditLog, mongoIdValidator, validate, endFlashSale);
 
 module.exports = router;

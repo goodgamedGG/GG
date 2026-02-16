@@ -260,6 +260,22 @@ const adminAPI = {
         return response.data;
     },
 
+    // Flash Sales
+    getFlashSales: async () => {
+        const response = await client.get('/flash-sales');
+        return response.data;
+    },
+
+    createFlashSale: async (data) => {
+        const response = await client.post('/flash-sales', data);
+        return response.data;
+    },
+
+    endFlashSale: async (productId) => {
+        const response = await client.delete(`/flash-sales/${productId}`);
+        return response.data;
+    },
+
     uploadFile: async (file) => {
         const formData = new FormData();
         formData.append('file', file);

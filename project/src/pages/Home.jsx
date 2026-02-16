@@ -4,7 +4,7 @@ import GameGrid from '../components/GameGrid';
 import Hero from '../components/Hero';
 import SearchBar from '../components/SearchBar';
 import { useProducts } from '../context/ProductContext';
-import { Filter, ChevronDown } from 'lucide-react';
+import { Filter, ChevronDown, Zap, Clock } from 'lucide-react';
 
 const Home = () => {
     const { products, loading, fetchProducts, categories } = useProducts();
@@ -18,8 +18,6 @@ const Home = () => {
         const category = params.get('category');
 
         if (category) setActiveCategory(category);
-
-        // If there's a search term in URL, update local query if needed (handled by SearchBar navigation)
 
         fetchProducts({
             search,
@@ -108,16 +106,13 @@ const Home = () => {
                 }
             `}</style>
 
-            {/* 1. Search Section (Below Header) */}
             <div className="search-section">
                 <SearchBar />
             </div>
 
             <div className="content-container">
-                {/* 2. Hero Section */}
                 <Hero />
 
-                {/* 3. Content Section (Title/Filters + Grid) */}
                 <div className="filters-bar">
                     <h2 className="section-title">LATEST GAMES</h2>
 

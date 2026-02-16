@@ -11,15 +11,15 @@ const { getPagination, createPaginationMeta } = require('../utils/helpers');
 const getFlashSales = async (req, res, next) => {
     try {
         const now = new Date();
-        
+
         const flashSales = await Product.find({
             isFlashSale: true,
             isActive: true,
             flashSaleEndsAt: { $gt: now }
         })
-        .populate('category', 'name')
-        .sort({ flashSaleEndsAt: 1 }) // Ending soon first
-        .select('name price discountPrice images flashSaleEndsAt viewCount purchaseCount averageRating');
+            .populate('category', 'name')
+            .sort({ flashSaleEndsAt: 1 }) // Ending soon first
+            .select('name price discountPrice images flashSaleEndsAt viewCount purchaseCount averageRating');
 
         res.status(HTTP_STATUS.OK).json({
             success: true,
@@ -68,15 +68,14 @@ const createFlashSale = async (req, res, next) => {
  */
 const endFlashSale = async (req, res, next) => {
     try {
-        const product = await Product.findById(req.params.productId);
+        const product = await Product.findById(req.params.id);
         if (!product) {
             return next(new AppError('Product not found', HTTP_STATUS.NOT_FOUND));
         }
 
         product.isFlashSale = false;
         product.flashSaleEndsAt = null;
-        // Optionally remove discount price
-        // product.discountPrice = null;
+        product.discountPrice = null;
 
         await product.save();
 
