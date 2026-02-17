@@ -244,9 +244,32 @@ const updateProductRating = async (productId) => {
     }
 };
 
+/**
+ * @desc    Get reviews for home page slider
+ * @route   GET /api/reviews/slider
+ * @access  Public
+ */
+const getSliderReviews = async (req, res, next) => {
+    try {
+        const reviews = await Review.find({ showInSlider: true, isApproved: true })
+            .populate('user', 'name')
+            .populate('product', 'name images')
+            .sort({ createdAt: -1 })
+            .limit(10);
+
+        res.status(HTTP_STATUS.OK).json({
+            success: true,
+            data: { reviews }
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
 module.exports = {
     getProductReviews,
     createReview,
     updateReview,
-    deleteReview
+    deleteReview,
+    getSliderReviews
 };

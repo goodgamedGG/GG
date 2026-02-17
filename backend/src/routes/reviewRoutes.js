@@ -4,7 +4,8 @@ const {
     getProductReviews,
     createReview,
     updateReview,
-    deleteReview
+    deleteReview,
+    getSliderReviews
 } = require('../controllers/reviewController');
 const { protect } = require('../middleware/authMiddleware');
 const validate = require('../middleware/validateMiddleware');
@@ -20,6 +21,9 @@ router.get(
     validate,
     getProductReviews
 );
+
+// @route   GET /api/reviews/slider
+router.get('/slider', getSliderReviews);
 
 // Protected routes
 router.use(protect);

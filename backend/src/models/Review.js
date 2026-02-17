@@ -35,6 +35,10 @@ const reviewSchema = new mongoose.Schema(
         isApproved: {
             type: Boolean,
             default: true // Admin can moderate reviews
+        },
+        showInSlider: {
+            type: Boolean,
+            default: false
         }
     },
     {

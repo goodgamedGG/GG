@@ -3,6 +3,7 @@ import { useLocation } from 'react-router-dom';
 import GameGrid from '../components/GameGrid';
 import Hero from '../components/Hero';
 import SearchBar from '../components/SearchBar';
+import ReviewSlider from '../components/ReviewSlider';
 import { useProducts } from '../context/ProductContext';
 import { Filter, ChevronDown, Zap, Clock } from 'lucide-react';
 
@@ -143,6 +144,8 @@ const Home = () => {
 
                 <GameGrid products={products} loading={loading} />
             </div>
+
+            <ReviewSlider />
         </div>
     );
 };

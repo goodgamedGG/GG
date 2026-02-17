@@ -55,9 +55,9 @@ const Reviews = () => {
         }
     };
 
-    const handleModerate = async (reviewId, isApproved) => {
+    const handleModerate = async (reviewId, isApproved, showInSlider) => {
         try {
-            await adminAPI.moderateReview(reviewId, isApproved);
+            await adminAPI.moderateReview(reviewId, isApproved, showInSlider);
             loadReviews();
             loadStats();
         } catch (error) {
@@ -138,12 +138,12 @@ const Reviews = () => {
 
             {/* Filters Panel */}
             {showFilters && (
-                <div style={{ 
-                    background: 'var(--color-bg-card)', 
-                    border: '1px solid var(--color-border)', 
-                    borderRadius: 'var(--radius-md)', 
-                    padding: '20px', 
-                    marginBottom: '20px' 
+                <div style={{
+                    background: 'var(--color-bg-card)',
+                    border: '1px solid var(--color-border)',
+                    borderRadius: 'var(--radius-md)',
+                    padding: '20px',
+                    marginBottom: '20px'
                 }}>
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
                         <div>
@@ -198,6 +198,7 @@ const Reviews = () => {
                                     <th>Rating</th>
                                     <th>Comment</th>
                                     <th>Status</th>
+                                    <th>Slider</th>
                                     <th>Date</th>
                                     <th>Actions</th>
                                 </tr>
@@ -251,6 +252,19 @@ const Reviews = () => {
                                                 {review.isApproved ? 'Approved' : 'Pending'}
                                             </span>
                                         </td>
+                                        <td>
+                                            <button
+                                                onClick={() => handleModerate(review._id, undefined, !review.showInSlider)}
+                                                className={`icon-btn ${review.showInSlider ? 'active' : ''}`}
+                                                style={{
+                                                    color: review.showInSlider ? '#ffc800' : 'rgba(255,255,255,0.2)',
+                                                    filter: review.showInSlider ? 'drop-shadow(0 0 5px rgba(255, 200, 0, 0.4))' : 'none'
+                                                }}
+                                                title={review.showInSlider ? "Remove from Slider" : "Add to Slider"}
+                                            >
+                                                <Star size={18} fill={review.showInSlider ? '#ffc800' : 'none'} />
+                                            </button>
+                                        </td>
                                         <td style={{ fontSize: '12px', color: 'var(--color-text-muted)' }}>
                                             {formatDate(review.createdAt)}
                                         </td>
@@ -260,9 +274,9 @@ const Reviews = () => {
                                                     <Eye size={18} />
                                                 </button>
                                                 {!review.isApproved && (
-                                                    <button 
-                                                        onClick={() => handleModerate(review._id, true)} 
-                                                        className="icon-btn" 
+                                                    <button
+                                                        onClick={() => handleModerate(review._id, true)}
+                                                        className="icon-btn"
                                                         title="Approve"
                                                         style={{ color: '#00ff80' }}
                                                     >
@@ -270,9 +284,9 @@ const Reviews = () => {
                                                     </button>
                                                 )}
                                                 {review.isApproved && (
-                                                    <button 
-                                                        onClick={() => handleModerate(review._id, false)} 
-                                                        className="icon-btn" 
+                                                    <button
+                                                        onClick={() => handleModerate(review._id, false)}
+                                                        className="icon-btn"
                                                         title="Reject"
                                                         style={{ color: '#ff6464' }}
                                                     >
@@ -290,8 +304,8 @@ const Reviews = () => {
                     {/* Pagination */}
                     {totalPages > 1 && (
                         <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', marginTop: '20px' }}>
-                            <button 
-                                onClick={() => setPage(p => Math.max(1, p - 1))} 
+                            <button
+                                onClick={() => setPage(p => Math.max(1, p - 1))}
                                 disabled={page === 1}
                                 className="btn-secondary"
                             >
@@ -300,8 +314,8 @@ const Reviews = () => {
                             <span style={{ display: 'flex', alignItems: 'center', padding: '0 16px' }}>
                                 Page {page} of {totalPages}
                             </span>
-                            <button 
-                                onClick={() => setPage(p => Math.min(totalPages, p + 1))} 
+                            <button
+                                onClick={() => setPage(p => Math.min(totalPages, p + 1))}
                                 disabled={page === totalPages}
                                 className="btn-secondary"
                             >
@@ -392,11 +406,11 @@ const Reviews = () => {
                                 <h4 style={{ color: 'var(--color-text-muted)', fontSize: '12px', marginBottom: '12px' }}>MODERATION</h4>
                                 <div style={{ display: 'flex', gap: '8px' }}>
                                     {!selectedReview.isApproved ? (
-                                        <button 
+                                        <button
                                             onClick={() => {
                                                 handleModerate(selectedReview._id, true);
                                                 setSelectedReview(null);
-                                            }} 
+                                            }}
                                             className="btn-primary"
                                             style={{ flex: 1 }}
                                         >
@@ -404,11 +418,11 @@ const Reviews = () => {
                                             Approve Review
                                         </button>
                                     ) : (
-                                        <button 
+                                        <button
                                             onClick={() => {
                                                 handleModerate(selectedReview._id, false);
                                                 setSelectedReview(null);
-                                            }} 
+                                            }}
                                             className="btn-secondary"
                                             style={{ flex: 1, background: '#ff6464', borderColor: '#ff6464' }}
                                         >

@@ -283,6 +283,20 @@ const adminAPI = {
             headers: { 'Content-Type': 'multipart/form-data' }
         });
         return response.data;
+    },
+
+    // Reviews
+    getReviews: async (page = 1, limit = 50, approved = '', rating = '') => {
+        const params = { page, limit };
+        if (approved !== '') params.approved = approved;
+        if (rating !== '') params.rating = rating;
+        const response = await client.get('/admin/reviews', { params });
+        return response.data;
+    },
+
+    moderateReview: async (id, isApproved, showInSlider) => {
+        const response = await client.patch(`/admin/reviews/${id}/moderate`, { isApproved, showInSlider });
+        return response.data;
     }
 };
 

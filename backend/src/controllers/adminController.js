@@ -292,14 +292,15 @@ const getAllReviews = async (req, res, next) => {
  */
 const moderateReview = async (req, res, next) => {
     try {
-        const { isApproved } = req.body;
+        const { isApproved, showInSlider } = req.body;
 
         const review = await Review.findById(req.params.id);
         if (!review) {
             return next(new AppError('Review not found', HTTP_STATUS.NOT_FOUND));
         }
 
-        review.isApproved = isApproved !== undefined ? isApproved : !review.isApproved;
+        review.isApproved = isApproved !== undefined ? isApproved : review.isApproved;
+        if (showInSlider !== undefined) review.showInSlider = showInSlider;
         await review.save();
 
         // Update product rating if approved status changed

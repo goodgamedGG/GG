@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import productsAPI from '../api/products';
+import client from '../api/client';
 import { useCart } from '../context/CartContext';
 import LoadingSpinner from '../components/LoadingSpinner';
-import { ChevronLeft, ChevronRight, ShoppingCart, Gamepad2, Globe, Tag, Home, Shield, Zap, CheckCircle, MessageCircle, AlertTriangle, Download, CreditCard, Clock } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ShoppingCart, Gamepad2, Globe, Tag, Home, Shield, Zap, CheckCircle, MessageCircle, AlertTriangle, Download, CreditCard, Clock, Star } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
+import ReviewForm from '../components/ReviewForm';
 
 import { getImageUrl } from '../utils/imageUtils';
 
@@ -29,6 +31,8 @@ const ProductDetails = () => {
 
     // Image Loading State for Skeleton
     const [imageLoaded, setImageLoaded] = useState(false);
+    const [reviews, setReviews] = useState([]);
+    const [reviewsLoading, setReviewsLoading] = useState(false);
 
     useEffect(() => {
         const fetchProduct = async () => {
@@ -43,10 +47,32 @@ const ProductDetails = () => {
             }
         };
 
+        const fetchReviews = async () => {
+            try {
+                setReviewsLoading(true);
+                const response = await client.get(`/reviews/product/${id}`);
+                if (response.data.success) {
+                    setReviews(response.data.data.reviews);
+                }
+            } catch (err) {
+                console.error('Failed to load reviews:', err);
+            } finally {
+                setReviewsLoading(false);
+            }
+        };
+
         if (id) {
             fetchProduct();
+            fetchReviews();
         }
     }, [id]);
+
+    const handleReviewAdded = (newReview) => {
+        // Since reviews are moderated, we might not want to show it immediately
+        // unless it's already approved. For now, let's just re-fetch or add if approved.
+        // Actually, the backend creates it as isApproved: true by default (based on models/Review.js)
+        setReviews(prev => [newReview, ...prev]);
+    };
 
     const handleAddToCart = async () => {
         if (product.variants && product.variants.length > 0 && !selectedVariant) {
@@ -425,6 +451,113 @@ const ProductDetails = () => {
                                     </div>
                                 </div>
                             )}
+                        </div>
+                    </div>
+
+                    {/* Reviews Section */}
+                    <div style={{ marginTop: '80px', maxWidth: '1280px', margin: '80px auto 0' }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.5fr', gap: '60px' }}>
+                            {/* Write Review Column */}
+                            <div>
+                                <ReviewForm productId={id} onReviewAdded={handleReviewAdded} />
+                            </div>
+
+                            {/* Show Reviews Column */}
+                            <div className="reviews-list-container">
+                                <div style={{ marginBottom: '30px' }}>
+                                    <h2 style={{ fontFamily: '"Rajdhani", sans-serif', fontSize: '28px', color: '#fff', marginBottom: '8px' }}>
+                                        CUSTOMER REVIEWS
+                                    </h2>
+                                    <div style={{ width: '60px', height: '4px', background: 'var(--color-primary, #ffc800)', borderRadius: '2px' }}></div>
+                                </div>
+
+                                {reviewsLoading ? (
+                                    <div style={{ padding: '40px', textAlign: 'center' }}><LoadingSpinner /></div>
+                                ) : reviews.length === 0 ? (
+                                    <div style={{
+                                        padding: '50px 30px',
+                                        textAlign: 'center',
+                                        background: 'rgba(255,255,255,0.02)',
+                                        borderRadius: '24px',
+                                        border: '1px solid rgba(255,255,255,0.05)',
+                                        backdropFilter: 'blur(10px)',
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        alignItems: 'center',
+                                        gap: '20px'
+                                    }}>
+                                        <div style={{
+                                            width: '80px',
+                                            height: '80px',
+                                            borderRadius: '50%',
+                                            background: 'rgba(255, 200, 0, 0.05)',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            border: '1px solid rgba(255, 200, 0, 0.1)'
+                                        }}>
+                                            <MessageCircle size={32} color="var(--color-primary, #ffc800)" style={{ opacity: 0.6 }} />
+                                        </div>
+                                        <div>
+                                            <h4 style={{ color: '#fff', fontSize: '18px', marginBottom: '8px', fontFamily: '"Rajdhani", sans-serif' }}>Be the first to review</h4>
+                                            <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '14px', maxWidth: '300px', margin: '0 auto', lineHeight: '1.6' }}>
+                                                Share your thoughts with other gamers. Your feedback helps the community grow!
+                                            </p>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                                        {reviews.map((review) => (
+                                            <div key={review._id} style={{
+                                                padding: '24px',
+                                                background: 'rgba(255,255,255,0.02)',
+                                                border: '1px solid rgba(255,255,255,0.05)',
+                                                borderRadius: '20px',
+                                                transition: 'all 0.3s'
+                                            }}>
+                                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '16px' }}>
+                                                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                                        <div style={{
+                                                            width: '40px',
+                                                            height: '40px',
+                                                            background: 'linear-gradient(135deg, #ffc800 0%, #ff9d00 100%)',
+                                                            borderRadius: '50%',
+                                                            display: 'flex',
+                                                            alignItems: 'center',
+                                                            justifyContent: 'center',
+                                                            fontWeight: '800',
+                                                            color: 'black'
+                                                        }}>
+                                                            {review.user?.name?.charAt(0) || 'U'}
+                                                        </div>
+                                                        <div>
+                                                            <div style={{ fontWeight: '700', color: '#fff', fontSize: '14px' }}>{review.user?.name}</div>
+                                                            <div style={{ color: 'rgba(255,255,255,0.4)', fontSize: '11px' }}>{new Date(review.createdAt).toLocaleDateString()}</div>
+                                                        </div>
+                                                    </div>
+                                                    <div style={{ display: 'flex', gap: '2px' }}>
+                                                        {[...Array(5)].map((_, i) => (
+                                                            <Star
+                                                                key={i}
+                                                                size={14}
+                                                                fill={i < review.rating ? 'var(--color-primary, #ffc800)' : 'transparent'}
+                                                                color={i < review.rating ? 'var(--color-primary, #ffc800)' : 'rgba(255,255,255,0.1)'}
+                                                            />
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                                <h4 style={{ color: '#fff', marginBottom: '8px', fontSize: '16px' }}>{review.title}</h4>
+                                                <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '14px', lineHeight: '1.6' }}>{review.comment}</p>
+                                                {review.isVerified && (
+                                                    <div style={{ marginTop: '12px', display: 'flex', alignItems: 'center', gap: '6px', color: '#2ed573', fontSize: '12px', fontWeight: '600' }}>
+                                                        <CheckCircle size={14} /> Verified Purchase
+                                                    </div>
+                                                )}
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     </div>
                 </div>
