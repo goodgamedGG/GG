@@ -1,11 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { Save, Settings as SettingsIcon, X } from 'lucide-react';
+import {
+    Save, Settings as SettingsIcon, X, Search, Copy, Check,
+    Monitor, Mail, ShoppingBag, Terminal, Shield, Bell,
+    AlertCircle, ChevronRight, Globe, Database, HelpCircle, BookOpen
+} from 'lucide-react';
 import adminAPI from '../../api/admin';
 
 const Settings = () => {
     const [settings, setSettings] = useState({});
     const [loading, setLoading] = useState(true);
     const [editingKey, setEditingKey] = useState(null);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [copySuccess, setCopySuccess] = useState('');
     const [editFormData, setEditFormData] = useState({
         value: '',
         description: '',
@@ -19,7 +25,18 @@ const Settings = () => {
         isPublic: false
     });
     const [isNewModalOpen, setIsNewModalOpen] = useState(false);
+    const [isLibraryOpen, setIsLibraryOpen] = useState(false);
     const [saving, setSaving] = useState(false);
+
+    const SETTINGS_LIBRARY = [
+        { key: 'site.name', value: 'Sub HUB', category: 'General', description: 'Display name of your store' },
+        { key: 'site.maintenance', value: false, category: 'System', description: 'Enable/disable maintenance mode' },
+        { key: 'site.email', value: 'support@example.com', category: 'Communication', description: 'Customer support email' },
+        { key: 'shop.currency', value: '$', category: 'Sales', description: 'Currency symbol used site-wide' },
+        { key: 'shop.free_shipping', value: 50, category: 'Sales', description: 'Cart total required for free shipping' },
+        { key: 'marketing.banner_text', value: 'Welcome to our store!', category: 'General', description: 'Text for the top promo banner' },
+        { key: 'marketing.promo_code', value: 'WELCOME10', category: 'Sales', description: 'Active sitewide promo code' }
+    ];
 
     useEffect(() => {
         loadSettings();
@@ -46,31 +63,28 @@ const Settings = () => {
         });
     };
 
-    const handleSave = async () => {
-        if (!editingKey) return;
+    const handleSave = async (keyOverride, valueOverride, descOverride, publicOverride) => {
+        const key = keyOverride || editingKey;
+        if (!key) return;
 
         try {
             setSaving(true);
-            let value = editFormData.value;
+            let value = valueOverride !== undefined ? valueOverride : editFormData.value;
+            const description = descOverride !== undefined ? descOverride : editFormData.description;
+            const isPublic = publicOverride !== undefined ? publicOverride : editFormData.isPublic;
 
-            // Try to parse as JSON if it looks like JSON
-            if (value.trim().startsWith('{') || value.trim().startsWith('[')) {
-                try {
-                    value = JSON.parse(value);
-                } catch (e) {
-                    // Not valid JSON, use as string
+            // Type parsing for string values coming from manual text inputs
+            if (typeof value === 'string' && keyOverride === undefined) {
+                if (value.trim().startsWith('{') || value.trim().startsWith('[')) {
+                    try { value = JSON.parse(value); } catch (e) { }
+                } else if (!isNaN(value) && value.trim() !== '') {
+                    value = parseFloat(value);
+                } else if (value.toLowerCase() === 'true' || value.toLowerCase() === 'false') {
+                    value = value.toLowerCase() === 'true';
                 }
             }
-            // Try to parse as number
-            else if (!isNaN(value) && value.trim() !== '') {
-                value = parseFloat(value);
-            }
-            // Try to parse as boolean
-            else if (value.toLowerCase() === 'true' || value.toLowerCase() === 'false') {
-                value = value.toLowerCase() === 'true';
-            }
 
-            await adminAPI.updateSetting(editingKey, value, editFormData.description, editFormData.isPublic);
+            await adminAPI.updateSetting(key, value, description, isPublic);
             setEditingKey(null);
             loadSettings();
         } catch (error) {
@@ -80,284 +94,348 @@ const Settings = () => {
         }
     };
 
-    const handleCreate = async (e) => {
-        e.preventDefault();
-        try {
-            setSaving(true);
-            let value = newSetting.value;
-
-            // Try to parse as JSON, number, or boolean
-            if (value.trim().startsWith('{') || value.trim().startsWith('[')) {
-                try {
-                    value = JSON.parse(value);
-                } catch (e) { }
-            } else if (!isNaN(value) && value.trim() !== '') {
-                value = parseFloat(value);
-            } else if (value.toLowerCase() === 'true' || value.toLowerCase() === 'false') {
-                value = value.toLowerCase() === 'true';
-            }
-
-            await adminAPI.updateSetting(newSetting.key, value, newSetting.description, newSetting.isPublic);
-            setIsNewModalOpen(false);
-            setNewSetting({ key: '', value: '', category: 'general', description: '', isPublic: false });
-            loadSettings();
-        } catch (error) {
-            alert('Failed to create setting: ' + error.message);
-        } finally {
-            setSaving(false);
-        }
+    const handleCopy = (text) => {
+        navigator.clipboard.writeText(text);
+        setCopySuccess(text);
+        setTimeout(() => setCopySuccess(''), 2000);
     };
 
-    const renderValue = (value) => {
-        if (typeof value === 'object') {
-            return JSON.stringify(value, null, 2);
-        }
-        if (typeof value === 'boolean') {
-            return value ? 'true' : 'false';
-        }
-        return String(value);
+    const getCategoryIcon = (category) => {
+        const cat = category.toLowerCase();
+        if (cat.includes('general') || cat.includes('site')) return <Globe size={18} />;
+        if (cat.includes('email') || cat.includes('comm')) return <Mail size={18} />;
+        if (cat.includes('sale') || cat.includes('shop')) return <ShoppingBag size={18} />;
+        if (cat.includes('system') || cat.includes('env')) return <Database size={18} />;
+        if (cat.includes('auth') || cat.includes('security')) return <Shield size={18} />;
+        if (cat.includes('admin') || cat.includes('dev')) return <Terminal size={18} />;
+        if (cat.includes('notif')) return <Bell size={18} />;
+        return <SettingsIcon size={18} />;
     };
 
-    const getValueType = (value) => {
-        if (typeof value === 'boolean') return 'boolean';
-        if (typeof value === 'number') return 'number';
-        if (typeof value === 'object') return 'object';
-        return 'string';
+    const renderToggle = (setting) => {
+        const isOn = setting.value === true;
+        return (
+            <button
+                key={`toggle-${setting.key}`}
+                onClick={() => handleSave(setting.key, !isOn, setting.description, setting.isPublic)}
+                style={{
+                    width: '40px',
+                    height: '20px',
+                    borderRadius: '20px',
+                    background: isOn ? 'var(--color-success)' : 'var(--color-bg-secondary)',
+                    border: '1px solid var(--color-border)',
+                    position: 'relative',
+                    cursor: 'pointer',
+                    transition: 'all 0.3s ease',
+                    padding: 0
+                }}
+            >
+                <div style={{
+                    position: 'absolute',
+                    top: '2px',
+                    left: isOn ? '22px' : '2px',
+                    width: '14px',
+                    height: '14px',
+                    borderRadius: '50%',
+                    background: '#fff',
+                    transition: 'all 0.3s ease',
+                    boxShadow: isOn ? '0 0 8px rgba(16, 185, 129, 0.5)' : 'none'
+                }} />
+            </button>
+        );
     };
+
+    const filteredSettings = Object.entries(settings).reduce((acc, [category, catSettings]) => {
+        const filtered = catSettings.filter(s =>
+            s.key.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            (s.description || '').toLowerCase().includes(searchQuery.toLowerCase())
+        );
+        if (filtered.length > 0) acc[category] = filtered;
+        return acc;
+    }, {});
 
     return (
-        <div>
-            <header className="admin-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '20px', marginBottom: '32px' }}>
+        <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+            <header className="admin-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '32px' }}>
                 <div>
-                    <h1 className="page-title">Settings</h1>
+                    <h1 className="page-title">Control Center</h1>
                     <p style={{ color: 'var(--color-text-muted)', marginTop: '4px' }}>
-                        Configure system settings
+                        Manage global parameters and system configuration
                     </p>
                 </div>
-                <button onClick={() => setIsNewModalOpen(true)} className="btn-primary">
-                    <SettingsIcon size={18} />
-                    Add Setting
-                </button>
+                <div style={{ display: 'flex', gap: '12px' }}>
+                    <div style={{ position: 'relative' }}>
+                        <Search style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-muted)' }} size={16} />
+                        <input
+                            type="text"
+                            placeholder="Search settings..."
+                            className="form-input"
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            style={{ paddingLeft: '38px', width: '250px', background: 'var(--color-bg-secondary)' }}
+                        />
+                    </div>
+                    <button onClick={() => setIsLibraryOpen(true)} className="btn-secondary">
+                        <BookOpen size={18} />
+                        Reference Guide
+                    </button>
+                    <button onClick={() => setIsNewModalOpen(true)} className="btn-primary">
+                        <SettingsIcon size={18} />
+                        Add Setting
+                    </button>
+                </div>
             </header>
 
             {loading ? (
-                <div className="empty-state">Loading settings...</div>
-            ) : Object.keys(settings).length === 0 ? (
-                <div className="empty-state">
-                    <SettingsIcon size={48} style={{ marginBottom: '16px', opacity: 0.5 }} />
-                    <p>No settings found.</p>
-                    <button onClick={() => setIsNewModalOpen(true)} className="btn-primary" style={{ marginTop: '16px' }}>
-                        Add Your First Setting
-                    </button>
+                <div style={{ display: 'flex', justifyContent: 'center', padding: '100px' }}>
+                    <div className="status-dot" style={{ width: '12px', height: '12px' }}></div>
+                </div>
+            ) : Object.keys(filteredSettings).length === 0 ? (
+                <div className="empty-state" style={{ background: 'var(--color-bg-card)', padding: '60px', borderRadius: 'var(--radius-lg)', border: '1px solid var(--color-border)' }}>
+                    <AlertCircle size={48} style={{ marginBottom: '16px', opacity: 0.3, color: 'var(--color-primary)' }} />
+                    <h3 style={{ fontSize: '18px', fontWeight: '600', marginBottom: '8px' }}>No settings match your search</h3>
+                    <p style={{ color: 'var(--color-text-muted)' }}>Try a different keyword or create a new setting.</p>
                 </div>
             ) : (
-                <div>
-                    {Object.entries(settings).map(([category, categorySettings]) => (
-                        <div key={category} style={{ marginBottom: '30px' }}>
-                            <h2 style={{
-                                fontFamily: 'Orbitron, sans-serif',
-                                fontSize: '18px',
-                                marginBottom: '16px',
-                                textTransform: 'capitalize',
-                                color: 'var(--color-cyan-primary)'
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(450px, 1fr))', gap: '24px' }}>
+                    {Object.entries(filteredSettings).map(([category, items]) => (
+                        <div key={category} style={{
+                            background: 'var(--color-bg-card)',
+                            borderRadius: 'var(--radius-lg)',
+                            border: '1px solid var(--color-border)',
+                            overflow: 'hidden',
+                            display: 'flex',
+                            flexDirection: 'column'
+                        }}>
+                            <div style={{
+                                padding: '16px 20px',
+                                background: 'rgba(255, 255, 255, 0.02)',
+                                borderBottom: '1px solid var(--color-border)',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '12px'
                             }}>
-                                {category}
-                            </h2>
-                            <div className="settings-table-wrapper" style={{ background: 'var(--color-bg-card)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-md)', overflowX: 'auto', width: '100%' }}>
-                                <table className="data-table" style={{ minWidth: '800px' }}>
-                                    <thead>
-                                        <tr>
-                                            <th>Key</th>
-                                            <th>Value</th>
-                                            <th>Type</th>
-                                            <th>Description</th>
-                                            <th>Public</th>
-                                            <th>Actions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {categorySettings.map((setting, idx) => (
-                                            <tr key={setting._id || idx}>
-                                                <td>
-                                                    <code style={{
-                                                        background: 'var(--color-bg-secondary)',
-                                                        padding: '4px 8px',
-                                                        borderRadius: '4px',
-                                                        fontFamily: 'monospace',
-                                                        fontSize: '12px'
-                                                    }}>
-                                                        {setting.key}
-                                                    </code>
-                                                </td>
-                                                <td>
-                                                    {editingKey === setting.key ? (
-                                                        <input
-                                                            type={getValueType(setting.value) === 'number' ? 'number' : 'text'}
-                                                            className="form-input"
-                                                            value={editFormData.value}
-                                                            onChange={e => setEditFormData({ ...editFormData, value: e.target.value })}
-                                                            style={{ minWidth: '200px' }}
-                                                        />
-                                                    ) : (
-                                                        <span style={{
-                                                            fontFamily: 'monospace',
-                                                            fontSize: '13px',
-                                                            color: typeof setting.value === 'boolean'
-                                                                ? (setting.value ? '#00ff80' : '#ff6464')
-                                                                : 'var(--color-text-primary)'
-                                                        }}>
-                                                            {renderValue(setting.value)}
-                                                        </span>
-                                                    )}
-                                                </td>
-                                                <td>
-                                                    <span style={{
-                                                        fontSize: '11px',
-                                                        padding: '2px 8px',
-                                                        background: 'var(--color-bg-secondary)',
-                                                        borderRadius: '12px',
-                                                        textTransform: 'capitalize'
-                                                    }}>
-                                                        {getValueType(setting.value)}
-                                                    </span>
-                                                </td>
-                                                <td style={{ fontSize: '12px', color: 'var(--color-text-muted)' }}>
-                                                    {setting.description || '-'}
-                                                </td>
-                                                <td>
-                                                    <span className={`status-badge ${setting.isPublic ? 'status-active' : 'status-inactive'}`}>
-                                                        {setting.isPublic ? 'Yes' : 'No'}
-                                                    </span>
-                                                </td>
-                                                <td>
-                                                    {editingKey === setting.key ? (
-                                                        <div style={{ display: 'flex', gap: '8px' }}>
-                                                            <button
-                                                                onClick={handleSave}
-                                                                className="icon-btn"
-                                                                disabled={saving}
-                                                                title="Save"
+                                <div style={{
+                                    width: '32px',
+                                    height: '32px',
+                                    borderRadius: '8px',
+                                    background: 'rgba(0, 217, 255, 0.1)',
+                                    color: 'var(--color-primary)',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center'
+                                }}>
+                                    {getCategoryIcon(category)}
+                                </div>
+                                <h2 style={{ fontSize: '16px', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '1px', margin: 0 }}>
+                                    {category}
+                                </h2>
+                                <span style={{ marginLeft: 'auto', fontSize: '11px', color: 'var(--color-text-muted)', background: 'var(--color-bg-secondary)', padding: '2px 8px', borderRadius: '10px' }}>
+                                    {items.length} Settings
+                                </span>
+                            </div>
+
+                            <div style={{ padding: '0 20px' }}>
+                                {items.map((setting, idx) => (
+                                    <div key={setting.key} style={{
+                                        padding: '20px 0',
+                                        borderBottom: idx === items.length - 1 ? 'none' : '1px solid rgba(255, 255, 255, 0.03)',
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        gap: '12px'
+                                    }}>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                                            <div style={{ flex: 1 }}>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+                                                    <code style={{ fontSize: '13px', color: 'var(--color-primary)', fontWeight: '600' }}>{setting.key}</code>
+                                                    <button
+                                                        onClick={() => handleCopy(setting.key)}
+                                                        style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: 'var(--color-text-muted)' }}
+                                                    >
+                                                        {copySuccess === setting.key ? <Check size={12} color="var(--color-success)" /> : <Copy size={12} />}
+                                                    </button>
+                                                </div>
+                                                <p style={{ fontSize: '12px', color: 'var(--color-text-muted)', margin: 0, lineHeight: '1.4' }}>
+                                                    {setting.description || "No description provided."}
+                                                </p>
+                                            </div>
+
+                                            <div style={{ marginLeft: '16px', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                                {typeof setting.value === 'boolean' ? (
+                                                    renderToggle(setting)
+                                                ) : (
+                                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                        {editingKey === setting.key ? (
+                                                            <div style={{ display: 'flex', gap: '4px' }}>
+                                                                <input
+                                                                    className="form-input"
+                                                                    value={editFormData.value}
+                                                                    onChange={e => setEditFormData({ ...editFormData, value: e.target.value })}
+                                                                    style={{ width: '120px', height: '32px', fontSize: '12px' }}
+                                                                />
+                                                                <button onClick={() => handleSave()} className="icon-btn" style={{ padding: '4px' }}><Check size={14} /></button>
+                                                                <button onClick={() => setEditingKey(null)} className="icon-btn" style={{ padding: '4px' }}><X size={14} /></button>
+                                                            </div>
+                                                        ) : (
+                                                            <div
+                                                                onClick={() => handleEdit(setting.key, setting)}
+                                                                style={{
+                                                                    padding: '4px 10px',
+                                                                    background: 'var(--color-bg-secondary)',
+                                                                    borderRadius: '4px',
+                                                                    fontSize: '13px',
+                                                                    cursor: 'pointer',
+                                                                    fontFamily: 'monospace'
+                                                                }}
                                                             >
-                                                                <Save size={16} />
-                                                            </button>
-                                                            <button
-                                                                onClick={() => setEditingKey(null)}
-                                                                className="icon-btn"
-                                                                title="Cancel"
-                                                            >
-                                                                <X size={16} />
-                                                            </button>
-                                                        </div>
-                                                    ) : (
-                                                        <button
-                                                            onClick={() => handleEdit(setting.key, setting)}
-                                                            className="icon-btn"
-                                                            title="Edit"
-                                                        >
-                                                            <Save size={16} />
-                                                        </button>
-                                                    )}
-                                                </td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
+                                                                {typeof setting.value === 'object' ? '{...}' : String(setting.value)}
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                            <span style={{ fontSize: '10px', textTransform: 'uppercase', color: 'var(--color-text-muted)', background: 'rgba(255,255,255,0.03)', padding: '2px 6px', borderRadius: '3px' }}>
+                                                {typeof setting.value}
+                                            </span>
+                                            {setting.isPublic && (
+                                                <span style={{ fontSize: '10px', textTransform: 'uppercase', color: 'var(--color-success)', background: 'rgba(16, 185, 129, 0.1)', padding: '2px 6px', borderRadius: '3px', display: 'flex', alignItems: 'center', gap: '3px' }}>
+                                                    <Globe size={10} /> Public
+                                                </span>
+                                            )}
+                                        </div>
+                                    </div>
+                                ))}
                             </div>
                         </div>
                     ))}
                 </div>
-            )}
+            )
+            }
 
             {/* Create Setting Modal */}
-            {isNewModalOpen && (
+            {
+                isNewModalOpen && (
+                    <div className="modal-overlay">
+                        <div className="modal-content" style={{ maxWidth: '500px', background: 'var(--color-bg-card)', border: '1px solid var(--color-border)' }}>
+                            <div className="modal-header">
+                                <h2 className="modal-title">New Configuration</h2>
+                                <button onClick={() => setIsNewModalOpen(false)} className="modal-close">
+                                    <X size={24} />
+                                </button>
+                            </div>
+                            <form onSubmit={(e) => { e.preventDefault(); handleSave(newSetting.key, newSetting.value, newSetting.description, newSetting.isPublic); setIsNewModalOpen(false); }}>
+                                <div className="form-group">
+                                    <label className="form-label">Setting Key</label>
+                                    <input
+                                        className="form-input"
+                                        value={newSetting.key}
+                                        onChange={e => setNewSetting({ ...newSetting, key: e.target.value })}
+                                        required
+                                        placeholder="e.g. shop.discount_enabled"
+                                    />
+                                </div>
+                                <div className="form-group">
+                                    <label className="form-label">Default Value</label>
+                                    <input
+                                        className="form-input"
+                                        value={newSetting.value}
+                                        onChange={e => setNewSetting({ ...newSetting, value: e.target.value })}
+                                        required
+                                        placeholder="Value or JSON"
+                                    />
+                                </div>
+                                <div className="form-group">
+                                    <label className="form-label">Description</label>
+                                    <textarea
+                                        className="form-textarea"
+                                        value={newSetting.description}
+                                        onChange={e => setNewSetting({ ...newSetting, description: e.target.value })}
+                                        rows={3}
+                                    />
+                                </div>
+                                <div className="form-group">
+                                    <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', color: 'var(--color-text-primary)' }}>
+                                        <input
+                                            type="checkbox"
+                                            checked={newSetting.isPublic}
+                                            onChange={e => setNewSetting({ ...newSetting, isPublic: e.target.checked })}
+                                        />
+                                        <span>Make this setting public</span>
+                                    </label>
+                                </div>
+                                <div style={{ display: 'flex', gap: '12px', marginTop: '30px' }}>
+                                    <button type="button" onClick={() => setIsNewModalOpen(false)} className="btn-secondary" style={{ flex: 1 }}>Cancel</button>
+                                    <button type="submit" className="btn-primary" style={{ flex: 1, justifyContent: 'center' }} disabled={saving}>
+                                        <Save size={18} /> Run Setup
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                )
+            }
+            {/* Settings Reference Guide Modal */}
+            {isLibraryOpen && (
                 <div className="modal-overlay">
-                    <div className="modal-content" style={{ maxWidth: '500px' }}>
+                    <div className="modal-content" style={{ maxWidth: '600px', background: 'var(--color-bg-card)', border: '1px solid var(--color-border)' }}>
                         <div className="modal-header">
-                            <h2 className="modal-title">Add New Setting</h2>
-                            <button onClick={() => setIsNewModalOpen(false)} className="modal-close">
+                            <h2 className="modal-title">Settings Reference Guide</h2>
+                            <button onClick={() => setIsLibraryOpen(false)} className="modal-close">
                                 <X size={24} />
                             </button>
                         </div>
-                        <form onSubmit={handleCreate}>
-                            <div className="form-group">
-                                <label className="form-label">Setting Key *</label>
-                                <input
-                                    type="text"
-                                    className="form-input"
-                                    value={newSetting.key}
-                                    onChange={e => setNewSetting({ ...newSetting, key: e.target.value })}
-                                    required
-                                    placeholder="e.g., site.name"
-                                    style={{ fontFamily: 'monospace' }}
-                                />
-                                <p style={{ fontSize: '12px', color: 'var(--color-text-muted)', marginTop: '4px' }}>
-                                    Use dot notation for categories (e.g., site.name, email.enabled)
-                                </p>
-                            </div>
-                            <div className="form-group">
-                                <label className="form-label">Value *</label>
-                                <input
-                                    type="text"
-                                    className="form-input"
-                                    value={newSetting.value}
-                                    onChange={e => setNewSetting({ ...newSetting, value: e.target.value })}
-                                    required
-                                    placeholder="Setting value"
-                                />
-                                <p style={{ fontSize: '12px', color: 'var(--color-text-muted)', marginTop: '4px' }}>
-                                    Use "true"/"false" for booleans, numbers for numbers, JSON for objects
-                                </p>
-                            </div>
-                            <div className="form-group">
-                                <label className="form-label">Category</label>
-                                <input
-                                    type="text"
-                                    className="form-input"
-                                    value={newSetting.category}
-                                    onChange={e => setNewSetting({ ...newSetting, category: e.target.value })}
-                                    placeholder="general"
-                                />
-                            </div>
-                            <div className="form-group">
-                                <label className="form-label">Description</label>
-                                <textarea
-                                    className="form-textarea"
-                                    value={newSetting.description}
-                                    onChange={e => setNewSetting({ ...newSetting, description: e.target.value })}
-                                    placeholder="Setting description"
-                                    rows={3}
-                                />
-                            </div>
-                            <div className="form-group">
-                                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-                                    <input
-                                        type="checkbox"
-                                        checked={newSetting.isPublic}
-                                        onChange={e => setNewSetting({ ...newSetting, isPublic: e.target.checked })}
-                                    />
-                                    <span>Public (accessible without authentication)</span>
-                                </label>
-                            </div>
-                            <div style={{ display: 'flex', gap: '12px', marginTop: '24px' }}>
-                                <button
-                                    type="button"
-                                    onClick={() => setIsNewModalOpen(false)}
-                                    className="btn-secondary"
-                                    style={{ flex: 1 }}
-                                >
-                                    Cancel
-                                </button>
-                                <button
-                                    type="submit"
-                                    className="btn-primary"
-                                    style={{ flex: 1, justifyContent: 'center' }}
-                                    disabled={saving}
-                                >
-                                    <Save size={18} />
-                                    Create Setting
-                                </button>
-                            </div>
-                        </form>
+                        <div style={{ marginBottom: '20px' }}>
+                            <p style={{ color: 'var(--color-text-muted)', fontSize: '14px' }}>
+                                Use these standard keys to configure the primary features of your store.
+                                Click "Use Preset" to quickly set them up.
+                            </p>
+                        </div>
+                        <div style={{ maxHeight: '400px', overflowY: 'auto', paddingRight: '10px' }}>
+                            {SETTINGS_LIBRARY.map((item, idx) => (
+                                <div key={idx} style={{
+                                    padding: '16px',
+                                    background: 'rgba(255,255,255,0.02)',
+                                    borderRadius: '8px',
+                                    marginBottom: '12px',
+                                    border: '1px solid rgba(255,255,255,0.05)',
+                                    display: 'flex',
+                                    justifyContent: 'space-between',
+                                    alignItems: 'center'
+                                }}>
+                                    <div style={{ flex: 1 }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+                                            <code style={{ color: 'var(--color-primary)', fontWeight: '600' }}>{item.key}</code>
+                                            <span style={{ fontSize: '10px', background: 'var(--color-bg-secondary)', padding: '2px 6px', borderRadius: '4px' }}>{item.category}</span>
+                                        </div>
+                                        <p style={{ fontSize: '12px', margin: 0, color: 'var(--color-text-muted)' }}>{item.description}</p>
+                                        <p style={{ fontSize: '11px', marginTop: '4px', color: 'var(--color-success)' }}>Example: {String(item.value)}</p>
+                                    </div>
+                                    <button
+                                        onClick={() => {
+                                            setNewSetting({
+                                                key: item.key,
+                                                value: typeof item.value === 'object' ? JSON.stringify(item.value) : String(item.value),
+                                                category: item.category,
+                                                description: item.description,
+                                                isPublic: true
+                                            });
+                                            setIsLibraryOpen(false);
+                                            setIsNewModalOpen(true);
+                                        }}
+                                        className="btn-secondary"
+                                        style={{ padding: '6px 12px', fontSize: '12px' }}
+                                    >
+                                        Use Preset
+                                    </button>
+                                </div>
+                            ))}
+                        </div>
+                        <div style={{ marginTop: '20px', display: 'flex', justifyContent: 'flex-end' }}>
+                            <button onClick={() => setIsLibraryOpen(false)} className="btn-secondary">Close Guide</button>
+                        </div>
                     </div>
                 </div>
             )}
