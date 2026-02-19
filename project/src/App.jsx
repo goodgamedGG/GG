@@ -53,6 +53,7 @@ import EmailQueue from './pages/admin/EmailQueue';
 import EmailTemplates from './pages/admin/EmailTemplates';
 import AuditLogs from './pages/admin/AuditLogs';
 import Settings from './pages/admin/Settings';
+import PaymentMethods from './pages/admin/PaymentMethods';
 
 // Protected Route Component
 import { useAuth } from './context/AuthContext';
@@ -124,6 +125,7 @@ const App = () => {
                                             <Route path="email-templates" element={<EmailTemplates />} />
                                             <Route path="audit-logs" element={<AuditLogs />} />
                                             <Route path="settings" element={<Settings />} />
+                                            <Route path="payment-methods" element={<PaymentMethods />} />
                                         </Route>
 
                                         {/* Public Routes */}

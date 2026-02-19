@@ -28,6 +28,12 @@ const {
     retryEmails,
     deleteEmailFromQueue
 } = require('../controllers/adminEmailController');
+const {
+    getPaymentMethods,
+    createPaymentMethod,
+    updatePaymentMethod,
+    deletePaymentMethod
+} = require('../controllers/adminPaymentMethodController');
 const { protect } = require('../middleware/authMiddleware');
 const { requireAdmin } = require('../middleware/roleMiddleware');
 const auditLog = require('../middleware/auditMiddleware');
@@ -184,5 +190,11 @@ router.post('/emails/retry', auditLog, retryEmails);
 
 // @route   DELETE /api/admin/emails/:id
 router.delete('/emails/:id', auditLog, mongoIdValidator, validate, deleteEmailFromQueue);
+
+// Payment Method Management
+router.get('/payment-methods', getPaymentMethods);
+router.post('/payment-methods', auditLog, createPaymentMethod);
+router.put('/payment-methods/:id', auditLog, updatePaymentMethod);
+router.delete('/payment-methods/:id', auditLog, deletePaymentMethod);
 
 module.exports = router;

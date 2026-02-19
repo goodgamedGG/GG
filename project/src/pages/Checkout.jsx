@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
@@ -8,6 +8,8 @@ import { Plus, Minus, Trash2, Smartphone, CreditCard, Zap, Shield, CheckCircle2,
 import client from '../api/client'; // Import client for API calls
 import { getImageUrl } from '../utils/imageUtils';
 
+import paymentMethodAPI from '../api/paymentMethods';
+
 const Checkout = () => {
     const { t, isRTL } = useLanguage();
     const { isAuthenticated, user } = useAuth();
@@ -16,10 +18,29 @@ const Checkout = () => {
     const { addToast } = useToast();
 
     const [loading, setLoading] = useState(false);
+    const [fetchingMethods, setFetchingMethods] = useState(true);
+    const [paymentMethods, setPaymentMethods] = useState([]);
     const [paymentMethod, setPaymentMethod] = useState('');
     const [phoneNumber, setPhoneNumber] = useState(''); // Sender's number
     const [paymentProof, setPaymentProof] = useState(null);
     const [contactPhone, setContactPhone] = useState(user?.phone || '');
+
+    // Fetch dynamic payment methods
+    useEffect(() => {
+        const fetchMethods = async () => {
+            try {
+                setFetchingMethods(true);
+                const data = await paymentMethodAPI.getActiveMethods();
+                setPaymentMethods(data);
+            } catch (error) {
+                console.error('Fetch Payment Methods Error:', error);
+                addToast('Failed to load payment methods', 'error');
+            } finally {
+                setFetchingMethods(false);
+            }
+        };
+        fetchMethods();
+    }, []);
 
     // Helper to format price
     const formatPrice = (price) => {
@@ -28,10 +49,11 @@ const Checkout = () => {
             currency: 'USD'
         }).format(price);
     };
-    const PAYMENT_METHODS = {
-        INSTAPAY: { id: 'InstaPay', name: 'InstaPay', number: '01000000000', icon: <Zap size={24} /> },
-        VODAFONE_CASH: { id: 'Vodafone Cash', name: 'Vodafone Cash', number: '01000000000', icon: <Smartphone size={24} /> },
-        TELDA: { id: 'Telda', name: 'Telda', number: '01500000000', icon: <CreditCard size={24} /> }
+
+    const ICONS = {
+        Zap: <Zap size={24} />,
+        Smartphone: <Smartphone size={24} />,
+        CreditCard: <CreditCard size={24} />
     };
 
 
@@ -54,7 +76,7 @@ const Checkout = () => {
             return;
         }
 
-        if (['InstaPay', 'Vodafone Cash', 'Telda'].includes(paymentMethod) && (!paymentProof || !phoneNumber)) {
+        if (paymentMethods.map(m => m.name).includes(paymentMethod) && (!paymentProof || !phoneNumber)) {
             addToast('Please upload payment proof and enter the sender number', 'error');
             return;
         }
@@ -191,23 +213,33 @@ const Checkout = () => {
                                         Payment Architecture
                                     </h2>
                                     <div className="payment-grid">
-                                        {Object.values(PAYMENT_METHODS).map(method => (
-                                            <label key={method.id} className={`payment-card ${paymentMethod === method.id ? 'active' : ''}`}>
-                                                <input
-                                                    type="radio"
-                                                    name="paymentMethod"
-                                                    value={method.id}
-                                                    checked={paymentMethod === method.id}
-                                                    onChange={(e) => setPaymentMethod(e.target.value)}
-                                                    className="payment-radio"
-                                                />
-                                                <div className="payment-card-content">
-                                                    <div className="radio-circle"></div>
-                                                    <div className="method-icon">{method.icon}</div>
-                                                    <span className="method-name">{method.name}</span>
-                                                </div>
-                                            </label>
-                                        ))}
+                                        {fetchingMethods ? (
+                                            <div className="fetching-loader" style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '20px' }}>
+                                                Connecting to payment matrix...
+                                            </div>
+                                        ) : paymentMethods.length === 0 ? (
+                                            <div className="no-methods" style={{ gridColumn: '1 / -1', textAlign: 'center', color: 'var(--color-text-muted)' }}>
+                                                No payment methods currently available.
+                                            </div>
+                                        ) : (
+                                            paymentMethods.map(method => (
+                                                <label key={method.id} className={`payment-card ${paymentMethod === method.name ? 'active' : ''}`}>
+                                                    <input
+                                                        type="radio"
+                                                        name="paymentMethod"
+                                                        value={method.name}
+                                                        checked={paymentMethod === method.name}
+                                                        onChange={(e) => setPaymentMethod(e.target.value)}
+                                                        className="payment-radio"
+                                                    />
+                                                    <div className="payment-card-content">
+                                                        <div className="radio-circle"></div>
+                                                        <div className="method-icon">{ICONS[method.icon] || <CreditCard size={24} />}</div>
+                                                        <span className="method-name">{method.name}</span>
+                                                    </div>
+                                                </label>
+                                            ))
+                                        )}
                                     </div>
                                 </div>
                             </section>
@@ -224,7 +256,7 @@ const Checkout = () => {
                                             </div>
                                             <p className="transfer-to">Send to wallet:</p>
                                             <div className="wallet-number-box">
-                                                {Object.values(PAYMENT_METHODS).find(m => m.id === paymentMethod).number}
+                                                {paymentMethods.find(m => m.name === paymentMethod)?.number}
                                             </div>
                                         </div>
 

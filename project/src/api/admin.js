@@ -313,6 +313,27 @@ const adminAPI = {
     sendNewsletter: async (data) => {
         const response = await client.post('/newsletter/admin/send', data);
         return response.data;
+    },
+
+    // Payment Methods
+    getAdminPaymentMethods: async () => {
+        const response = await client.get('/admin/payment-methods');
+        return response.data.data;
+    },
+
+    createPaymentMethod: async (data) => {
+        const response = await client.post('/admin/payment-methods', data);
+        return response.data.data;
+    },
+
+    updatePaymentMethod: async (id, data) => {
+        const response = await client.put(`/admin/payment-methods/${id}`, data);
+        return response.data.data;
+    },
+
+    deletePaymentMethod: async (id) => {
+        const response = await client.delete(`/admin/payment-methods/${id}`);
+        return response.data;
     }
 };
 

@@ -55,6 +55,7 @@ const AdminLayout = () => {
                 { path: '/admin/products', icon: <Package size={20} />, label: 'Products' },
                 { path: '/admin/categories', icon: <Tag size={20} />, label: 'Categories' },
                 { path: '/admin/payments', icon: <CreditCard size={20} />, label: 'Payments' },
+                { path: '/admin/payment-methods', icon: <Settings size={20} />, label: 'Payment Methods' },
                 { path: '/admin/promo-codes', icon: <Gift size={20} />, label: 'Promo Codes' },
                 { path: '/admin/flash-sales', icon: <Zap size={20} />, label: 'Flash Sales' }
             ]
