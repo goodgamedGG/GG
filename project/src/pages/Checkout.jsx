@@ -4,12 +4,14 @@ import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 import { useToast } from '../context/ToastContext';
+import { Plus, Minus, Trash2, Smartphone, CreditCard, Zap, Shield, CheckCircle2, Box, Rocket, MessageSquare, ShieldCheck, Lock, Receipt, Gamepad2, DollarSign } from 'lucide-react';
 import client from '../api/client'; // Import client for API calls
+import { getImageUrl } from '../utils/imageUtils';
 
 const Checkout = () => {
     const { t, isRTL } = useLanguage();
     const { isAuthenticated, user } = useAuth();
-    const { cart, clearCart, fetchCart, applyPromoCode } = useCart();
+    const { cart, clearCart, fetchCart, applyPromoCode, updateCartItem, removeFromCart } = useCart();
     const navigate = useNavigate();
     const { addToast } = useToast();
 
@@ -18,8 +20,6 @@ const Checkout = () => {
     const [phoneNumber, setPhoneNumber] = useState(''); // Sender's number
     const [paymentProof, setPaymentProof] = useState(null);
     const [contactPhone, setContactPhone] = useState(user?.phone || '');
-    const [promoCode, setPromoCode] = useState('');
-    const [promoLoading, setPromoLoading] = useState(false);
 
     // Helper to format price
     const formatPrice = (price) => {
@@ -28,81 +28,12 @@ const Checkout = () => {
             currency: 'USD'
         }).format(price);
     };
-    // Loyalty State
-    const [loyalty, setLoyalty] = useState(null);
-    const [pointsInput, setPointsInput] = useState('');
-    const [redeemLoading, setRedeemLoading] = useState(false);
-
-    React.useEffect(() => {
-        const fetchLoyalty = async () => {
-            try {
-                const res = await client.get('/loyalty');
-                if (res.data.success) {
-                    setLoyalty(res.data.data);
-                }
-            } catch (error) {
-                console.error('Error fetching loyalty:', error);
-            }
-        };
-        fetchLoyalty();
-    }, []);
-
-    const handleRedeemPoints = async () => {
-        if (!pointsInput || isNaN(pointsInput) || parseInt(pointsInput) <= 0) {
-            addToast('Please enter a valid points amount', 'error');
-            return;
-        }
-
-        try {
-            setRedeemLoading(true);
-            const res = await client.post('/cart/redeem-points', { points: parseInt(pointsInput) });
-            if (res.data.success) {
-                addToast('Points applied successfully', 'success');
-                fetchCart(); // Refresh cart to show discount
-                setPointsInput('');
-            }
-        } catch (error) {
-            const msg = error.response?.data?.message || 'Failed to redeem points';
-            addToast(msg, 'error');
-        } finally {
-            setRedeemLoading(false);
-        }
-    };
-
-    const handleRemovePoints = async () => {
-        try {
-            setRedeemLoading(true);
-            const res = await client.delete('/cart/redeem-points');
-            if (res.data.success) {
-                addToast('Points removed', 'success');
-                fetchCart(); // Refresh cart
-            }
-        } catch (error) {
-            addToast('Failed to remove points', 'error');
-        } finally {
-            setRedeemLoading(false);
-        }
-    };
-
     const PAYMENT_METHODS = {
-        INSTAPAY: { id: 'InstaPay', name: 'InstaPay', number: '01000000000' },
-        VODAFONE_CASH: { id: 'Vodafone Cash', name: 'Vodafone Cash', number: '01000000000' },
-        TELDA: { id: 'Telda', name: 'Telda', number: '01500000000' }
+        INSTAPAY: { id: 'InstaPay', name: 'InstaPay', number: '01000000000', icon: <Zap size={24} /> },
+        VODAFONE_CASH: { id: 'Vodafone Cash', name: 'Vodafone Cash', number: '01000000000', icon: <Smartphone size={24} /> },
+        TELDA: { id: 'Telda', name: 'Telda', number: '01500000000', icon: <CreditCard size={24} /> }
     };
 
-    const handleApplyPromo = async () => {
-        if (!promoCode) return;
-        try {
-            setPromoLoading(true);
-            await applyPromoCode(promoCode);
-            addToast('Promo code applied!', 'success');
-            setPromoCode('');
-        } catch (error) {
-            addToast(error.response?.data?.message || 'Invalid promo code', 'error');
-        } finally {
-            setPromoLoading(false);
-        }
-    };
 
     const handleFileChange = (e) => {
         if (e.target.files && e.target.files[0]) {
@@ -211,130 +142,111 @@ const Checkout = () => {
 
     return (
         <div className="checkout-page-root" style={{ direction: isRTL ? 'rtl' : 'ltr' }}>
-            <div className="container" style={{ padding: '0 clamp(16px, 4vw, 24px)', maxWidth: '1440px', margin: '0 auto' }}>
-                <header className="checkout-header" style={{ padding: 'clamp(32px, 6vw, 48px) 0' }}>
-                    <h1 className="checkout-title" style={{ fontFamily: 'Orbitron, sans-serif', fontSize: 'clamp(2rem, 5vw, 3rem)', color: 'var(--color-cyan-primary)', textTransform: 'uppercase', letterSpacing: '2px', textShadow: '0 0 30px rgba(0, 217, 255, 0.3)' }}>
+            <div className="checkout-container container">
+                <header className="checkout-header">
+                    <h1 className="checkout-title">
                         {t('checkoutTitle')}
                     </h1>
                 </header>
 
                 <div className="checkout-main-grid">
-                    {/* 1. Visual Confirmation (Product Summary) */}
-                    <section className="product-summary-section">
-                        <div className="section-card">
-                            <h2 className="section-title">Visual Confirmation</h2>
-                            <div className="summary-items-list">
-                                {cart.items.map((item) => (
-                                    <div key={item._id} className="summary-item-row">
-                                        <div className="summary-item-image">
-                                            <img src={getImageUrl(item.product?.images?.[0])} alt={item.name} />
-                                        </div>
-                                        <div className="summary-item-info">
-                                            <div className="summary-item-name">{item.name}</div>
-                                            <div className="summary-item-meta">
-                                                {item.product?.platform} | {item.variant?.type}
+                    {/* LEFT SIDE: Sequential Flow */}
+                    <div className="checkout-primary-flow">
+                        {/* 1. Visual Confirmation */}
+                        <section className="product-summary-section">
+                            <div className="section-card">
+                                <h2 className="section-title">
+                                    <span className="section-icon-group">
+                                        <Receipt className="s-icon" size={20} />
+                                        <Gamepad2 className="s-icon" size={20} />
+                                        <DollarSign className="s-icon" size={20} />
+                                    </span>
+                                    Visual Confirmation
+                                </h2>
+                                <div className="summary-items-list">
+                                    {cart.items.map((item) => (
+                                        <div key={item._id} className="summary-item-row">
+                                            <div className="summary-item-image">
+                                                <img src={getImageUrl(item.product?.images?.[0])} alt={item.name} />
                                             </div>
-                                            <div className="summary-item-qty">
-                                                Qty: {item.quantity}
+                                            <div className="summary-item-content">
+                                                <div className="summary-item-header">
+                                                    <div className="summary-item-info">
+                                                        <div className="summary-item-name">{item.name}</div>
+                                                        <div className="summary-item-meta">
+                                                            {item.product?.platform} | {item.variant?.type}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div className="summary-item-actions">
+                                                    <div className="summary-item-qty-control">
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => item.quantity > 1 ? updateCartItem(item._id, item.quantity - 1) : removeFromCart(item._id)}
+                                                            className="qty-btn"
+                                                        >
+                                                            {item.quantity > 1 ? <Minus size={14} /> : <Trash2 size={14} />}
+                                                        </button>
+                                                        <span className="qty-value">{item.quantity}</span>
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => updateCartItem(item._id, item.quantity + 1)}
+                                                            className="qty-btn"
+                                                        >
+                                                            <Plus size={14} />
+                                                        </button>
+                                                    </div>
+                                                    <div className="summary-item-price-block">
+                                                        <div className="summary-item-price">
+                                                            {formatPrice(item.price * item.quantity)}
+                                                        </div>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
-                                        <div className="summary-item-price">
-                                            {formatPrice(item.price * item.quantity)}
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    </section>
-
-                    {/* 2. Order Details Form */}
-                    <div className="checkout-form-container">
-                        <form onSubmit={handleSubmit} className="elite-checkout-form">
-                            {/* Contact Info */}
-                            <section className="form-section">
-                                <div className="section-card">
-                                    <h2 className="section-title">Contact Information</h2>
-                                    <div className="input-group">
-                                        <label className="input-label">Communication Number</label>
-                                        <input
-                                            type="text"
-                                            value={contactPhone}
-                                            onChange={(e) => setContactPhone(e.target.value)}
-                                            className="elite-input"
-                                            placeholder="01xxxxxxxxx"
-                                            required
-                                        />
-                                        <p className="input-hint">We'll use this for delivery updates via WhatsApp/Call.</p>
-                                    </div>
+                                    ))}
                                 </div>
-                            </section>
+                            </div>
+                        </section>
 
-                            {/* Loyalty Points Redemption */}
-                            {loyalty && loyalty.settings && loyalty.loyalty && (
-                                <section className="form-section loyalty-section">
-                                    <div className="section-card loyalty-card">
-                                        <h2 className="section-title loyalty-title">
-                                            <span className="diamond-icon">💎</span> Loyalty Rewards
-                                        </h2>
+                        {/* 2. Contact Information */}
+                        <section className="form-section">
+                            <div className="section-card">
+                                <h2 className="section-title">
+                                    <span className="section-icon-group">
+                                        <Smartphone className="s-icon" size={20} />
+                                        <MessageSquare className="s-icon" size={20} />
+                                        <ShieldCheck className="s-icon" size={20} />
+                                    </span>
+                                    Contact Information
+                                </h2>
+                                <div className="input-group">
+                                    <label className="input-label">Communication Number</label>
+                                    <input
+                                        type="text"
+                                        value={contactPhone}
+                                        onChange={(e) => setContactPhone(e.target.value)}
+                                        className="elite-input"
+                                        placeholder="01xxxxxxxxx"
+                                        required
+                                    />
+                                    <p className="input-hint">We'll use this for delivery updates via WhatsApp/Call.</p>
+                                </div>
+                            </div>
+                        </section>
 
-                                        <div className="loyalty-status">
-                                            <div className="status-row">
-                                                <span className="status-label">Available Balance</span>
-                                                <span className="status-value">{loyalty.loyalty.points} pts</span>
-                                            </div>
-                                            <div className="status-row">
-                                                <span className="status-label">Estimated Value</span>
-                                                <span className="status-value">EGP {(loyalty.loyalty.points / loyalty.settings.pointsToMoneyRatio).toFixed(2)}</span>
-                                            </div>
-                                        </div>
-
-                                        {cart.pointsUsed > 0 ? (
-                                            <div className="loyalty-applied-box">
-                                                <div className="applied-info">
-                                                    <span className="applied-label">{cart.pointsUsed} Points Redeemed</span>
-                                                    <span className="applied-discount">-EGP {cart.pointsDiscount} Saved</span>
-                                                </div>
-                                                <button
-                                                    type="button"
-                                                    onClick={handleRemovePoints}
-                                                    disabled={redeemLoading}
-                                                    className="loyalty-remove-btn"
-                                                >
-                                                    Remove
-                                                </button>
-                                            </div>
-                                        ) : (
-                                            <div className="loyalty-input-stack">
-                                                <div className="stack-row">
-                                                    <input
-                                                        type="number"
-                                                        value={pointsInput}
-                                                        onChange={(e) => setPointsInput(e.target.value)}
-                                                        placeholder={`Min: ${loyalty.settings.minPointsToRedeem}`}
-                                                        className="elite-input points-input"
-                                                    />
-                                                    <button
-                                                        type="button"
-                                                        onClick={handleRedeemPoints}
-                                                        disabled={redeemLoading || !pointsInput}
-                                                        className="loyalty-apply-btn"
-                                                    >
-                                                        {redeemLoading ? '...' : 'Redeem Now'}
-                                                    </button>
-                                                </div>
-                                                <p className="loyalty-hint">
-                                                    *Ratio: {loyalty.settings.pointsToMoneyRatio} pts = 1 EGP
-                                                </p>
-                                            </div>
-                                        )}
-                                    </div>
-                                </section>
-                            )}
-
-                            {/* Payment Methods */}
+                        {/* 3. Payment Architecture */}
+                        <form onSubmit={handleSubmit} className="elite-checkout-form">
                             <section className="form-section">
                                 <div className="section-card">
-                                    <h2 className="section-title">Payment Architecture</h2>
+                                    <h2 className="section-title">
+                                        <span className="section-icon-group">
+                                            <CreditCard className="s-icon" size={20} />
+                                            <Zap className="s-icon" size={20} />
+                                            <Lock className="s-icon" size={20} />
+                                        </span>
+                                        Payment Architecture
+                                    </h2>
                                     <div className="payment-grid">
                                         {Object.values(PAYMENT_METHODS).map(method => (
                                             <label key={method.id} className={`payment-card ${paymentMethod === method.id ? 'active' : ''}`}>
@@ -348,6 +260,7 @@ const Checkout = () => {
                                                 />
                                                 <div className="payment-card-content">
                                                     <div className="radio-circle"></div>
+                                                    <div className="method-icon">{method.icon}</div>
                                                     <span className="method-name">{method.name}</span>
                                                 </div>
                                             </label>
@@ -356,7 +269,7 @@ const Checkout = () => {
                                 </div>
                             </section>
 
-                            {/* Manual Payment Details */}
+                            {/* 4. Transfer Details */}
                             {paymentMethod && (
                                 <section className="form-section payment-details-section">
                                     <div className="section-card details-card">
@@ -403,78 +316,25 @@ const Checkout = () => {
                                     </div>
                                 </section>
                             )}
-                        </form>
-                    </div>
 
-                    {/* 3. Order Summary Sidebar */}
-                    <aside className="checkout-summary-sidebar">
-                        <div className="summary-sticky-card">
-                            <h2 className="summary-heading">Order Confirmation</h2>
-
-                            <div className="promo-code-section">
-                                <div className="promo-input-wrapper">
-                                    <input
-                                        type="text"
-                                        placeholder="Promo Code"
-                                        value={promoCode}
-                                        onChange={(e) => setPromoCode(e.target.value)}
-                                        className="elite-input promo-input"
-                                    />
+                            <section className="form-section final-action-zone">
+                                <div className="section-card final-card">
                                     <button
                                         type="button"
-                                        onClick={handleApplyPromo}
-                                        disabled={promoLoading || !promoCode}
-                                        className="promo-apply-btn"
+                                        onClick={handleSubmit}
+                                        disabled={loading}
+                                        className="checkout-power-cta"
                                     >
-                                        {promoLoading ? '...' : 'Apply'}
+                                        {loading ? 'Securing Order...' : 'Confirm & Place Order'}
                                     </button>
-                                </div>
-                            </div>
-
-                            <div className="fare-breakdown">
-                                <div className="fare-row">
-                                    <span>Subtotal</span>
-                                    <span>EGP {cart.subtotal}</span>
-                                </div>
-                                {cart.discount > 0 && (
-                                    <div className="fare-row discount">
-                                        <span>Promo Discount</span>
-                                        <span>-EGP {cart.discount}</span>
+                                    <div className="trust-badges small-badges">
+                                        <div className="badge"><Shield size={12} /> Encrypted Checkout</div>
+                                        <div className="badge"><Shield size={12} /> Buyer Protection</div>
                                     </div>
-                                )}
-                                {cart.pointsDiscount > 0 && (
-                                    <div className="fare-row loyalty">
-                                        <span>Loyalty Discount</span>
-                                        <span>-EGP {cart.pointsDiscount}</span>
-                                    </div>
-                                )}
-                                <div className="fare-row total-row">
-                                    <span>Final Total</span>
-                                    <span className="total-price">EGP {cart.total}</span>
                                 </div>
-                            </div>
-
-                            <button
-                                type="button"
-                                onClick={handleSubmit}
-                                disabled={loading}
-                                className="checkout-power-cta"
-                            >
-                                {loading ? 'Securing Order...' : 'Confirm & Place Order'}
-                            </button>
-
-                            <div className="trust-badges">
-                                <div className="badge">
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /></svg>
-                                    Encrypted Checkout
-                                </div>
-                                <div className="badge">
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg>
-                                    Buyer Protection Enabled
-                                </div>
-                            </div>
-                        </div>
-                    </aside>
+                            </section>
+                        </form>
+                    </div>
                 </div>
             </div>
 
@@ -512,27 +372,78 @@ const Checkout = () => {
 
                 .underline-none { text-decoration: none; }
 
+                .checkout-container {
+                    padding: 0 clamp(16px, 4vw, 24px);
+                    max-width: 1440px;
+                    margin: 0 auto;
+                }
+
+                .checkout-header {
+                    padding: clamp(32px, 6vw, 48px) 0;
+                }
+
+                .checkout-title {
+                    font-family: Orbitron, sans-serif;
+                    font-size: 2rem;
+                    color: var(--color-cyan-primary);
+                    text-transform: uppercase;
+                    letter-spacing: 2px;
+                    text-shadow: 0 0 30px rgba(0, 217, 255, 0.3);
+                    margin: 0 0 16px 0;
+                    padding-left: 16px;
+                }
+
+                @media (min-width: 1024px) {
+                    .checkout-title {
+                        font-size: 3rem;
+                        margin: 0 0 32px 0;
+                        padding-left: 0;
+                    }
+                }
+
                 .checkout-main-grid {
                     display: grid;
                     grid-template-columns: 1fr;
-                    gap: 32px;
+                    gap: 24px;
                     padding-bottom: 64px;
                     align-items: start;
                 }
 
                 @media (min-width: 1024px) {
                     .checkout-main-grid {
-                        grid-template-columns: 1fr 400px;
+                        grid-template-columns: 1fr;
+                        max-width: 800px;
+                        margin: 0 auto;
+                        gap: 48px;
+                    }
+
+                    .checkout-primary-flow {
+                        display: flex;
+                        flex-direction: column;
+                        gap: 32px;
+                    }
+
+                    .checkout-summary-sidebar {
+                        position: sticky;
+                        top: 32px;
                     }
                 }
 
                 .section-card {
                     background: linear-gradient(145deg, rgba(22, 22, 26, 0.8) 0%, rgba(18, 18, 20, 0.9) 100%);
-                    padding: clamp(24px, 4vw, 32px);
+                    padding: 16px;
                     border-radius: 24px;
                     border: 1px solid rgba(255, 255, 255, 0.05);
                     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
                     backdrop-filter: blur(20px);
+                    margin-bottom: 24px;
+                }
+
+                @media (min-width: 640px) {
+                    .section-card {
+                        padding: 32px;
+                        margin-bottom: 32px;
+                    }
                 }
 
                 .section-title {
@@ -540,6 +451,23 @@ const Checkout = () => {
                     font-size: 1.25rem;
                     color: var(--color-text-primary);
                     margin-bottom: 24px;
+                    display: flex;
+                    align-items: center;
+                    gap: 20px;
+                }
+
+                .section-icon-group {
+                    display: flex;
+                    gap: 8px;
+                    background: rgba(0, 217, 255, 0.05);
+                    padding: 8px 12px;
+                    border-radius: 12px;
+                    color: var(--color-cyan-primary);
+                    opacity: 0.8;
+                }
+
+                .s-icon {
+                    stroke-width: 1.5px;
                 }
 
                 .summary-items-list {
@@ -550,27 +478,104 @@ const Checkout = () => {
 
                 .summary-item-row {
                     display: flex;
-                    gap: 20px;
-                    align-items: center;
+                    gap: 16px;
+                    align-items: flex-start;
                     padding-bottom: 16px;
                     border-bottom: 1px solid rgba(255, 255, 255, 0.05);
                 }
 
+                .summary-item-content {
+                    flex: 1;
+                    display: flex;
+                    flex-direction: column;
+                    gap: 12px;
+                }
+
+                .summary-item-actions {
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    gap: 12px;
+                }
+
                 .summary-item-image {
-                    width: 70px;
-                    height: 90px;
-                    border-radius: 8px;
+                    width: clamp(80px, 15vw, 100px);
+                    height: clamp(100px, 20vw, 130px);
+                    border-radius: 12px;
                     overflow: hidden;
                     flex-shrink: 0;
                     border: 1px solid rgba(255, 255, 255, 0.1);
+                    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
                 }
 
                 .summary-item-image img { width: 100%; height: 100%; object-fit: cover; }
-                .summary-item-info { flex: 1; }
-                .summary-item-name { font-weight: 700; font-size: 1.1rem; margin-bottom: 4px; color: var(--color-text-primary); }
-                .summary-item-meta { font-size: 0.85rem; color: var(--color-text-muted); font-family: "JetBrains Mono", monospace; }
-                .summary-item-qty { font-size: 0.9rem; color: var(--color-cyan-primary); margin-top: 4px; font-weight: 600; }
-                .summary-item-price { font-family: Orbitron, sans-serif; font-weight: 800; color: #fff; font-size: 1.1rem; }
+                .summary-item-info { flex: 1; min-width: 0; }
+                .summary-item-name { font-weight: 700; font-size: clamp(1rem, 3vw, 1.25rem); margin-bottom: 4px; color: var(--color-text-primary); }
+                .summary-item-meta { font-size: 0.85rem; color: var(--color-text-muted); font-family: "JetBrains Mono", monospace; margin-bottom: 12px; }
+
+                .summary-item-qty-control {
+                    display: flex;
+                    align-items: center;
+                    gap: 12px;
+                }
+
+                .qty-btn {
+                    width: 44px;
+                    height: 44px;
+                    border-radius: 12px;
+                    border: 1px solid rgba(255, 255, 255, 0.1);
+                    background: rgba(255, 255, 255, 0.05);
+                    color: #fff;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    cursor: pointer;
+                    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                }
+
+                .qty-btn:hover {
+                    background: var(--color-cyan-primary);
+                    color: #000;
+                    border-color: var(--color-cyan-primary);
+                    box-shadow: 0 0 15px rgba(0, 217, 255, 0.3);
+                }
+
+                .qty-value {
+                    font-weight: 800;
+                    font-family: Orbitron, sans-serif;
+                    min-width: 24px;
+                    text-align: center;
+                    font-size: 1.1rem;
+                }
+
+                .summary-item-price-block { 
+                    text-align: right; 
+                    display: flex; 
+                    flex-direction: column; 
+                    gap: 6px;
+                    padding-left: 20px;
+                }
+                .summary-item-label { font-size: 0.7rem; color: var(--color-text-muted); text-transform: uppercase; letter-spacing: 1.5px; font-weight: 600; }
+                .summary-item-price { font-family: Orbitron, sans-serif; font-weight: 900; color: #fff; font-size: 1.25rem; white-space: nowrap; }
+
+                @media (max-width: 640px) {
+                    .summary-item-row {
+                        flex-direction: column;
+                        align-items: stretch;
+                        gap: 24px;
+                        padding-bottom: 24px;
+                    }
+                    .summary-item-header {
+                        display: flex;
+                        gap: 16px;
+                    }
+                    .summary-item-price-block {
+                        text-align: left;
+                        padding-left: 0;
+                        padding-top: 12px;
+                        border-top: 1px dashed rgba(255, 255, 255, 0.05);
+                    }
+                }
 
                 .form-section { margin-bottom: 32px; }
                 .input-group { margin-bottom: 20px; }
@@ -593,38 +598,86 @@ const Checkout = () => {
                     background: rgba(0, 217, 255, 0.05);
                 }
 
-                .input-hint { font-size: 0.8rem; color: var(--color-text-muted); margin-top: 8px; }
+                .input-hint { font-size: 0.75rem; color: var(--color-text-muted); margin-top: 8px; font-weight: 400; opacity: 0.7; }
 
-                .payment-grid { display: grid; grid-template-columns: 1fr; gap: 16px; }
-                @media (min-width: 640px) { .payment-grid { grid-template-columns: repeat(3, 1fr); } }
+                .payment-grid { 
+                    display: grid; 
+                    grid-template-columns: 1fr 1fr; 
+                    gap: 12px; 
+                }
 
-                .payment-card { cursor: pointer; position: relative; }
-                .payment-radio { position: absolute; opacity: 0; }
+                @media (min-width: 640px) {
+                    .payment-grid {
+                        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); 
+                        gap: 20px;
+                    }
+                }
+
                 .payment-card-content {
-                    padding: 24px;
+                    padding: 24px 16px;
                     background: rgba(255, 255, 255, 0.02);
-                    border: 1px solid rgba(255, 255, 255, 0.1);
-                    border-radius: 16px;
+                    border: 1px solid rgba(255, 255, 255, 0.05);
+                    border-radius: 20px;
                     display: flex;
                     flex-direction: column;
                     align-items: center;
                     gap: 16px;
-                    transition: all 0.3s ease;
+                    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
                 }
 
                 .payment-card.active .payment-card-content {
-                    background: rgba(0, 217, 255, 0.08);
+                    background: rgba(0, 217, 255, 0.1);
                     border-color: var(--color-cyan-primary);
+                    box-shadow: 0 0 30px rgba(0, 217, 255, 0.15);
+                    transform: translateY(-4px);
+                }
+
+                .method-name {
+                    font-weight: 700;
+                    letter-spacing: 0.5px;
+                    font-size: 1rem;
                 }
 
                 .radio-circle { width: 24px; height: 24px; border: 2px solid rgba(255, 255, 255, 0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: all 0.3s; }
                 .payment-card.active .radio-circle { border-color: var(--color-cyan-primary); }
                 .payment-card.active .radio-circle::after { content: ''; width: 12px; height: 12px; background: var(--color-cyan-primary); border-radius: 50%; }
 
-                .transfer-instructions { text-align: center; margin-bottom: 32px; padding: 24px; background: rgba(0, 217, 255, 0.05); border-radius: 20px; border: 1px dashed rgba(0, 217, 255, 0.3); }
-                .amount-display { display: flex; align-items: baseline; justify-content: center; gap: 8px; margin: 12px 0; }
-                .amount-display .value { font-size: 2.5rem; font-family: Orbitron, sans-serif; font-weight: 900; color: var(--color-cyan-primary); }
-                .wallet-number-box { font-size: 1.5rem; font-family: "JetBrains Mono", monospace; background: #1a1a1e; padding: 12px 24px; border-radius: 12px; display: inline-block; margin-top: 12px; letter-spacing: 2px; }
+                .transfer-instructions { 
+                    text-align: center; 
+                    margin-bottom: 32px; 
+                    padding: 32px 24px; 
+                    background: rgba(0, 217, 255, 0.03); 
+                    border-radius: 24px; 
+                    border: 1px solid rgba(0, 217, 255, 0.1);
+                }
+
+                .amount-display .value { 
+                    font-size: 3rem; 
+                    font-family: Orbitron, sans-serif; 
+                    font-weight: 900; 
+                    color: var(--color-cyan-primary); 
+                    text-shadow: 0 0 20px rgba(0, 217, 255, 0.3);
+                }
+
+                .wallet-number-box { 
+                    font-size: 1.75rem; 
+                    font-family: "JetBrains Mono", monospace; 
+                    background: rgba(0, 0, 0, 0.4); 
+                    padding: 16px 32px; 
+                    border-radius: 16px; 
+                    display: inline-block; 
+                    margin-top: 16px; 
+                    letter-spacing: 3px; 
+                    border: 1px solid rgba(255, 255, 255, 0.05);
+                }
+
+                @media (max-width: 640px) {
+                    .transfer-instructions { padding: 24px 16px; }
+                    .amount-display .value { font-size: 2.5rem; }
+                    .wallet-number-box { width: 100%; font-size: 1.25rem; padding: 16px 0; text-align: center; }
+                    .payment-card-content { padding: 16px 8px; gap: 8px; }
+                    .method-name { font-size: 0.85rem; }
+                }
 
                 .loyalty-card { background: linear-gradient(145deg, rgba(255, 215, 0, 0.05) 0%, rgba(184, 134, 11, 0.02) 100%); border-color: rgba(255, 215, 0, 0.2); }
                 .loyalty-title { color: #FFD700; }
@@ -637,27 +690,14 @@ const Checkout = () => {
                 @media (max-width: 480px) { .stack-row { flex-direction: column; } }
                 .loyalty-apply-btn { background: #FFD700; color: #000; border: none; padding: 0 24px; border-radius: 12px; font-weight: 800; cursor: pointer; min-height: 52px; }
 
-                .promo-code-section { margin: 24px 0; }
-                .promo-input-wrapper { display: flex; gap: 8px; }
-                .promo-input { flex: 1; height: 52px; }
-                .promo-apply-btn { 
-                    background: rgba(255, 255, 255, 0.1); 
-                    color: #fff; 
-                    border: 1px solid rgba(255, 255, 255, 0.2); 
-                    padding: 0 20px; 
-                    border-radius: 12px; 
-                    cursor: pointer; 
-                    transition: all 0.3s; 
-                    font-weight: 600;
-                    height: 52px;
-                }
-                .promo-apply-btn:hover:not(:disabled) { background: var(--color-cyan-primary); color: #000; border-color: var(--color-cyan-primary); }
 
                 .checkout-summary-sidebar { position: sticky; top: 100px; }
                 .summary-sticky-card { background: rgba(30, 30, 35, 0.95); padding: 32px; border-radius: 28px; border: 1px solid rgba(0, 217, 255, 0.2); backdrop-filter: blur(40px); }
-                .fare-breakdown { display: flex; flex-direction: column; gap: 16px; margin-bottom: 32px; }
-                .total-row { margin-top: 12px; padding-top: 20px; border-top: 2px solid rgba(255, 255, 255, 0.1); }
-                .total-price { font-size: 1.75rem; font-family: Orbitron, sans-serif; font-weight: 900; color: var(--color-cyan-primary); }
+                .fare-breakdown { display: flex; flex-direction: column; gap: 16px; margin: 32px 0; border-top: 1px solid rgba(255, 255, 255, 0.05); padding-top: 32px; }
+                .fare-row { display: flex; justify-content: space-between; font-size: 1.1rem; color: var(--color-text-muted); }
+                .discount-value { color: #ff3366; font-weight: 700; }
+                .total-row { margin-top: 12px; padding-top: 24px; border-top: 2px solid rgba(255, 255, 255, 0.1); color: var(--color-text-primary); }
+                .total-price { font-size: 2.25rem; font-family: Orbitron, sans-serif; font-weight: 900; color: var(--color-cyan-primary); text-shadow: 0 0 20px rgba(0, 217, 255, 0.3); }
 
                 .checkout-power-cta {
                     width: 100%;
@@ -675,13 +715,36 @@ const Checkout = () => {
                     transition: all 0.3s ease;
                 }
 
-                .checkout-power-cta:hover {
-                    transform: translateY(-5px);
-                    box-shadow: 0 15px 40px rgba(0, 217, 255, 0.6);
+                .final-card {
+                    background: linear-gradient(145deg, rgba(0, 217, 255, 0.05) 0%, rgba(22, 22, 26, 0.9) 100%);
+                    border: 1px solid rgba(0, 217, 255, 0.2);
+                    text-align: center;
                 }
 
-                .trust-badges { margin-top: 32px; display: flex; flex-direction: column; gap: 12px; }
-                .badge { display: flex; align-items: center; gap: 10px; font-size: 0.75rem; color: var(--color-text-muted); }
+                .small-badges {
+                    display: flex;
+                    flex-direction: row;
+                    justify-content: center;
+                    gap: 20px;
+                    margin-top: 24px;
+                    opacity: 0.5;
+                }
+
+                .summary-footer-badges {
+                    display: flex;
+                    flex-direction: row;
+                    justify-content: center;
+                    gap: 16px;
+                    margin-top: 24px;
+                    opacity: 0.5;
+                }
+                
+                .summary-heading {
+                    font-family: Orbitron, sans-serif;
+                    font-size: 1.25rem;
+                    color: var(--color-text-primary);
+                    margin-bottom: 24px;
+                }
 
                 .custom-file-btn {
                     display: inline-block;
