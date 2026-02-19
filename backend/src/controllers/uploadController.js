@@ -20,8 +20,10 @@ const uploadFile = (req, res, next) => {
         });
     }
 
-    // For GridFS storage, construct the API path to access the image
-    const imagePath = `/api/images/${req.file.filename}`;
+    // For GridFS storage, construct the absolute API path to access the image
+    const protocol = req.protocol;
+    const host = req.get('host');
+    const imagePath = `${protocol}://${host}/api/images/${req.file.filename}`;
     console.log('Returning path:', imagePath);
     console.log('======================');
 

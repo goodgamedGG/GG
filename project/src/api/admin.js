@@ -297,6 +297,22 @@ const adminAPI = {
     moderateReview: async (id, isApproved, showInSlider) => {
         const response = await client.patch(`/admin/reviews/${id}/moderate`, { isApproved, showInSlider });
         return response.data;
+    },
+
+    // Newsletter
+    getNewsletterSubscribers: async (page = 1, limit = 50) => {
+        const response = await client.get('/newsletter/admin/subscribers', { params: { page, limit } });
+        return response.data;
+    },
+
+    deleteNewsletterSubscriber: async (id) => {
+        const response = await client.delete(`/newsletter/admin/subscribers/${id}`);
+        return response.data;
+    },
+
+    sendNewsletter: async (data) => {
+        const response = await client.post('/newsletter/admin/send', data);
+        return response.data;
     }
 };
 

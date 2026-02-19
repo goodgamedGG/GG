@@ -48,6 +48,7 @@ import FlashSales from './pages/admin/FlashSales';
 import Loyalty from './pages/admin/Loyalty';
 import Reviews from './pages/admin/Reviews';
 import Content from './pages/admin/Content';
+import AdminNewsletter from './pages/admin/Newsletter';
 import EmailQueue from './pages/admin/EmailQueue';
 import EmailTemplates from './pages/admin/EmailTemplates';
 import AuditLogs from './pages/admin/AuditLogs';
@@ -118,6 +119,7 @@ const App = () => {
                                             <Route path="loyalty" element={<Loyalty />} />
                                             <Route path="reviews" element={<Reviews />} />
                                             <Route path="content" element={<Content />} />
+                                            <Route path="newsletter" element={<AdminNewsletter />} />
                                             <Route path="email-queue" element={<EmailQueue />} />
                                             <Route path="email-templates" element={<EmailTemplates />} />
                                             <Route path="audit-logs" element={<AuditLogs />} />

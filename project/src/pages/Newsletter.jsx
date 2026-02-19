@@ -5,6 +5,7 @@ import {
     Crown, Sparkles, CheckCircle2,
     Mail, ArrowRight
 } from 'lucide-react';
+import { subscribe } from '../api/newsletter';
 
 const Newsletter = () => {
     const { t, isRTL } = useLanguage();
@@ -33,11 +34,24 @@ const Newsletter = () => {
         }
     ];
 
-    const handleSubmit = (e) => {
+    const [error, setError] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
+
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        if (email) {
+        if (!email) return;
+
+        setIsLoading(true);
+        setError('');
+
+        try {
+            await subscribe(email);
             setIsSubmitted(true);
-            // In a real app, this would call an API
+        } catch (err) {
+            console.error('Newsletter subscription error:', err);
+            setError(err.response?.data?.error || 'Failed to subscribe. Please try again.');
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -317,15 +331,18 @@ const Newsletter = () => {
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
                                     required
+                                    disabled={isLoading}
                                 />
                             </div>
+                            {error && <p style={{ color: '#ef4444', fontSize: '14px', marginTop: '8px' }}>{error}</p>}
                             <button
                                 type="submit"
                                 className="newsletter-cta"
                                 onMouseEnter={() => setIsHovered(true)}
                                 onMouseLeave={() => setIsHovered(false)}
+                                disabled={isLoading}
                             >
-                                {t('newsCTA')}
+                                {isLoading ? 'Submitting...' : t('newsCTA')}
                                 <ArrowRight size={18} style={{
                                     transform: isHovered ? (isRTL ? 'translateX(-4px)' : 'translateX(4px)') : 'none',
                                     transition: 'transform 0.3s ease'
