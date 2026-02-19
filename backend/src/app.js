@@ -36,6 +36,8 @@ const auditRoutes = require('./routes/auditRoutes');
 const imageRoutes = require('./routes/imageRoutes');
 const newsletterRoutes = require('./routes/newsletterRoutes');
 const paymentMethodRoutes = require('./routes/paymentMethodRoutes');
+const chatbotRoutes = require('./routes/chatbotRoutes');
+
 
 // Initialize Express app
 const app = express();
@@ -200,6 +202,8 @@ app.use('/api/admin/products', adminProductRoutes);
 app.use('/api/images', imageRoutes); // Mount image routes
 app.use('/api/newsletter', newsletterRoutes);
 app.use('/api/payment-methods', paymentMethodRoutes);
+app.use('/api/chatbot', chatbotRoutes);
+
 app.use('/api/upload', require('./routes/uploadRoutes'));
 
 // 404 handler

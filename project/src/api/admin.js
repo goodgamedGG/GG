@@ -334,7 +334,41 @@ const adminAPI = {
     deletePaymentMethod: async (id) => {
         const response = await client.delete(`/admin/payment-methods/${id}`);
         return response.data;
+    },
+
+    // ChatBot (Admin)
+    getChatBotKnowledge: async () => {
+        const response = await client.get('/chatbot/admin/knowledge');
+        return response.data;
+    },
+
+    upsertChatBotKnowledge: async (data) => {
+        const response = await client.post('/chatbot/admin/knowledge', data);
+        return response.data;
+    },
+
+    deleteChatBotKnowledge: async (id) => {
+        const response = await client.delete(`/chatbot/admin/knowledge/${id}`);
+        return response.data;
+    },
+
+    getChatBotUnanswered: async () => {
+        const response = await client.get('/chatbot/admin/unanswered');
+        return response.data;
+    },
+
+    deleteChatBotUnanswered: async (id) => {
+        const response = await client.delete(`/chatbot/admin/unanswered/${id}`);
+        return response.data;
+    }
+};
+
+export const chatbotAPI = {
+    query: async (query) => {
+        const response = await client.post('/chatbot/query', { query });
+        return response.data;
     }
 };
 
 export default adminAPI;
+

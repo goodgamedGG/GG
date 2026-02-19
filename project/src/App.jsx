@@ -16,6 +16,8 @@ import AdminLayout from './layouts/AdminLayout';
 // Public Components
 import Header from './components/Header';
 import Footer from './components/Footer';
+import ChatBot from './components/ChatBot/ChatBot';
+
 
 // Pages - Public
 import Games from './pages/Games';
@@ -54,6 +56,8 @@ import EmailTemplates from './pages/admin/EmailTemplates';
 import AuditLogs from './pages/admin/AuditLogs';
 import Settings from './pages/admin/Settings';
 import PaymentMethods from './pages/admin/PaymentMethods';
+import AdminChatBot from './pages/admin/AdminChatBot';
+
 
 // Protected Route Component
 import { useAuth } from './context/AuthContext';
@@ -80,9 +84,11 @@ const PublicLayout = ({ children }) => (
         <main className="main-content">
             {children}
         </main>
+        <ChatBot />
         <Footer />
     </div>
 );
+
 
 const App = () => {
     return (
@@ -126,7 +132,9 @@ const App = () => {
                                             <Route path="audit-logs" element={<AuditLogs />} />
                                             <Route path="settings" element={<Settings />} />
                                             <Route path="payment-methods" element={<PaymentMethods />} />
+                                            <Route path="chatbot" element={<AdminChatBot />} />
                                         </Route>
+
 
                                         {/* Public Routes */}
                                         <Route path="/" element={
