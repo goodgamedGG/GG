@@ -142,6 +142,10 @@ const mongoIdValidator = [
     param('id').trim().escape().isMongoId().withMessage('Invalid ID')
 ];
 
+const productIdParamValidator = [
+    param('productId').trim().escape().isMongoId().withMessage('Invalid product ID')
+];
+
 const paginationValidator = [
     query('page').optional().toInt().isInt({ min: 1 }).withMessage('Page must be a positive integer'),
     query('limit').optional().toInt().isInt({ min: 1, max: 1000 }).withMessage('Limit must be between 1 and 1000'),
@@ -166,5 +170,6 @@ module.exports = {
     createPromoCodeValidator,
     validatePromoCodeValidator,
     mongoIdValidator,
+    productIdParamValidator,
     paginationValidator
 };

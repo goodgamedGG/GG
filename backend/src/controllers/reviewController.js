@@ -101,7 +101,7 @@ const createReview = async (req, res, next) => {
         });
 
         if (existingReview) {
-            return next(new AppError('You have already reviewed this product', HTTP_STATUS.BAD_REQUEST));
+            return next(new AppError('You have already reviewed this product. Multiple reviews are not permitted.', HTTP_STATUS.BAD_REQUEST));
         }
 
         // Check if user purchased this product (for verified badge)

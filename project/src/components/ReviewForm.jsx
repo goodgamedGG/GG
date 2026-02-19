@@ -35,7 +35,8 @@ const ReviewForm = ({ productId, onReviewAdded }) => {
                 setTimeout(() => setSuccess(false), 3000);
             }
         } catch (err) {
-            setError(err.response?.data?.message || 'Failed to submit review. Please try again.');
+            const backendError = err.response?.data?.message || err.response?.data?.error;
+            setError(backendError || 'Failed to submit review. Please try again.');
         } finally {
             setLoading(false);
         }

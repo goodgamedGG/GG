@@ -10,13 +10,13 @@ const {
 const { protect } = require('../middleware/authMiddleware');
 const validate = require('../middleware/validateMiddleware');
 const auditLog = require('../middleware/auditMiddleware');
-const { mongoIdValidator, paginationValidator } = require('../utils/validators');
+const { mongoIdValidator, productIdParamValidator, paginationValidator } = require('../utils/validators');
 const { body } = require('express-validator');
 
 // @route   GET /api/reviews/product/:productId
 router.get(
     '/product/:productId',
-    mongoIdValidator,
+    productIdParamValidator,
     paginationValidator,
     validate,
     getProductReviews
