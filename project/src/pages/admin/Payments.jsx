@@ -63,7 +63,7 @@ const Payments = () => {
             </div>
 
             {/* Controls */}
-            <div style={{ marginBottom: '32px', display: 'flex', gap: '24px', alignItems: 'center' }}>
+            <div className="filters-container" style={{ marginBottom: '32px', display: 'flex', gap: '24px', alignItems: 'center', flexWrap: 'wrap' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px', background: 'rgba(30, 41, 59, 0.5)', padding: '8px 16px', borderRadius: '12px', border: '1px solid #1e293b' }}>
                     <Filter size={18} color="#94a3b8" />
                     <select
@@ -90,146 +90,147 @@ const Payments = () => {
             </div>
 
             {/* Payments List */}
-            <div className="payments-list-minimal">
-                {/* Grid Header */}
-                <div className="payments-grid-header-minimal">
-                    <div>Date</div>
-                    <div>User</div>
-                    <div>Order</div>
-                    <div>Method</div>
-                    <div style={{ textAlign: 'center' }}>Amount</div>
-                    <div style={{ textAlign: 'center' }}>Proof</div>
-                    <div style={{ textAlign: 'center' }}>Status</div>
-                    <div style={{ textAlign: 'center' }}>Actions</div>
-                </div>
-
-                {/* Grid Body */}
-                <div className="payments-grid-body-minimal">
-                    {loading ? (
-                        <div style={{ textAlign: 'center', padding: '60px', color: '#64748b', fontSize: '15px' }}>
-                            <div className="loading-spinner-minimal"></div>
-                            Loading payments...
-                        </div>
-                    ) : payments.length === 0 ? (
-                        <div style={{ textAlign: 'center', padding: '60px', color: '#64748b', fontSize: '15px' }}>
-                            No payments found.
-                        </div>
-                    ) : (
-                        payments.map((payment) => (
-                            <div key={payment._id} className="payments-grid-row-minimal">
-                                {/* Date Column */}
-                                <div className="date-col-minimal">
-                                    {formatDate(payment.createdAt)}
-                                </div>
-
-                                {/* User Column */}
-                                <div className="user-col-minimal">
-                                    <div className="user-name-minimal">{payment.user?.name}</div>
-                                    <div className="user-email-minimal">{payment.user?.email}</div>
-                                </div>
-
-                                {/* Order Column */}
-                                <div className="order-col-minimal">
-                                    <span className="order-number-minimal">#{payment.order?.orderNumber}</span>
-                                </div>
-
-                                {/* Method Column */}
-                                <div className="method-col-minimal">
-                                    <div className="method-name-minimal">{payment.method}</div>
-                                    <div className="method-phone-minimal">{payment.phoneNumber}</div>
-                                </div>
-
-                                {/* Amount Column */}
-                                <div style={{ textAlign: 'center' }}>
-                                    <span className="amount-value-minimal">${payment.order?.total}</span>
-                                </div>
-
-                                {/* Proof Column */}
-                                <div style={{ display: 'flex', justifyContent: 'center' }}>
-                                    {payment.proofImage && (
-                                        <div className="proof-image-container-minimal">
-                                            <img
-                                                src={getImageUrl(payment.proofImage)}
-                                                alt="Proof"
-                                                className="proof-thumb-minimal"
-                                                onClick={() => window.open(getImageUrl(payment.proofImage), '_blank')}
-                                                title="Click to view full image"
-                                            />
-                                        </div>
-                                    )}
-                                </div>
-
-                                {/* Status Column */}
-                                <div style={{ display: 'flex', justifyContent: 'center' }}>
-                                    <span className={`status-pill ${payment.status}`}>
-                                        <span className="status-dot"></span>
-                                        {payment.status}
-                                    </span>
-                                </div>
-
-                                {/* Actions Column */}
-                                <div className="actions-col-minimal">
-                                    <button
-                                        className="action-btn-minimal"
-                                        title="View Details"
-                                        onClick={async () => {
-                                            if (!payment.order?._id) {
-                                                addToast('Order ID not found', 'error');
-                                                return;
-                                            }
-                                            try {
-                                                const response = await client.get(`/orders/${payment.order._id}`);
-                                                const fullOrder = response.data.data.order;
-                                                setSelectedOrder({ ...fullOrder, payment });
-                                            } catch (e) {
-                                                console.error('Failed to fetch order:', e);
-                                                addToast('Failed to load order details', 'error');
-                                            }
-                                        }}
-                                    >
-                                        <Eye size={16} />
-                                    </button>
-                                    {payment.status === 'pending' && (
-                                        <>
-                                            <button
-                                                className="action-btn-minimal success"
-                                                title="Confirm Payment"
-                                                onClick={() => handleConfirm(payment)}
-                                            >
-                                                <CheckCircle size={16} />
-                                            </button>
-                                            <button
-                                                className="action-btn-minimal danger"
-                                                title="Reject Payment"
-                                                onClick={async () => {
-                                                    if (window.confirm('Reject this payment?')) {
-                                                        await adminAPI.rejectPayment(payment._id);
-                                                        fetchPayments();
-                                                    }
-                                                }}
-                                            >
-                                                <XCircle size={16} />
-                                            </button>
-                                        </>
-                                    )}
-                                </div>
-                            </div>
-                        ))
-                    )}
-                </div>
-
-                {!loading && totalPages > 1 && (
-                    <div style={{ marginTop: '32px', display: 'flex', justifyContent: 'center' }}>
-                        <Pagination
-                            currentPage={page}
-                            totalPages={totalPages}
-                            onPageChange={setPage}
-                        />
+            <div className="payments-table-wrapper" style={{ overflowX: 'auto', width: '100%', marginBottom: '32px' }}>
+                <div className="payments-list-minimal" style={{ minWidth: '1100px' }}>
+                    {/* Grid Header */}
+                    <div className="payments-grid-header-minimal">
+                        <div>Date</div>
+                        <div>User</div>
+                        <div>Order</div>
+                        <div>Method</div>
+                        <div style={{ textAlign: 'center' }}>Amount</div>
+                        <div style={{ textAlign: 'center' }}>Proof</div>
+                        <div style={{ textAlign: 'center' }}>Status</div>
+                        <div style={{ textAlign: 'center' }}>Actions</div>
                     </div>
-                )}
 
-                <style dangerouslySetInnerHTML={{
-                    __html: `
+                    {/* Grid Body */}
+                    <div className="payments-grid-body-minimal">
+                        {loading ? (
+                            <div style={{ textAlign: 'center', padding: '60px', color: '#64748b', fontSize: '15px' }}>
+                                <div className="loading-spinner-minimal"></div>
+                                Loading payments...
+                            </div>
+                        ) : payments.length === 0 ? (
+                            <div style={{ textAlign: 'center', padding: '60px', color: '#64748b', fontSize: '15px' }}>
+                                No payments found.
+                            </div>
+                        ) : (
+                            payments.map((payment) => (
+                                <div key={payment._id} className="payments-grid-row-minimal">
+                                    {/* Date Column */}
+                                    <div className="date-col-minimal">
+                                        {formatDate(payment.createdAt)}
+                                    </div>
+
+                                    {/* User Column */}
+                                    <div className="user-col-minimal">
+                                        <div className="user-name-minimal">{payment.user?.name}</div>
+                                        <div className="user-email-minimal">{payment.user?.email}</div>
+                                    </div>
+
+                                    {/* Order Column */}
+                                    <div className="order-col-minimal">
+                                        <span className="order-number-minimal">#{payment.order?.orderNumber}</span>
+                                    </div>
+
+                                    {/* Method Column */}
+                                    <div className="method-col-minimal">
+                                        <div className="method-name-minimal">{payment.method}</div>
+                                        <div className="method-phone-minimal">{payment.phoneNumber}</div>
+                                    </div>
+
+                                    {/* Amount Column */}
+                                    <div style={{ textAlign: 'center' }}>
+                                        <span className="amount-value-minimal">${payment.order?.total}</span>
+                                    </div>
+
+                                    {/* Proof Column */}
+                                    <div style={{ display: 'flex', justifyContent: 'center' }}>
+                                        {payment.proofImage && (
+                                            <div className="proof-image-container-minimal">
+                                                <img
+                                                    src={getImageUrl(payment.proofImage)}
+                                                    alt="Proof"
+                                                    className="proof-thumb-minimal"
+                                                    onClick={() => window.open(getImageUrl(payment.proofImage), '_blank')}
+                                                    title="Click to view full image"
+                                                />
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    {/* Status Column */}
+                                    <div style={{ display: 'flex', justifyContent: 'center' }}>
+                                        <span className={`status-pill ${payment.status}`}>
+                                            <span className="status-dot"></span>
+                                            {payment.status}
+                                        </span>
+                                    </div>
+
+                                    {/* Actions Column */}
+                                    <div className="actions-col-minimal">
+                                        <button
+                                            className="action-btn-minimal"
+                                            title="View Details"
+                                            onClick={async () => {
+                                                if (!payment.order?._id) {
+                                                    addToast('Order ID not found', 'error');
+                                                    return;
+                                                }
+                                                try {
+                                                    const response = await client.get(`/orders/${payment.order._id}`);
+                                                    const fullOrder = response.data.data.order;
+                                                    setSelectedOrder({ ...fullOrder, payment });
+                                                } catch (e) {
+                                                    console.error('Failed to fetch order:', e);
+                                                    addToast('Failed to load order details', 'error');
+                                                }
+                                            }}
+                                        >
+                                            <Eye size={16} />
+                                        </button>
+                                        {payment.status === 'pending' && (
+                                            <>
+                                                <button
+                                                    className="action-btn-minimal success"
+                                                    title="Confirm Payment"
+                                                    onClick={() => handleConfirm(payment)}
+                                                >
+                                                    <CheckCircle size={16} />
+                                                </button>
+                                                <button
+                                                    className="action-btn-minimal danger"
+                                                    title="Reject Payment"
+                                                    onClick={async () => {
+                                                        if (window.confirm('Reject this payment?')) {
+                                                            await adminAPI.rejectPayment(payment._id);
+                                                            fetchPayments();
+                                                        }
+                                                    }}
+                                                >
+                                                    <XCircle size={16} />
+                                                </button>
+                                            </>
+                                        )}
+                                    </div>
+                                </div>
+                            ))
+                        )}
+                    </div>
+
+                    {!loading && totalPages > 1 && (
+                        <div style={{ marginTop: '32px', display: 'flex', justifyContent: 'center' }}>
+                            <Pagination
+                                currentPage={page}
+                                totalPages={totalPages}
+                                onPageChange={setPage}
+                            />
+                        </div>
+                    )}
+
+                    <style dangerouslySetInnerHTML={{
+                        __html: `
                     .payments-list-minimal {
                         margin-top: 16px;
                         font-family: 'Inter', sans-serif;
@@ -413,21 +414,21 @@ const Payments = () => {
                         to { transform: rotate(360deg); }
                     }
                 ` }} />
-            </div>
+                </div>
 
-            {/* Reusing the Modal, but note: payment.order in the list might not have 'Items' populated from getAllPayments backend! 
-                So products list might be empty. This is an acceptable tradeoff for now to speed up payment review. 
+                {/* Reusing the Modal, but note: payment.order in the list might not have 'Items' populated from getAllPayments backend!
+                So products list might be empty. This is an acceptable tradeoff for now to speed up payment review.
             */}
-            {selectedOrder && (
-                <OrderDetailsModal
-                    order={selectedOrder}
-                    onClose={() => setSelectedOrder(null)}
-                    onUpdate={fetchPayments}
-                />
-            )}
+                {selectedOrder && (
+                    <OrderDetailsModal
+                        order={selectedOrder}
+                        onClose={() => setSelectedOrder(null)}
+                        onUpdate={fetchPayments}
+                    />
+                )}
+            </div>
         </div>
     );
 };
 
 export default Payments;
-

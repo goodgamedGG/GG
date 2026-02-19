@@ -255,6 +255,24 @@ const Analytics = () => {
 
                 /* Colors for graphs */
                 .c-1 { background: #00d9ff; } .c-2 { background: #8b5cf6; } .c-3 { background: #10b981; } .c-4 { background: #f59e0b; }
+
+                @media (max-width: 1200px) {
+                    .stats-ribbon { grid-template-columns: repeat(2, 1fr); }
+                    .layout-grid { grid-template-columns: 1fr; }
+                }
+
+                @media (max-width: 1024px) {
+                    .nav-header { flex-direction: column; align-items: flex-start; gap: 20px; }
+                    .pro-analytics { padding-bottom: 40px; }
+                }
+
+                @media (max-width: 768px) {
+                    .stats-ribbon { grid-template-columns: 1fr; }
+                    .title-block h1 { font-size: 24px; }
+                    .glass-panel { padding: 20px; }
+                    .heatmap-container { overflow-x: auto; padding-bottom: 12px; }
+                    .heatmap-container > div:not(.day-label) { min-width: 20px; }
+                }
             `}</style>
 
             <header className="nav-header">

@@ -29,6 +29,7 @@ const AdminLayout = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
     const handleLogout = async () => {
         await logout();
@@ -36,6 +37,8 @@ const AdminLayout = () => {
     };
 
     const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
+    const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
+    const closeMobileMenu = () => setIsMobileMenuOpen(false);
 
     const menuGroups = [
         {
@@ -109,6 +112,16 @@ const AdminLayout = () => {
                     z-index: 50;
                     overflow-x: hidden;
                     box-shadow: var(--shadow-xl);
+                }
+
+                .sidebar-overlay {
+                    display: none;
+                    position: fixed;
+                    inset: 0;
+                    background: rgba(0, 0, 0, 0.7);
+                    backdrop-filter: blur(4px);
+                    z-index: 45;
+                    animation: fadeIn 0.2s ease-out;
                 }
 
                 .sidebar-header {
@@ -210,6 +223,16 @@ const AdminLayout = () => {
                     display: flex;
                     flex-direction: column;
                     min-width: 0;
+                }
+
+                .mobile-toggle {
+                    display: none;
+                    background: transparent;
+                    border: none;
+                    color: var(--color-text-primary);
+                    padding: 8px;
+                    border-radius: var(--radius-md);
+                    cursor: pointer;
                 }
 
                 .admin-header {
@@ -326,6 +349,71 @@ const AdminLayout = () => {
                     overflow-y: auto;
                     flex: 1;
                     width: 100%;
+                }
+
+                /* -- RESPONSIVE MEDIA QUERIES -- */
+                @media (max-width: 1024px) {
+                    .admin-sidebar {
+                        position: fixed;
+                        left: 0;
+                        top: 0;
+                        bottom: 0;
+                        width: 280px;
+                        transform: translateX(${isMobileMenuOpen ? '0' : '-100%'});
+                        z-index: 100;
+                        box-shadow: ${isMobileMenuOpen ? '20px 0 50px rgba(0,0,0,0.5)' : 'none'};
+                    }
+
+                    .sidebar-overlay {
+                        display: ${isMobileMenuOpen ? 'block' : 'none'};
+                    }
+
+                    .mobile-toggle {
+                        display: flex;
+                        align-items: center;
+                    }
+
+                    .toggle-btn {
+                        display: none;
+                    }
+
+                    .admin-content {
+                        padding: 24px;
+                    }
+
+                    .admin-header {
+                        padding: 0 20px;
+                    }
+                }
+
+                @media (max-width: 768px) {
+                    .page-breadcrumb {
+                        display: none;
+                    }
+                    
+                    .admin-content {
+                        padding: 16px;
+                    }
+
+                    .mobile-hidden {
+                        display: none;
+                    }
+
+                    .header-right {
+                        gap: 12px !important;
+                    }
+                }
+
+                @media (max-width: 480px) {
+                    .admin-header {
+                        height: 60px;
+                        padding: 0 16px;
+                    }
+
+                    .admin-sidebar {
+                        width: 100%;
+                        max-width: 300px;
+                    }
                 }
 
                 /* Scrollbar polish - Updated for Admin Panel */
@@ -535,9 +623,12 @@ const AdminLayout = () => {
             {/* SIDEBAR */}
             <aside className="admin-sidebar">
                 <div className="sidebar-header">
-                    {isSidebarOpen && <div className="brand-title">ADMIN PANEL</div>}
+                    <div className="brand-title">ADMIN PANEL</div>
                     <button className="toggle-btn" onClick={toggleSidebar} style={{ marginLeft: isSidebarOpen ? 'auto' : '0' }}>
                         {isSidebarOpen ? <X size={20} /> : <Menu size={20} />}
+                    </button>
+                    <button className="mobile-toggle" onClick={toggleMobileMenu} style={{ marginLeft: 'auto' }}>
+                        <X size={24} />
                     </button>
                 </div>
 
@@ -555,6 +646,11 @@ const AdminLayout = () => {
                                         to={item.path}
                                         className={`nav-item ${isActive ? 'active' : ''}`}
                                         title={!isSidebarOpen ? item.label : ''}
+                                        onClick={() => {
+                                            if (window.innerWidth <= 1024) {
+                                                closeMobileMenu();
+                                            }
+                                        }}
                                     >
                                         <div className="nav-icon-wrapper">
                                             {React.cloneElement(item.icon, {
@@ -575,6 +671,9 @@ const AdminLayout = () => {
             <main className="admin-main">
                 <header className="admin-header">
                     <div className="header-left">
+                        <button className="mobile-toggle" onClick={toggleMobileMenu}>
+                            <Menu size={24} />
+                        </button>
                         <div className="page-breadcrumb">
                             <span>Admin</span>
                             <ChevronRight size={14} />
@@ -603,6 +702,8 @@ const AdminLayout = () => {
                 <div className="admin-content">
                     <Outlet />
                 </div>
+                {/* Backdrop for mobile */}
+                <div className="sidebar-overlay" onClick={closeMobileMenu}></div>
             </main>
         </div>
     );

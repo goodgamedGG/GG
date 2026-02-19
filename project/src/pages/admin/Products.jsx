@@ -352,7 +352,7 @@ const Products = () => {
                     gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
                     gap: '20px',
                     alignItems: 'end'
-                }}>
+                }} className="filters-grid">
                     {/* Search */}
                     <div style={{ gridColumn: 'span 2' }}>
                         <label style={{
@@ -632,152 +632,154 @@ const Products = () => {
                 </span>
             </div>
 
-            <div className="minimal-table-container">
-                {loading ? (
-                    <div style={{ textAlign: 'center', padding: '60px' }}>
-                        <div className="loading-spinner" style={{ margin: '0 auto' }}></div>
-                    </div>
-                ) : products.length === 0 ? (
-                    <EmptyState
-                        icon={Archive}
-                        title="No products found"
-                        message="No products match your current filters. Try adjusting your search criteria or add your first product."
-                        actionLabel="Add Product"
-                        onAction={handleOpenAddModal}
-                    />
-                ) : (
-                    <div className="product-grid-minimal">
-                        {/* Minimalism Header */}
-                        <div className="product-grid-header-minimal">
-                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                <input
-                                    type="checkbox"
-                                    checked={selectedProducts.length === products.length && products.length > 0}
-                                    onChange={toggleSelectAll}
-                                    style={{ cursor: 'pointer' }}
-                                />
-                            </div>
-                            <div>IMAGE</div>
-                            <div>PRODUCT DETAILS</div>
-                            <div>CATEGORY</div>
-                            <div>ATTRIBUTES</div>
-                            <div>PERFORMANCE</div>
-                            <div>PRICE & STOCK</div>
-                            <div>STATUS</div>
-                            <div style={{ textAlign: 'right' }}>ACTIONS</div>
+            <div className="minimal-table-wrapper" style={{ overflowX: 'auto', width: '100%', marginBottom: '32px' }}>
+                <div className="minimal-table-container" style={{ minWidth: '1100px' }}>
+                    {loading ? (
+                        <div style={{ textAlign: 'center', padding: '60px' }}>
+                            <div className="loading-spinner" style={{ margin: '0 auto' }}></div>
                         </div>
-
-                        {/* Grid Body */}
-                        <div className="product-grid-body-minimal">
-                            {products.map((product, index) => (
-                                <div
-                                    key={product._id}
-                                    className="product-grid-row-minimal"
-                                    style={{ animationDelay: `${index * 50}ms` }}
-                                >
-                                    {/* Checkbox */}
-                                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                        <input
-                                            type="checkbox"
-                                            checked={selectedProducts.includes(product._id)}
-                                            onChange={() => toggleSelectProduct(product._id)}
-                                            style={{ cursor: 'pointer' }}
-                                        />
-                                    </div>
-
-                                    {/* Image */}
-                                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                        <img
-                                            src={getImageUrl(product.images?.[0] || product.image)}
-                                            alt={product.name}
-                                            className="product-grid-minimal-img"
-                                            onError={(e) => { e.target.src = 'https://placehold.co/60x60/1a212c/64748b?text=No+Image'; }}
-                                        />
-                                    </div>
-
-                                    {/* Product Details */}
-                                    <div className="product-details-col">
-                                        <div className="product-title">{product.name}</div>
-                                        <div className="product-subtitle">{product.description || 'No description'}</div>
-                                        <div className="product-badges">
-                                            {product.isFeatured && <span className="badge-featured">Featured</span>}
-                                            {product.isFlashSale && <span className="badge-flash">Flash Sale</span>}
-                                        </div>
-                                    </div>
-
-                                    {/* Category */}
-                                    <div className="product-category-col">
-                                        <span className="category-tag-minimal">
-                                            {product.category?.name || product.category || 'Uncategorized'}
-                                        </span>
-                                    </div>
-
-                                    {/* Attributes */}
-                                    <div className="product-attributes-col">
-                                        <div className="attribute-item">
-                                            <span className="attr-key">Type:</span>
-                                            <span className="attr-val">{product.type || 'N/A'}</span>
-                                        </div>
-                                        <div className="attribute-item">
-                                            <span className="attr-key">Platform:</span>
-                                            <span className="attr-val">{product.platform || 'N/A'}</span>
-                                        </div>
-                                        <div className="attribute-item">
-                                            <span className="attr-key">Region:</span>
-                                            <span className="attr-val">{product.region || 'N/A'}</span>
-                                        </div>
-                                    </div>
-
-                                    {/* Performance */}
-                                    <div className="product-performance-col">
-                                        <div className="performance-rating">
-                                            <span className="star-icon">★</span>
-                                            <span className="rating-val">{product.averageRating?.toFixed(1) || '0.0'}</span>
-                                            <span className="rating-count">({product.totalReviews || 0})</span>
-                                        </div>
-                                        <div className="performance-stats">
-                                            <div className="stat-item">
-                                                <span className="stat-icon">👁</span>
-                                                <span>{formatCompactNumber(product.viewCount || 0)}</span>
-                                            </div>
-                                            <div className="stat-item">
-                                                <span className="stat-icon">🛒</span>
-                                                <span>{formatCompactNumber(product.purchaseCount || 0)}</span>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    {/* Price & Stock */}
-                                    <div className="product-price-stock-col">
-                                        <div className="product-price-minimal">{formatPrice(product.price)}</div>
-                                        <div className="product-stock-minimal">
-                                            <span className="stock-bullet-minimal"></span>
-                                            <span className="stock-label-minimal">Stock: {product.stock || 0}</span>
-                                        </div>
-                                    </div>
-
-                                    {/* Status */}
-                                    <div className="product-status-col">
-                                        <span className={`status-pill-minimal ${product.isActive ? 'active' : 'inactive'}`}>
-                                            <span className="status-dot-minimal"></span>
-                                            {product.isActive ? 'ACTIVE' : 'INACTIVE'}
-                                        </span>
-                                    </div>
-
-                                    {/* Actions */}
-                                    <div className="product-actions-col">
-                                        <button onClick={() => handleOpenEditModal(product)} className="action-btn-minimal" title="Edit">
-                                            <Edit2 size={16} />
-                                        </button>
-                                        <button onClick={() => handleDelete(product._id)} className="action-btn-minimal danger" title="Delete">
-                                            <Trash2 size={16} />
-                                        </button>
-                                    </div>
+                    ) : products.length === 0 ? (
+                        <EmptyState
+                            icon={Archive}
+                            title="No products found"
+                            message="No products match your current filters. Try adjusting your search criteria or add your first product."
+                            actionLabel="Add Product"
+                            onAction={handleOpenAddModal}
+                        />
+                    ) : (
+                        <div className="product-grid-minimal">
+                            {/* Minimalism Header */}
+                            <div className="product-grid-header-minimal">
+                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                    <input
+                                        type="checkbox"
+                                        checked={selectedProducts.length === products.length && products.length > 0}
+                                        onChange={toggleSelectAll}
+                                        style={{ cursor: 'pointer' }}
+                                    />
                                 </div>
-                            ))}
+                                <div>IMAGE</div>
+                                <div>PRODUCT DETAILS</div>
+                                <div>CATEGORY</div>
+                                <div>ATTRIBUTES</div>
+                                <div>PERFORMANCE</div>
+                                <div>PRICE & STOCK</div>
+                                <div>STATUS</div>
+                                <div style={{ textAlign: 'right' }}>ACTIONS</div>
+                            </div>
+
+                            {/* Grid Body */}
+                            <div className="product-grid-body-minimal">
+                                {products.map((product, index) => (
+                                    <div
+                                        key={product._id}
+                                        className="product-grid-row-minimal"
+                                        style={{ animationDelay: `${index * 50}ms` }}
+                                    >
+                                        {/* Checkbox */}
+                                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                            <input
+                                                type="checkbox"
+                                                checked={selectedProducts.includes(product._id)}
+                                                onChange={() => toggleSelectProduct(product._id)}
+                                                style={{ cursor: 'pointer' }}
+                                            />
+                                        </div>
+
+                                        {/* Image */}
+                                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                            <img
+                                                src={getImageUrl(product.images?.[0] || product.image)}
+                                                alt={product.name}
+                                                className="product-grid-minimal-img"
+                                                onError={(e) => { e.target.src = 'https://placehold.co/60x60/1a212c/64748b?text=No+Image'; }}
+                                            />
+                                        </div>
+
+                                        {/* Product Details */}
+                                        <div className="product-details-col">
+                                            <div className="product-title">{product.name}</div>
+                                            <div className="product-subtitle">{product.description || 'No description'}</div>
+                                            <div className="product-badges">
+                                                {product.isFeatured && <span className="badge-featured">Featured</span>}
+                                                {product.isFlashSale && <span className="badge-flash">Flash Sale</span>}
+                                            </div>
+                                        </div>
+
+                                        {/* Category */}
+                                        <div className="product-category-col">
+                                            <span className="category-tag-minimal">
+                                                {product.category?.name || product.category || 'Uncategorized'}
+                                            </span>
+                                        </div>
+
+                                        {/* Attributes */}
+                                        <div className="product-attributes-col">
+                                            <div className="attribute-item">
+                                                <span className="attr-key">Type:</span>
+                                                <span className="attr-val">{product.type || 'N/A'}</span>
+                                            </div>
+                                            <div className="attribute-item">
+                                                <span className="attr-key">Platform:</span>
+                                                <span className="attr-val">{product.platform || 'N/A'}</span>
+                                            </div>
+                                            <div className="attribute-item">
+                                                <span className="attr-key">Region:</span>
+                                                <span className="attr-val">{product.region || 'N/A'}</span>
+                                            </div>
+                                        </div>
+
+                                        {/* Performance */}
+                                        <div className="product-performance-col">
+                                            <div className="performance-rating">
+                                                <span className="star-icon">★</span>
+                                                <span className="rating-val">{product.averageRating?.toFixed(1) || '0.0'}</span>
+                                                <span className="rating-count">({product.totalReviews || 0})</span>
+                                            </div>
+                                            <div className="performance-stats">
+                                                <div className="stat-item">
+                                                    <span className="stat-icon">👁</span>
+                                                    <span>{formatCompactNumber(product.viewCount || 0)}</span>
+                                                </div>
+                                                <div className="stat-item">
+                                                    <span className="stat-icon">🛒</span>
+                                                    <span>{formatCompactNumber(product.purchaseCount || 0)}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {/* Price & Stock */}
+                                        <div className="product-price-stock-col">
+                                            <div className="product-price-minimal">{formatPrice(product.price)}</div>
+                                            <div className="product-stock-minimal">
+                                                <span className="stock-bullet-minimal"></span>
+                                                <span className="stock-label-minimal">Stock: {product.stock || 0}</span>
+                                            </div>
+                                        </div>
+
+                                        {/* Status */}
+                                        <div className="product-status-col">
+                                            <span className={`status-pill-minimal ${product.isActive ? 'active' : 'inactive'}`}>
+                                                <span className="status-dot-minimal"></span>
+                                                {product.isActive ? 'ACTIVE' : 'INACTIVE'}
+                                            </span>
+                                        </div>
+
+                                        {/* Actions */}
+                                        <div className="product-actions-col">
+                                            <button onClick={() => handleOpenEditModal(product)} className="action-btn-minimal" title="Edit">
+                                                <Edit2 size={16} />
+                                            </button>
+                                            <button onClick={() => handleDelete(product._id)} className="action-btn-minimal danger" title="Delete">
+                                                <Trash2 size={16} />
+                                            </button>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
                         </div>
-                    </div>
-                )}
+                    )}
+                </div>
             </div>
 
             <style dangerouslySetInnerHTML={{
@@ -801,6 +803,18 @@ const Products = () => {
                         position: sticky;
                         top: 0;
                         z-index: 10;
+                    }
+
+                    @media (max-width: 1024px) {
+                        .filters-grid {
+                            grid-template-columns: 1fr 1fr !important;
+                        }
+                    }
+
+                    @media (max-width: 768px) {
+                        .filters-grid {
+                            grid-template-columns: 1fr !important;
+                        }
                     }
 
                     .product-grid-row-minimal {

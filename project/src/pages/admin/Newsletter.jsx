@@ -126,7 +126,9 @@ const AdminNewsletter = () => {
                 padding: '4px',
                 background: 'rgba(255, 255, 255, 0.03)',
                 borderRadius: '12px',
-                width: 'fit-content'
+                width: '100%',
+                overflowX: 'auto',
+                whiteSpace: 'nowrap'
             }}>
                 <button
                     className={`nav-tab ${activeTab === 'subscribers' ? 'active' : ''}`}
@@ -186,40 +188,42 @@ const AdminNewsletter = () => {
                         </div>
                     ) : (
                         <>
-                            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                                <thead>
-                                    <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.05)' }}>
-                                        <th style={{ textAlign: 'left', padding: '16px', color: 'var(--color-text-secondary)', fontSize: '13px', fontWeight: '600' }}>EMAIL ADDRESS</th>
-                                        <th style={{ textAlign: 'left', padding: '16px', color: 'var(--color-text-secondary)', fontSize: '13px', fontWeight: '600' }}>SUBSCRIBED ON</th>
-                                        <th style={{ textAlign: 'right', padding: '16px', color: 'var(--color-text-secondary)', fontSize: '13px', fontWeight: '600' }}>ACTIONS</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {subscribers.map((sub) => (
-                                        <tr key={sub._id} style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.02)', transition: 'background 0.2s' }}>
-                                            <td style={{ padding: '16px', color: 'var(--color-cyan-primary)', fontWeight: '500' }}>{sub.email}</td>
-                                            <td style={{ padding: '16px', color: 'var(--color-text-muted)' }}>{formatDate(sub.subscribedAt)}</td>
-                                            <td style={{ padding: '16px', textAlign: 'right' }}>
-                                                <button
-                                                    onClick={() => handleDelete(sub._id)}
-                                                    style={{
-                                                        background: 'rgba(239, 68, 68, 0.1)',
-                                                        color: '#ef4444',
-                                                        border: '1px solid rgba(239, 68, 68, 0.2)',
-                                                        padding: '8px',
-                                                        borderRadius: '8px',
-                                                        cursor: 'pointer',
-                                                        transition: 'all 0.2s'
-                                                    }}
-                                                    title="Delete Subscriber"
-                                                >
-                                                    <Trash2 size={16} />
-                                                </button>
-                                            </td>
+                            <div className="newsletter-table-wrapper" style={{ overflowX: 'auto', width: '100%' }}>
+                                <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '600px' }}>
+                                    <thead>
+                                        <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.05)' }}>
+                                            <th style={{ textAlign: 'left', padding: '16px', color: 'var(--color-text-secondary)', fontSize: '13px', fontWeight: '600' }}>EMAIL ADDRESS</th>
+                                            <th style={{ textAlign: 'left', padding: '16px', color: 'var(--color-text-secondary)', fontSize: '13px', fontWeight: '600' }}>SUBSCRIBED ON</th>
+                                            <th style={{ textAlign: 'right', padding: '16px', color: 'var(--color-text-secondary)', fontSize: '13px', fontWeight: '600' }}>ACTIONS</th>
                                         </tr>
-                                    ))}
-                                </tbody>
-                            </table>
+                                    </thead>
+                                    <tbody>
+                                        {subscribers.map((sub) => (
+                                            <tr key={sub._id} style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.02)', transition: 'background 0.2s' }}>
+                                                <td style={{ padding: '16px', color: 'var(--color-cyan-primary)', fontWeight: '500' }}>{sub.email}</td>
+                                                <td style={{ padding: '16px', color: 'var(--color-text-muted)' }}>{formatDate(sub.subscribedAt)}</td>
+                                                <td style={{ padding: '16px', textAlign: 'right' }}>
+                                                    <button
+                                                        onClick={() => handleDelete(sub._id)}
+                                                        style={{
+                                                            background: 'rgba(239, 68, 68, 0.1)',
+                                                            color: '#ef4444',
+                                                            border: '1px solid rgba(239, 68, 68, 0.2)',
+                                                            padding: '8px',
+                                                            borderRadius: '8px',
+                                                            cursor: 'pointer',
+                                                            transition: 'all 0.2s'
+                                                        }}
+                                                        title="Delete Subscriber"
+                                                    >
+                                                        <Trash2 size={16} />
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
 
                             {/* Pagination */}
                             {totalPages > 1 && (
@@ -247,7 +251,7 @@ const AdminNewsletter = () => {
                     )}
                 </div>
             ) : (
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '32px' }}>
+                <div className="newsletter-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', gap: '32px' }}>
                     {/* Compose Form */}
                     <div className="admin-card" style={{ padding: '32px' }}>
                         <h3 style={{ fontSize: '18px', fontWeight: '700', marginBottom: '24px', fontFamily: 'var(--font-display)', display: 'flex', alignItems: 'center', gap: '12px' }}>

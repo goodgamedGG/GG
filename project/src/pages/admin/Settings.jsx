@@ -52,7 +52,7 @@ const Settings = () => {
         try {
             setSaving(true);
             let value = editFormData.value;
-            
+
             // Try to parse as JSON if it looks like JSON
             if (value.trim().startsWith('{') || value.trim().startsWith('[')) {
                 try {
@@ -85,12 +85,12 @@ const Settings = () => {
         try {
             setSaving(true);
             let value = newSetting.value;
-            
+
             // Try to parse as JSON, number, or boolean
             if (value.trim().startsWith('{') || value.trim().startsWith('[')) {
                 try {
                     value = JSON.parse(value);
-                } catch (e) {}
+                } catch (e) { }
             } else if (!isNaN(value) && value.trim() !== '') {
                 value = parseFloat(value);
             } else if (value.toLowerCase() === 'true' || value.toLowerCase() === 'false') {
@@ -127,7 +127,7 @@ const Settings = () => {
 
     return (
         <div>
-            <header className="admin-header">
+            <header className="admin-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '20px', marginBottom: '32px' }}>
                 <div>
                     <h1 className="page-title">Settings</h1>
                     <p style={{ color: 'var(--color-text-muted)', marginTop: '4px' }}>
@@ -154,17 +154,17 @@ const Settings = () => {
                 <div>
                     {Object.entries(settings).map(([category, categorySettings]) => (
                         <div key={category} style={{ marginBottom: '30px' }}>
-                            <h2 style={{ 
-                                fontFamily: 'Orbitron, sans-serif', 
-                                fontSize: '18px', 
+                            <h2 style={{
+                                fontFamily: 'Orbitron, sans-serif',
+                                fontSize: '18px',
                                 marginBottom: '16px',
                                 textTransform: 'capitalize',
                                 color: 'var(--color-cyan-primary)'
                             }}>
                                 {category}
                             </h2>
-                            <div style={{ background: 'var(--color-bg-card)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-md)', overflow: 'hidden' }}>
-                                <table className="data-table">
+                            <div className="settings-table-wrapper" style={{ background: 'var(--color-bg-card)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-md)', overflowX: 'auto', width: '100%' }}>
+                                <table className="data-table" style={{ minWidth: '800px' }}>
                                     <thead>
                                         <tr>
                                             <th>Key</th>
@@ -179,9 +179,9 @@ const Settings = () => {
                                         {categorySettings.map((setting, idx) => (
                                             <tr key={setting._id || idx}>
                                                 <td>
-                                                    <code style={{ 
-                                                        background: 'var(--color-bg-secondary)', 
-                                                        padding: '4px 8px', 
+                                                    <code style={{
+                                                        background: 'var(--color-bg-secondary)',
+                                                        padding: '4px 8px',
                                                         borderRadius: '4px',
                                                         fontFamily: 'monospace',
                                                         fontSize: '12px'
@@ -199,10 +199,10 @@ const Settings = () => {
                                                             style={{ minWidth: '200px' }}
                                                         />
                                                     ) : (
-                                                        <span style={{ 
-                                                            fontFamily: 'monospace', 
+                                                        <span style={{
+                                                            fontFamily: 'monospace',
                                                             fontSize: '13px',
-                                                            color: typeof setting.value === 'boolean' 
+                                                            color: typeof setting.value === 'boolean'
                                                                 ? (setting.value ? '#00ff80' : '#ff6464')
                                                                 : 'var(--color-text-primary)'
                                                         }}>
@@ -211,10 +211,10 @@ const Settings = () => {
                                                     )}
                                                 </td>
                                                 <td>
-                                                    <span style={{ 
-                                                        fontSize: '11px', 
-                                                        padding: '2px 8px', 
-                                                        background: 'var(--color-bg-secondary)', 
+                                                    <span style={{
+                                                        fontSize: '11px',
+                                                        padding: '2px 8px',
+                                                        background: 'var(--color-bg-secondary)',
                                                         borderRadius: '12px',
                                                         textTransform: 'capitalize'
                                                     }}>
@@ -232,16 +232,16 @@ const Settings = () => {
                                                 <td>
                                                     {editingKey === setting.key ? (
                                                         <div style={{ display: 'flex', gap: '8px' }}>
-                                                            <button 
-                                                                onClick={handleSave} 
+                                                            <button
+                                                                onClick={handleSave}
                                                                 className="icon-btn"
                                                                 disabled={saving}
                                                                 title="Save"
                                                             >
                                                                 <Save size={16} />
                                                             </button>
-                                                            <button 
-                                                                onClick={() => setEditingKey(null)} 
+                                                            <button
+                                                                onClick={() => setEditingKey(null)}
                                                                 className="icon-btn"
                                                                 title="Cancel"
                                                             >
@@ -249,8 +249,8 @@ const Settings = () => {
                                                             </button>
                                                         </div>
                                                     ) : (
-                                                        <button 
-                                                            onClick={() => handleEdit(setting.key, setting)} 
+                                                        <button
+                                                            onClick={() => handleEdit(setting.key, setting)}
                                                             className="icon-btn"
                                                             title="Edit"
                                                         >
@@ -339,17 +339,17 @@ const Settings = () => {
                                 </label>
                             </div>
                             <div style={{ display: 'flex', gap: '12px', marginTop: '24px' }}>
-                                <button 
-                                    type="button" 
-                                    onClick={() => setIsNewModalOpen(false)} 
-                                    className="btn-secondary" 
+                                <button
+                                    type="button"
+                                    onClick={() => setIsNewModalOpen(false)}
+                                    className="btn-secondary"
                                     style={{ flex: 1 }}
                                 >
                                     Cancel
                                 </button>
-                                <button 
-                                    type="submit" 
-                                    className="btn-primary" 
+                                <button
+                                    type="submit"
+                                    className="btn-primary"
                                     style={{ flex: 1, justifyContent: 'center' }}
                                     disabled={saving}
                                 >

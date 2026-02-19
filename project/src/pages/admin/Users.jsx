@@ -231,120 +231,121 @@ const Users = () => {
                     </div>
                 </div>
 
-                <div className="users-grid-container-minimal">
-                    {/* Grid Header */}
-                    <div className="users-grid-header-minimal">
-                        <div style={{ display: 'flex', alignItems: 'center' }}>
-                            <input
-                                type="checkbox"
-                                checked={selectedUsers.length === users.length && users.length > 0}
-                                onChange={toggleSelectAll}
-                                style={{ cursor: 'pointer' }}
-                            />
+                <div className="users-table-wrapper" style={{ overflowX: 'auto', width: '100%', marginBottom: '32px' }}>
+                    <div className="users-grid-container-minimal" style={{ minWidth: '1200px' }}>
+                        {/* Grid Header */}
+                        <div className="users-grid-header-minimal">
+                            <div style={{ display: 'flex', alignItems: 'center' }}>
+                                <input
+                                    type="checkbox"
+                                    checked={selectedUsers.length === users.length && users.length > 0}
+                                    onChange={toggleSelectAll}
+                                    style={{ cursor: 'pointer' }}
+                                />
+                            </div>
+                            <div>USER</div>
+                            <div>PHONE</div>
+                            <div>ROLE</div>
+                            <div>STATUS</div>
+                            <div style={{ textAlign: 'center' }}>LOYALTY</div>
+                            <div>JOINED</div>
+                            <div style={{ textAlign: 'center' }}>ACTIONS</div>
                         </div>
-                        <div>USER</div>
-                        <div>PHONE</div>
-                        <div>ROLE</div>
-                        <div>STATUS</div>
-                        <div style={{ textAlign: 'center' }}>LOYALTY</div>
-                        <div>JOINED</div>
-                        <div style={{ textAlign: 'center' }}>ACTIONS</div>
-                    </div>
 
-                    {/* Grid Body */}
-                    <div className="users-grid-body-minimal">
-                        {loading ? (
-                            <div style={{ textAlign: 'center', padding: '60px', color: 'var(--color-text-muted)' }}>
-                                Loading users...
-                            </div>
-                        ) : filteredUsers.length === 0 ? (
-                            <div style={{ textAlign: 'center', padding: '60px', color: 'var(--color-text-muted)' }}>
-                                No users found.
-                            </div>
-                        ) : (
-                            filteredUsers.map((user, index) => (
-                                <div
-                                    key={user._id}
-                                    className="users-grid-row-minimal"
-                                    style={{ animationDelay: `${index * 50}ms` }}
-                                >
-                                    {/* Checkbox */}
-                                    <div style={{ display: 'flex', alignItems: 'center' }}>
-                                        <input
-                                            type="checkbox"
-                                            checked={selectedUsers.includes(user._id)}
-                                            onChange={() => toggleUserSelection(user._id)}
-                                            style={{ cursor: 'pointer' }}
-                                        />
-                                    </div>
-
-                                    {/* User Profile */}
-                                    <div className="user-profile-col-minimal">
-                                        <div className="user-avatar-minimal">
-                                            {user.name ? user.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) : 'U'}
-                                        </div>
-                                        <div className="user-info-minimal">
-                                            <div className="user-name-minimal">{user.name || 'Anonymous'}</div>
-                                            <div className="user-email-minimal">{user.email}</div>
-                                        </div>
-                                    </div>
-
-                                    {/* Phone */}
-                                    <div className="phone-col-minimal">
-                                        {user.phone || '-'}
-                                    </div>
-
-                                    {/* Role */}
-                                    <div className="role-col-minimal">
-                                        <span className={`role-badge-minimal ${user.role}`}>
-                                            {user.role}
-                                        </span>
-                                    </div>
-
-                                    {/* Status */}
-                                    <div className="status-col-minimal">
-                                        <span className={`status-text-minimal ${user.isEmailVerified ? 'verified' : 'pending'}`}>
-                                            {user.isEmailVerified ? 'VERIFIED' : 'PENDING'}
-                                        </span>
-                                    </div>
-
-                                    {/* Loyalty */}
-                                    <div className="loyalty-col-minimal" style={{ textAlign: 'center', display: 'flex', justifyContent: 'center' }}>
-                                        {user.loyaltyPoints !== undefined ? (
-                                            <div className="loyalty-info-minimal">
-                                                <Award size={14} color={getTierColor(user.loyaltyTier || 'bronze')} />
-                                                <span>{user.loyaltyPoints}</span>
-                                            </div>
-                                        ) : (
-                                            <span style={{ color: 'var(--color-text-muted)' }}>-</span>
-                                        )}
-                                    </div>
-
-                                    {/* Joined */}
-                                    <div className="joined-col-minimal">
-                                        {formatDate(user.createdAt)}
-                                    </div>
-
-                                    {/* Actions */}
-                                    <div className="actions-col-minimal">
-                                        <button onClick={() => loadUserDetails(user._id)} className="action-btn-minimal" title="View Details">
-                                            <Eye size={16} />
-                                        </button>
-                                        <button onClick={() => handleEdit(user)} className="action-btn-minimal" title="Edit">
-                                            <Pencil size={16} />
-                                        </button>
-                                        <button onClick={() => handleDelete(user._id)} className="action-btn-minimal danger" title="Delete">
-                                            <Trash2 size={16} />
-                                        </button>
-                                    </div>
+                        {/* Grid Body */}
+                        <div className="users-grid-body-minimal">
+                            {loading ? (
+                                <div style={{ textAlign: 'center', padding: '60px', color: 'var(--color-text-muted)' }}>
+                                    Loading users...
                                 </div>
-                            ))
-                        )}
-                    </div>
-                </div>
+                            ) : filteredUsers.length === 0 ? (
+                                <div style={{ textAlign: 'center', padding: '60px', color: 'var(--color-text-muted)' }}>
+                                    No users found.
+                                </div>
+                            ) : (
+                                filteredUsers.map((user, index) => (
+                                    <div
+                                        key={user._id}
+                                        className="users-grid-row-minimal"
+                                        style={{ animationDelay: `${index * 50}ms` }}
+                                    >
+                                        {/* Checkbox */}
+                                        <div style={{ display: 'flex', alignItems: 'center' }}>
+                                            <input
+                                                type="checkbox"
+                                                checked={selectedUsers.includes(user._id)}
+                                                onChange={() => toggleUserSelection(user._id)}
+                                                style={{ cursor: 'pointer' }}
+                                            />
+                                        </div>
 
-                <style dangerouslySetInnerHTML={{
-                    __html: `
+                                        {/* User Profile */}
+                                        <div className="user-profile-col-minimal">
+                                            <div className="user-avatar-minimal">
+                                                {user.name ? user.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) : 'U'}
+                                            </div>
+                                            <div className="user-info-minimal">
+                                                <div className="user-name-minimal">{user.name || 'Anonymous'}</div>
+                                                <div className="user-email-minimal">{user.email}</div>
+                                            </div>
+                                        </div>
+
+                                        {/* Phone */}
+                                        <div className="phone-col-minimal">
+                                            {user.phone || '-'}
+                                        </div>
+
+                                        {/* Role */}
+                                        <div className="role-col-minimal">
+                                            <span className={`role-badge-minimal ${user.role}`}>
+                                                {user.role}
+                                            </span>
+                                        </div>
+
+                                        {/* Status */}
+                                        <div className="status-col-minimal">
+                                            <span className={`status-text-minimal ${user.isEmailVerified ? 'verified' : 'pending'}`}>
+                                                {user.isEmailVerified ? 'VERIFIED' : 'PENDING'}
+                                            </span>
+                                        </div>
+
+                                        {/* Loyalty */}
+                                        <div className="loyalty-col-minimal" style={{ textAlign: 'center', display: 'flex', justifyContent: 'center' }}>
+                                            {user.loyaltyPoints !== undefined ? (
+                                                <div className="loyalty-info-minimal">
+                                                    <Award size={14} color={getTierColor(user.loyaltyTier || 'bronze')} />
+                                                    <span>{user.loyaltyPoints}</span>
+                                                </div>
+                                            ) : (
+                                                <span style={{ color: 'var(--color-text-muted)' }}>-</span>
+                                            )}
+                                        </div>
+
+                                        {/* Joined */}
+                                        <div className="joined-col-minimal">
+                                            {formatDate(user.createdAt)}
+                                        </div>
+
+                                        {/* Actions */}
+                                        <div className="actions-col-minimal">
+                                            <button onClick={() => loadUserDetails(user._id)} className="action-btn-minimal" title="View Details">
+                                                <Eye size={16} />
+                                            </button>
+                                            <button onClick={() => handleEdit(user)} className="action-btn-minimal" title="Edit">
+                                                <Pencil size={16} />
+                                            </button>
+                                            <button onClick={() => handleDelete(user._id)} className="action-btn-minimal danger" title="Delete">
+                                                <Trash2 size={16} />
+                                            </button>
+                                        </div>
+                                    </div>
+                                ))
+                            )}
+                        </div>
+                    </div>
+
+                    <style dangerouslySetInnerHTML={{
+                        __html: `
                     .users-list-minimal {
                         font-family: 'Inter', sans-serif;
                     }
@@ -521,44 +522,45 @@ const Users = () => {
                     }
                 ` }} />
 
-                {!loading && totalPages > 1 && (
-                    <div style={{ padding: '20px', borderTop: '1px solid var(--color-border)' }}>
-                        <Pagination
-                            currentPage={page}
-                            totalPages={totalPages}
-                            onPageChange={setPage}
-                        />
-                    </div>
-                )}
-            </div>
-
-            {/* Simple Modals (styling inline for speed, ideally componentized) */}
-            {/* Edit User Modal */}
-            {isEditModalOpen && (
-                <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, backdropFilter: 'blur(4px)' }}>
-                    <div className="admin-card" style={{ width: '100%', maxWidth: '500px', margin: '20px' }}>
-                        <div className="card-header">
-                            <span className="card-title">Edit User</span>
-                            <button onClick={() => setIsEditModalOpen(false)} style={{ background: 'none', border: 'none', color: 'var(--color-text-muted)', cursor: 'pointer' }}><X size={20} /></button>
+                    {!loading && totalPages > 1 && (
+                        <div style={{ padding: '20px', borderTop: '1px solid var(--color-border)' }}>
+                            <Pagination
+                                currentPage={page}
+                                totalPages={totalPages}
+                                onPageChange={setPage}
+                            />
                         </div>
-                        <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                            <input className="form-input" style={{ padding: '10px', background: 'var(--color-bg-primary)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-md)', color: 'var(--color-text-primary)' }}
-                                value={userFormData.name} onChange={e => setUserFormData({ ...userFormData, name: e.target.value })} placeholder="Name" />
-                            <input className="form-input" style={{ padding: '10px', background: 'var(--color-bg-primary)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-md)', color: 'var(--color-text-primary)' }}
-                                value={userFormData.email} onChange={e => setUserFormData({ ...userFormData, email: e.target.value })} placeholder="Email" />
-                            <select style={{ padding: '10px', background: 'var(--color-bg-primary)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-md)', color: 'var(--color-text-primary)' }}
-                                value={userFormData.role} onChange={e => setUserFormData({ ...userFormData, role: e.target.value })}>
-                                <option value="user">User</option>
-                                <option value="admin">Admin</option>
-                            </select>
-                            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '12px' }}>
-                                <button onClick={() => setIsEditModalOpen(false)} style={{ padding: '8px 16px', background: 'transparent', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-md)', color: 'var(--color-text-primary)', cursor: 'pointer' }}>Cancel</button>
-                                <button onClick={handleSaveUser} style={{ padding: '8px 16px', background: 'var(--color-primary)', border: 'none', borderRadius: 'var(--radius-md)', color: '#000', fontWeight: 600, cursor: 'pointer' }}>Save Changes</button>
+                    )}
+                </div>
+
+                {/* Simple Modals (styling inline for speed, ideally componentized) */}
+                {/* Edit User Modal */}
+                {isEditModalOpen && (
+                    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, backdropFilter: 'blur(4px)' }}>
+                        <div className="admin-card" style={{ width: '100%', maxWidth: '500px', margin: '20px' }}>
+                            <div className="card-header">
+                                <span className="card-title">Edit User</span>
+                                <button onClick={() => setIsEditModalOpen(false)} style={{ background: 'none', border: 'none', color: 'var(--color-text-muted)', cursor: 'pointer' }}><X size={20} /></button>
+                            </div>
+                            <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                                <input className="form-input" style={{ padding: '10px', background: 'var(--color-bg-primary)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-md)', color: 'var(--color-text-primary)' }}
+                                    value={userFormData.name} onChange={e => setUserFormData({ ...userFormData, name: e.target.value })} placeholder="Name" />
+                                <input className="form-input" style={{ padding: '10px', background: 'var(--color-bg-primary)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-md)', color: 'var(--color-text-primary)' }}
+                                    value={userFormData.email} onChange={e => setUserFormData({ ...userFormData, email: e.target.value })} placeholder="Email" />
+                                <select style={{ padding: '10px', background: 'var(--color-bg-primary)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-md)', color: 'var(--color-text-primary)' }}
+                                    value={userFormData.role} onChange={e => setUserFormData({ ...userFormData, role: e.target.value })}>
+                                    <option value="user">User</option>
+                                    <option value="admin">Admin</option>
+                                </select>
+                                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '12px' }}>
+                                    <button onClick={() => setIsEditModalOpen(false)} style={{ padding: '8px 16px', background: 'transparent', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-md)', color: 'var(--color-text-primary)', cursor: 'pointer' }}>Cancel</button>
+                                    <button onClick={handleSaveUser} style={{ padding: '8px 16px', background: 'var(--color-primary)', border: 'none', borderRadius: 'var(--radius-md)', color: '#000', fontWeight: 600, cursor: 'pointer' }}>Save Changes</button>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            )}
+                )}
+            </div>
         </div>
     );
 };

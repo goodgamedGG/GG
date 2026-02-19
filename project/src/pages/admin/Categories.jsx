@@ -148,8 +148,8 @@ const Categories = () => {
         <div className="categories-page animate-fade-in">
             {/* Header section with glassmorphism */}
             <div className="admin-header-v2">
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '20px', flexWrap: 'wrap' }}>
+                    <div style={{ minWidth: '250px' }}>
                         <h1 className="page-title-v2">Category Management</h1>
                         <p className="page-subtitle-v2">Organize your products with professional categories</p>
                     </div>
@@ -213,59 +213,61 @@ const Categories = () => {
                         )}
                     </div>
                 ) : (
-                    <div className="category-table-container-v2">
-                        <table className="admin-table-v2">
-                            <thead>
-                                <tr>
-                                    <th style={{ width: '80px' }}>Image</th>
-                                    <th>Name & Description</th>
-                                    <th style={{ width: '120px' }}>Status</th>
-                                    <th style={{ width: '120px', textAlign: 'right' }}>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {filteredCategories.map((category) => (
-                                    <tr key={category._id} className="table-row-v2">
-                                        <td>
-                                            <div className="category-avatar-v2">
-                                                <img
-                                                    src={category.image ? getImageUrl(category.image) : 'https://placehold.co/80x80/1a212c/64748b?text=NA'}
-                                                    alt={category.name}
-                                                    onError={(e) => { e.target.src = 'https://placehold.co/80x80/1a212c/64748b?text=ERR'; }}
-                                                />
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                                                <span className="name-v2">{category.name}</span>
-                                                <span className="desc-v2">
-                                                    {category.description || 'No description provided.'}
-                                                </span>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <span className={`status-pill-v2 ${category.isActive !== false ? 'active' : 'inactive'}`}>
-                                                <span className="dot"></span>
-                                                {category.isActive !== false ? 'Active' : 'Inactive'}
-                                            </span>
-                                        </td>
-                                        <td>
-                                            <div className="actions-wrapper-v2">
-                                                <button onClick={() => handleToggleStatus(category._id)} className="action-btn-v2" title={category.isActive !== false ? 'Deactivate' : 'Activate'}>
-                                                    {category.isActive !== false ? <EyeOff size={16} /> : <Eye size={16} />}
-                                                </button>
-                                                <button onClick={() => openEditModal(category)} className="action-btn-v2" title="Edit">
-                                                    <Edit2 size={16} />
-                                                </button>
-                                                <button onClick={() => handleDelete(category._id)} className="action-btn-v2 danger" title="Delete">
-                                                    <Trash2 size={16} />
-                                                </button>
-                                            </div>
-                                        </td>
+                    <div className="category-table-wrapper" style={{ overflowX: 'auto', width: '100%', marginBottom: '32px' }}>
+                        <div className="category-table-container-v2" style={{ minWidth: '800px' }}>
+                            <table className="admin-table-v2">
+                                <thead>
+                                    <tr>
+                                        <th style={{ width: '80px' }}>Image</th>
+                                        <th>Name & Description</th>
+                                        <th style={{ width: '120px' }}>Status</th>
+                                        <th style={{ width: '120px', textAlign: 'right' }}>Actions</th>
                                     </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody>
+                                    {filteredCategories.map((category) => (
+                                        <tr key={category._id} className="table-row-v2">
+                                            <td>
+                                                <div className="category-avatar-v2">
+                                                    <img
+                                                        src={category.image ? getImageUrl(category.image) : 'https://placehold.co/80x80/1a212c/64748b?text=NA'}
+                                                        alt={category.name}
+                                                        onError={(e) => { e.target.src = 'https://placehold.co/80x80/1a212c/64748b?text=ERR'; }}
+                                                    />
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                                    <span className="name-v2">{category.name}</span>
+                                                    <span className="desc-v2">
+                                                        {category.description || 'No description provided.'}
+                                                    </span>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <span className={`status-pill-v2 ${category.isActive !== false ? 'active' : 'inactive'}`}>
+                                                    <span className="dot"></span>
+                                                    {category.isActive !== false ? 'Active' : 'Inactive'}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <div className="actions-wrapper-v2">
+                                                    <button onClick={() => handleToggleStatus(category._id)} className="action-btn-v2" title={category.isActive !== false ? 'Deactivate' : 'Activate'}>
+                                                        {category.isActive !== false ? <EyeOff size={16} /> : <Eye size={16} />}
+                                                    </button>
+                                                    <button onClick={() => openEditModal(category)} className="action-btn-v2" title="Edit">
+                                                        <Edit2 size={16} />
+                                                    </button>
+                                                    <button onClick={() => handleDelete(category._id)} className="action-btn-v2 danger" title="Delete">
+                                                        <Trash2 size={16} />
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 )}
             </div>
@@ -392,8 +394,23 @@ const Categories = () => {
                 .animate-fade-in { animation: fadeIn 0.4s ease-out; }
                 .scale-in { animation: scaleIn 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
 
-                @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-                @keyframes scaleIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+                    @keyframes fadeIn {
+                        from { opacity: 0; transform: translateY(10px); }
+                        to { opacity: 1; transform: translateY(0); }
+                    }
+
+                    @media (max-width: 768px) {
+                        .stats-row-v2 {
+                            flex-direction: column;
+                        }
+                        .admin-header-v2 {
+                            padding: 20px;
+                        }
+                        .page-title-v2 {
+                            font-size: 24px;
+                        }
+                    }
+@keyframes scaleIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
 
                 /* Header Layout */
                 .admin-header-v2 {

@@ -235,6 +235,19 @@ const Dashboard = () => {
                 }
                 @media (max-width: 768px) {
                     .dashboard-grid { grid-template-columns: 1fr; }
+                    .section-header {
+                        flex-direction: column;
+                        align-items: flex-start;
+                        gap: 12px;
+                    }
+                    .section-header > div {
+                        flex-direction: column;
+                        align-items: flex-start !important;
+                        gap: 8px;
+                    }
+                    .refresh-text {
+                        margin-left: 0;
+                    }
                 }
             `}</style>
 
