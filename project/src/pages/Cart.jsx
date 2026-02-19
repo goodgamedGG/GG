@@ -32,8 +32,8 @@ const Cart = () => {
         }
     };
 
-    const handleRedeemPoints = async () => {
-        const points = parseInt(pointsToRedeem);
+    const handleRedeemPoints = async (specificPoints = null) => {
+        const points = specificPoints !== null ? specificPoints : parseInt(pointsToRedeem);
         if (isNaN(points) || points <= 0) return;
         setPointsLoading(true);
         setPointsError('');
@@ -313,92 +313,101 @@ const Cart = () => {
                         {/* Loyalty Points Redemption */}
                         {loyaltyInfo && loyaltyInfo.settings?.isActive && (
                             <div style={{ marginBottom: '24px', borderTop: '1px solid var(--color-border)', paddingTop: '20px' }}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                                    <div style={{ fontSize: '14px', color: '#FFD700', fontWeight: '600' }}>
-                                        {isRTL ? 'نقاط الولاء' : 'Loyalty Points'}
-                                        <span style={{ fontSize: '12px', opacity: 0.8, marginLeft: '8px', color: 'var(--color-text-secondary)' }}>
-                                            ({loyaltyInfo.loyalty?.points || 0} {isRTL ? 'متاح' : 'Available'})
-                                        </span>
-                                    </div>
-                                    {loyaltyInfo.loyalty?.points > 0 && (
-                                        <button
-                                            onClick={() => setPointsToRedeem(loyaltyInfo.loyalty.points)}
-                                            style={{ background: 'none', border: 'none', color: 'var(--color-cyan-primary)', fontSize: '12px', cursor: 'pointer', padding: 0 }}
-                                        >
-                                            {isRTL ? 'استخدام الكل' : 'Use Max'}
-                                        </button>
-                                    )}
-                                </div>
-
                                 {cart.pointsUsed > 0 ? (
                                     <div style={{
                                         background: 'rgba(255, 215, 0, 0.1)',
                                         border: '1px solid rgba(255, 215, 0, 0.3)',
-                                        borderRadius: '8px',
-                                        padding: '12px',
+                                        borderRadius: '12px',
+                                        padding: '16px',
                                         display: 'flex',
                                         justifyContent: 'space-between',
-                                        alignItems: 'center'
+                                        alignItems: 'center',
+                                        boxShadow: '0 4px 15px rgba(255, 215, 0, 0.1)'
                                     }}>
-                                        <div style={{ fontSize: '13px' }}>
-                                            <div style={{ color: '#FFD700', fontWeight: 'bold' }}>
-                                                {cart.pointsUsed} Points Applied
+                                        <div>
+                                            <div style={{ color: '#FFD700', fontWeight: 'bold', fontSize: '14px', fontFamily: 'Orbitron, sans-serif' }}>
+                                                {cart.pointsUsed} Points Active
                                             </div>
-                                            <div style={{ color: 'var(--color-text-secondary)', fontSize: '11px' }}>
+                                            <div style={{ color: 'var(--color-text-secondary)', fontSize: '12px', marginTop: '2px' }}>
                                                 Value: {formatPrice(cart.pointsDiscount)}
                                             </div>
                                         </div>
                                         <button
                                             onClick={handleRemovePoints}
-                                            style={{ color: '#ef4444', background: 'none', border: 'none', cursor: 'pointer', padding: '4px' }}
+                                            style={{
+                                                color: '#ef4444',
+                                                background: 'rgba(239, 68, 68, 0.1)',
+                                                border: '1px solid rgba(239, 68, 68, 0.2)',
+                                                cursor: 'pointer',
+                                                padding: '8px',
+                                                borderRadius: '8px',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                transition: 'all 0.3s ease'
+                                            }}
+                                            onMouseOver={(e) => e.currentTarget.style.background = 'rgba(239, 68, 68, 0.2)'}
+                                            onMouseOut={(e) => e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)'}
                                         >
                                             <Trash2 size={16} />
                                         </button>
                                     </div>
                                 ) : (
-                                    <>
-                                        <div style={{ display: 'flex', gap: '8px' }}>
-                                            <input
-                                                type="number"
-                                                placeholder={isRTL ? 'نقاط' : 'Points'}
-                                                value={pointsToRedeem}
-                                                onChange={(e) => setPointsToRedeem(e.target.value)}
-                                                className="promo-input"
-                                                style={{
-                                                    flex: 1,
-                                                    background: 'rgba(255, 255, 255, 0.05)',
-                                                    border: '1px solid rgba(255, 255, 255, 0.1)',
-                                                    borderRadius: '8px',
-                                                    padding: '10px 12px',
-                                                    color: 'white',
-                                                    fontSize: '14px',
-                                                    outline: 'none'
-                                                }}
-                                            />
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                                        {loyaltyInfo.loyalty?.points < (loyaltyInfo.settings?.minPointsToRedeem || 0) ? (
+                                            <div style={{
+                                                padding: '16px',
+                                                borderRadius: '12px',
+                                                background: 'rgba(255, 255, 255, 0.03)',
+                                                border: '1px dashed rgba(255, 215, 0, 0.2)',
+                                                textAlign: 'center'
+                                            }}>
+                                                <div style={{ color: '#FFD700', fontSize: '14px', fontWeight: '600', fontFamily: 'Orbitron, sans-serif' }}>
+                                                    {loyaltyInfo.loyalty?.points || 0} Points Available
+                                                </div>
+                                                <div style={{ color: 'var(--color-text-secondary)', fontSize: '11px', marginTop: '6px' }}>
+                                                    You need at least {loyaltyInfo.settings?.minPointsToRedeem} points to start redeeming.
+                                                </div>
+                                            </div>
+                                        ) : (
                                             <button
-                                                onClick={handleRedeemPoints}
-                                                disabled={!pointsToRedeem || pointsLoading || pointsToRedeem < (loyaltyInfo.settings?.minPointsToRedeem || 0)}
-                                                className="promo-apply-btn loyalty-btn"
+                                                onClick={() => {
+                                                    const maxPoints = loyaltyInfo.loyalty.points;
+                                                    setPointsToRedeem(maxPoints);
+                                                    handleRedeemPoints(maxPoints);
+                                                }}
+                                                disabled={pointsLoading}
+                                                className="loyalty-redeem-btn"
                                                 style={{
-                                                    padding: '10px 20px',
+                                                    width: '100%',
+                                                    padding: '14px',
+                                                    borderRadius: '12px',
+                                                    background: 'linear-gradient(135deg, #FFD700 0%, #B8860B 100%)',
+                                                    color: '#000',
+                                                    border: 'none',
+                                                    fontWeight: '900',
+                                                    fontFamily: 'Orbitron, sans-serif',
                                                     fontSize: '14px',
-                                                    borderRadius: '8px',
-                                                    backgroundColor: 'transparent',
-                                                    border: '1px solid #FFD700',
-                                                    color: '#FFD700',
-                                                    fontWeight: 'bold',
+                                                    textTransform: 'uppercase',
+                                                    letterSpacing: '1px',
                                                     cursor: 'pointer',
+                                                    boxShadow: '0 4px 15px rgba(218, 165, 32, 0.3)',
+                                                    display: 'flex',
+                                                    flexDirection: 'column',
+                                                    alignItems: 'center',
+                                                    gap: '4px',
                                                     transition: 'all 0.3s ease'
                                                 }}
                                             >
-                                                {pointsLoading ? '...' : (isRTL ? 'استبدال' : 'Redeem')}
+                                                <span style={{ fontSize: '16px' }}>
+                                                    {pointsLoading ? '...' : (isRTL ? 'استخدام النقاط' : 'Use Points for Discount')}
+                                                </span>
+                                                <span style={{ fontSize: '11px', opacity: 0.9, fontWeight: '600' }}>
+                                                    {isRTL ? 'متاح' : 'Available'}: {loyaltyInfo.loyalty?.points || 0} pts (≈ {formatPrice((loyaltyInfo.loyalty?.points || 0) / (loyaltyInfo.settings?.pointsToMoneyRatio || 100))})
+                                                </span>
                                             </button>
-                                        </div>
-                                        {pointsError && <div style={{ color: '#ef4444', fontSize: '12px', marginTop: '6px' }}>{pointsError}</div>}
-                                        <div style={{ color: 'var(--color-text-muted)', fontSize: '11px', marginTop: '6px', opacity: 0.7 }}>
-                                            {loyaltyInfo.settings?.minPointsToRedeem} pts min. | {loyaltyInfo.settings?.pointsToMoneyRatio} pts = $1
-                                        </div>
-                                    </>
+                                        )}
+                                        {pointsError && <div style={{ color: '#ef4444', fontSize: '12px', textAlign: 'center' }}>{pointsError}</div>}
+                                    </div>
                                 )}
                             </div>
                         )}
@@ -627,6 +636,16 @@ const Cart = () => {
                     color: #000 !important;
                     box-shadow: 0 0 15px rgba(255, 215, 0, 0.4);
                     border-color: #FFD700 !important;
+                }
+
+                .loyalty-redeem-btn:hover:not(:disabled) {
+                    transform: translateY(-2px);
+                    box-shadow: 0 6px 20px rgba(218, 165, 32, 0.4);
+                    filter: brightness(1.1);
+                }
+
+                .loyalty-redeem-btn:active:not(:disabled) {
+                    transform: translateY(0);
                 }
 
                 .product-title-link:hover {

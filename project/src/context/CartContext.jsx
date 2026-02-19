@@ -34,7 +34,7 @@ export const CartProvider = ({ children }) => {
 
     // Fetch loyalty points
     const fetchLoyaltyPoints = async () => {
-        if (!isAuthenticated || !isEmailVerified) {
+        if (!isAuthenticated) {
             setLoyaltyInfo(null);
             return;
         }
@@ -134,7 +134,7 @@ export const CartProvider = ({ children }) => {
 
     // Load cart when user logs in
     useEffect(() => {
-        if (isAuthenticated && isEmailVerified) {
+        if (isAuthenticated) {
             fetchCart();
             fetchLoyaltyPoints();
         } else {
