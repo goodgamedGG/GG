@@ -152,63 +152,6 @@ const Checkout = () => {
                 <div className="checkout-main-grid">
                     {/* LEFT SIDE: Sequential Flow */}
                     <div className="checkout-primary-flow">
-                        {/* 1. Visual Confirmation */}
-                        <section className="product-summary-section">
-                            <div className="section-card">
-                                <h2 className="section-title">
-                                    <span className="section-icon-group">
-                                        <Receipt className="s-icon" size={20} />
-                                        <Gamepad2 className="s-icon" size={20} />
-                                        <DollarSign className="s-icon" size={20} />
-                                    </span>
-                                    Visual Confirmation
-                                </h2>
-                                <div className="summary-items-list">
-                                    {cart.items.map((item) => (
-                                        <div key={item._id} className="summary-item-row">
-                                            <div className="summary-item-image">
-                                                <img src={getImageUrl(item.product?.images?.[0])} alt={item.name} />
-                                            </div>
-                                            <div className="summary-item-content">
-                                                <div className="summary-item-header">
-                                                    <div className="summary-item-info">
-                                                        <div className="summary-item-name">{item.name}</div>
-                                                        <div className="summary-item-meta">
-                                                            {item.product?.platform} | {item.variant?.type}
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div className="summary-item-actions">
-                                                    <div className="summary-item-qty-control">
-                                                        <button
-                                                            type="button"
-                                                            onClick={() => item.quantity > 1 ? updateCartItem(item._id, item.quantity - 1) : removeFromCart(item._id)}
-                                                            className="qty-btn"
-                                                        >
-                                                            {item.quantity > 1 ? <Minus size={14} /> : <Trash2 size={14} />}
-                                                        </button>
-                                                        <span className="qty-value">{item.quantity}</span>
-                                                        <button
-                                                            type="button"
-                                                            onClick={() => updateCartItem(item._id, item.quantity + 1)}
-                                                            className="qty-btn"
-                                                        >
-                                                            <Plus size={14} />
-                                                        </button>
-                                                    </div>
-                                                    <div className="summary-item-price-block">
-                                                        <div className="summary-item-price">
-                                                            {formatPrice(item.price * item.quantity)}
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                        </section>
-
                         {/* 2. Contact Information */}
                         <section className="form-section">
                             <div className="section-card">

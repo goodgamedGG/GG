@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import cartAPI from '../api/cart';
+import loyaltyAPI from '../api/loyalty';
 import { useAuth } from './AuthContext';
 
 const CartContext = createContext(null);
@@ -7,6 +8,7 @@ const CartContext = createContext(null);
 export const CartProvider = ({ children }) => {
     const { isAuthenticated, isEmailVerified } = useAuth();
     const [cart, setCart] = useState(null);
+    const [loyaltyInfo, setLoyaltyInfo] = useState(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
 
@@ -27,6 +29,21 @@ export const CartProvider = ({ children }) => {
             console.error('Error fetching cart:', err);
         } finally {
             setLoading(false);
+        }
+    };
+
+    // Fetch loyalty points
+    const fetchLoyaltyPoints = async () => {
+        if (!isAuthenticated || !isEmailVerified) {
+            setLoyaltyInfo(null);
+            return;
+        }
+
+        try {
+            const data = await loyaltyAPI.getLoyaltyPoints();
+            setLoyaltyInfo(data);
+        } catch (err) {
+            console.error('Error fetching loyalty points:', err);
         }
     };
 
@@ -91,10 +108,35 @@ export const CartProvider = ({ children }) => {
         }
     };
 
+    // Redeem points
+    const redeemPoints = async (points) => {
+        try {
+            const data = await cartAPI.redeemPoints(points);
+            setCart(data);
+            return data;
+        } catch (err) {
+            console.error('Error redeeming points:', err);
+            throw err;
+        }
+    };
+
+    // Remove points
+    const removePoints = async () => {
+        try {
+            const data = await cartAPI.removePoints();
+            setCart(data);
+            return data;
+        } catch (err) {
+            console.error('Error removing points:', err);
+            throw err;
+        }
+    };
+
     // Load cart when user logs in
     useEffect(() => {
         if (isAuthenticated && isEmailVerified) {
             fetchCart();
+            fetchLoyaltyPoints();
         } else {
             setCart(null);
         }
@@ -110,6 +152,10 @@ export const CartProvider = ({ children }) => {
         removeFromCart,
         clearCart,
         applyPromoCode,
+        redeemPoints,
+        removePoints,
+        fetchLoyaltyPoints,
+        loyaltyInfo,
         itemCount: cart?.items?.length || 0,
         total: cart?.total || 0
     };

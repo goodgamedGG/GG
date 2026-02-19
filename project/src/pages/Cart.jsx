@@ -9,10 +9,13 @@ import { getImageUrl } from '../utils/imageUtils';
 const Cart = () => {
     const { t, isRTL } = useLanguage();
     const { isAuthenticated } = useAuth();
-    const { cart, loading, updateCartItem, removeFromCart, clearCart, total, applyPromoCode } = useCart();
+    const { cart, loading, updateCartItem, removeFromCart, clearCart, total, applyPromoCode, loyaltyInfo, redeemPoints, removePoints } = useCart();
     const [promoCode, setPromoCode] = React.useState('');
     const [promoLoading, setPromoLoading] = React.useState(false);
     const [promoError, setPromoError] = React.useState('');
+    const [pointsToRedeem, setPointsToRedeem] = React.useState('');
+    const [pointsLoading, setPointsLoading] = React.useState(false);
+    const [pointsError, setPointsError] = React.useState('');
     const navigate = useNavigate();
 
     const handleApplyPromoCode = async () => {
@@ -26,6 +29,29 @@ const Cart = () => {
             setPromoError(error.response?.data?.message || 'Invalid promo code');
         } finally {
             setPromoLoading(false);
+        }
+    };
+
+    const handleRedeemPoints = async () => {
+        const points = parseInt(pointsToRedeem);
+        if (isNaN(points) || points <= 0) return;
+        setPointsLoading(true);
+        setPointsError('');
+        try {
+            await redeemPoints(points);
+            setPointsToRedeem('');
+        } catch (error) {
+            setPointsError(error.response?.data?.message || 'Failed to redeem points');
+        } finally {
+            setPointsLoading(false);
+        }
+    };
+
+    const handleRemovePoints = async () => {
+        try {
+            await removePoints();
+        } catch (error) {
+            console.error('Error removing points:', error);
         }
     };
 
@@ -284,6 +310,99 @@ const Cart = () => {
                             )}
                         </div>
 
+                        {/* Loyalty Points Redemption */}
+                        {loyaltyInfo && loyaltyInfo.settings?.isActive && (
+                            <div style={{ marginBottom: '24px', borderTop: '1px solid var(--color-border)', paddingTop: '20px' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                                    <div style={{ fontSize: '14px', color: '#FFD700', fontWeight: '600' }}>
+                                        {isRTL ? 'نقاط الولاء' : 'Loyalty Points'}
+                                        <span style={{ fontSize: '12px', opacity: 0.8, marginLeft: '8px', color: 'var(--color-text-secondary)' }}>
+                                            ({loyaltyInfo.loyalty?.points || 0} {isRTL ? 'متاح' : 'Available'})
+                                        </span>
+                                    </div>
+                                    {loyaltyInfo.loyalty?.points > 0 && (
+                                        <button
+                                            onClick={() => setPointsToRedeem(loyaltyInfo.loyalty.points)}
+                                            style={{ background: 'none', border: 'none', color: 'var(--color-cyan-primary)', fontSize: '12px', cursor: 'pointer', padding: 0 }}
+                                        >
+                                            {isRTL ? 'استخدام الكل' : 'Use Max'}
+                                        </button>
+                                    )}
+                                </div>
+
+                                {cart.pointsUsed > 0 ? (
+                                    <div style={{
+                                        background: 'rgba(255, 215, 0, 0.1)',
+                                        border: '1px solid rgba(255, 215, 0, 0.3)',
+                                        borderRadius: '8px',
+                                        padding: '12px',
+                                        display: 'flex',
+                                        justifyContent: 'space-between',
+                                        alignItems: 'center'
+                                    }}>
+                                        <div style={{ fontSize: '13px' }}>
+                                            <div style={{ color: '#FFD700', fontWeight: 'bold' }}>
+                                                {cart.pointsUsed} Points Applied
+                                            </div>
+                                            <div style={{ color: 'var(--color-text-secondary)', fontSize: '11px' }}>
+                                                Value: {formatPrice(cart.pointsDiscount)}
+                                            </div>
+                                        </div>
+                                        <button
+                                            onClick={handleRemovePoints}
+                                            style={{ color: '#ef4444', background: 'none', border: 'none', cursor: 'pointer', padding: '4px' }}
+                                        >
+                                            <Trash2 size={16} />
+                                        </button>
+                                    </div>
+                                ) : (
+                                    <>
+                                        <div style={{ display: 'flex', gap: '8px' }}>
+                                            <input
+                                                type="number"
+                                                placeholder={isRTL ? 'نقاط' : 'Points'}
+                                                value={pointsToRedeem}
+                                                onChange={(e) => setPointsToRedeem(e.target.value)}
+                                                className="promo-input"
+                                                style={{
+                                                    flex: 1,
+                                                    background: 'rgba(255, 255, 255, 0.05)',
+                                                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                                                    borderRadius: '8px',
+                                                    padding: '10px 12px',
+                                                    color: 'white',
+                                                    fontSize: '14px',
+                                                    outline: 'none'
+                                                }}
+                                            />
+                                            <button
+                                                onClick={handleRedeemPoints}
+                                                disabled={!pointsToRedeem || pointsLoading || pointsToRedeem < (loyaltyInfo.settings?.minPointsToRedeem || 0)}
+                                                className="promo-apply-btn loyalty-btn"
+                                                style={{
+                                                    padding: '10px 20px',
+                                                    fontSize: '14px',
+                                                    borderRadius: '8px',
+                                                    backgroundColor: 'transparent',
+                                                    border: '1px solid #FFD700',
+                                                    color: '#FFD700',
+                                                    fontWeight: 'bold',
+                                                    cursor: 'pointer',
+                                                    transition: 'all 0.3s ease'
+                                                }}
+                                            >
+                                                {pointsLoading ? '...' : (isRTL ? 'استبدال' : 'Redeem')}
+                                            </button>
+                                        </div>
+                                        {pointsError && <div style={{ color: '#ef4444', fontSize: '12px', marginTop: '6px' }}>{pointsError}</div>}
+                                        <div style={{ color: 'var(--color-text-muted)', fontSize: '11px', marginTop: '6px', opacity: 0.7 }}>
+                                            {loyaltyInfo.settings?.minPointsToRedeem} pts min. | {loyaltyInfo.settings?.pointsToMoneyRatio} pts = $1
+                                        </div>
+                                    </>
+                                )}
+                            </div>
+                        )}
+
                         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '15px', color: 'var(--color-text-secondary)' }}>
                             <span>{t('subtotal')}</span>
                             <span>{formatPrice(total)}</span>
@@ -291,14 +410,21 @@ const Cart = () => {
 
                         {cart.discount > 0 && (
                             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '15px', color: '#10b981' }}>
-                                <span>Discount</span>
+                                <span>Promo Discount</span>
                                 <span>-{formatPrice(cart.discount)}</span>
+                            </div>
+                        )}
+
+                        {cart.pointsDiscount > 0 && (
+                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '15px', color: '#FFD700' }}>
+                                <span>Points Discount</span>
+                                <span>-{formatPrice(cart.pointsDiscount)}</span>
                             </div>
                         )}
 
                         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '24px', fontSize: '20px', fontWeight: 'bold', color: 'var(--color-cyan-primary)' }}>
                             <span>{t('total')}</span>
-                            <span>{formatPrice(total - (cart.discount || 0))}</span>
+                            <span>{formatPrice(total - (cart.discount || 0) - (cart.pointsDiscount || 0))}</span>
                         </div>
 
                         <button
@@ -494,6 +620,13 @@ const Cart = () => {
                     background: var(--color-cyan-primary) !important;
                     color: #000 !important;
                     box-shadow: 0 0 15px rgba(0, 217, 255, 0.4);
+                }
+
+                .promo-apply-btn.loyalty-btn:hover:not(:disabled) {
+                    background: #FFD700 !important;
+                    color: #000 !important;
+                    box-shadow: 0 0 15px rgba(255, 215, 0, 0.4);
+                    border-color: #FFD700 !important;
                 }
 
                 .product-title-link:hover {

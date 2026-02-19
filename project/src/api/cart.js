@@ -42,6 +42,20 @@ const cartAPI = {
             code
         });
         return response.data.data.cart;
+    },
+
+    // Redeem loyalty points
+    redeemPoints: async (points) => {
+        const response = await client.post('/cart/redeem-points', {
+            points
+        });
+        return response.data.data.cart;
+    },
+
+    // Remove loyalty points
+    removePoints: async () => {
+        const response = await client.delete('/cart/redeem-points');
+        return response.data.data.cart;
     }
 };
 
