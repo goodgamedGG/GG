@@ -104,12 +104,12 @@ const Hero = () => {
                 .hero-label {
                     display: inline-block;
                     font-size: clamp(10px, 1.2vw, 12px);
-                    font-weight: 700;
+                    font-weight: var(--fw-bold);
                     letter-spacing: 2.5px;
                     text-transform: uppercase;
                     color: var(--color-cyan-primary);
                     margin-bottom: 12px;
-                    font-family: 'Inter', sans-serif;
+                    font-family: var(--font-body);
                     padding: 4px 12px;
                     background: rgba(0, 217, 255, 0.1);
                     border-radius: 4px;
@@ -117,20 +117,21 @@ const Hero = () => {
                 }
 
                 .hero-title {
-                    font-family: 'Orbitron', sans-serif;
+                    font-family: var(--font-display);
                     font-size: clamp(24px, 5vw, 48px);
-                    font-weight: 900;
+                    font-weight: var(--fw-semibold);
                     color: white;
                     margin: 0 0 12px 0;
                     text-shadow: 0 2px 15px rgba(0, 0, 0, 0.9);
                     line-height: 1.1;
+                    letter-spacing: var(--ls-heading);
                 }
 
                 .hero-subtitle {
                     font-size: clamp(14px, 1.8vw, 18px);
                     color: rgba(255, 255, 255, 0.7);
                     margin: 0;
-                    font-weight: 500;
+                    font-weight: var(--fw-medium);
                     max-width: 500px;
                     line-height: 1.5;
                 }
@@ -142,7 +143,7 @@ const Hero = () => {
                     border-radius: 8px;
                     color: black;
                     font-size: 15px;
-                    font-weight: 700;
+                    font-weight: var(--fw-bold);
                     text-decoration: none;
                     display: inline-flex;
                     align-items: center;

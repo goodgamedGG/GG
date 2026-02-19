@@ -108,7 +108,7 @@ const Cart = () => {
 
     return (
         <div className="container" style={{ minHeight: '80vh', padding: '40px 0', direction: isRTL ? 'rtl' : 'ltr' }}>
-            <h1 style={{ fontFamily: 'Orbitron, sans-serif', fontSize: '32px', color: 'var(--color-cyan-primary)', marginBottom: '40px' }}>
+            <h1 style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-semibold)', fontSize: '32px', color: 'var(--color-cyan-primary)', marginBottom: '40px', letterSpacing: 'var(--ls-heading)' }}>
                 {t('cartTitle')}
             </h1>
 
@@ -259,7 +259,7 @@ const Cart = () => {
                         backdropFilter: 'blur(10px)',
                         position: 'relative'
                     }}>
-                        <h2 style={{ fontSize: '24px', fontFamily: 'Orbitron, sans-serif', color: 'var(--color-text-primary)', marginBottom: '24px', borderBottom: '1px solid var(--color-border)', paddingBottom: '15px' }}>
+                        <h2 style={{ fontSize: '24px', fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-semibold)', color: 'var(--color-text-primary)', marginBottom: '24px', borderBottom: '1px solid var(--color-border)', paddingBottom: '15px', letterSpacing: 'var(--ls-heading)' }}>
                             {t('summary')}
                         </h2>
 
@@ -505,8 +505,10 @@ const Cart = () => {
                 .cart-item-title {
                     margin: 0 0 16px 0;
                     color: var(--color-text-primary);
-                    fontSize: 22px;
-                    font-family: Orbitron, sans-serif;
+                    fontSize: 20px;
+                    font-family: var(--font-display);
+                    font-weight: var(--fw-medium);
+                    letter-spacing: var(--ls-heading);
                 }
 
                 .cart-item-title a {
@@ -521,7 +523,7 @@ const Cart = () => {
                     gap: 12px 40px;
                     maxWidth: 750px;
                     fontSize: 12px;
-                    fontFamily: "JetBrains Mono", monospace;
+                    fontFamily: var(--font-body);
                 }
 
                 .detail-row {
@@ -545,10 +547,10 @@ const Cart = () => {
 
                 .cart-item-price {
                     color: var(--color-cyan-primary);
-                    font-weight: 800;
-                    font-size: 28px;
-                    font-family: Orbitron, sans-serif;
-                    text-shadow: 0 0 15px rgba(0, 217, 255, 0.5);
+                    font-weight: var(--fw-semibold);
+                    font-size: 24px;
+                    font-family: var(--font-body);
+                    text-shadow: 0 0 15px rgba(0, 217, 255, 0.4);
                     margin-top: 8px;
                 }
 

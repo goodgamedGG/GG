@@ -400,8 +400,8 @@ const ProductDetails = () => {
                 }
 
                 .breadcrumb-item.active {
-                    color: var(--color-cyan-primary);
-                    font-weight: 600;
+                    color: var(--color-text-primary);
+                    font-weight: var(--fw-semibold);
                     cursor: default;
                 }
 
@@ -445,12 +445,12 @@ const ProductDetails = () => {
 
                 .product-title {
                     margin-bottom: 16px;
-                    color: #fff;
-                    font-family: "Rajdhani", sans-serif;
+                    color: var(--color-text-primary);
+                    font-family: var(--font-display);
                     font-size: clamp(2rem, 6vw, 3.5rem);
-                    font-weight: 700;
+                    font-weight: var(--fw-semibold);
                     line-height: 1.1;
-                    letter-spacing: 0.02em;
+                    letter-spacing: var(--ls-heading);
                     text-transform: uppercase;
                     word-wrap: break-word;
                 }
@@ -460,7 +460,7 @@ const ProductDetails = () => {
                     color: #a1a1aa;
                     font-size: 1rem;
                     line-height: 1.6;
-                    font-family: "Inter", sans-serif;
+                    font-family: var(--font-body);
                     max-width: 100%;
                 }
 
@@ -481,11 +481,11 @@ const ProductDetails = () => {
                     border-radius: 100px;
                     background: rgba(255,255,255,0.03);
                     border: 1px solid rgba(255,255,255,0.08);
-                    font-size: 0.7rem;
-                    fontWeight: 600;
-                    letter-spacing: 0.05em;
+                    font-size: 0.65rem;
+                    fontWeight: var(--fw-bold);
+                    letter-spacing: var(--ls-nav);
                     text-transform: uppercase;
-                    font-family: "Inter", sans-serif;
+                    font-family: var(--font-display);
                     white-space: nowrap;
                 }
 
@@ -504,9 +504,9 @@ const ProductDetails = () => {
 
                 .current-price {
                     font-size: clamp(2rem, 8vw, 3rem);
-                    font-weight: 700;
-                    color: #fff;
-                    font-family: "Inter", sans-serif;
+                    font-weight: var(--fw-semibold);
+                    color: var(--color-text-primary);
+                    font-family: var(--font-body);
                     letter-spacing: -0.02em;
                     display: flex;
                     align-items: flex-start;
@@ -540,7 +540,7 @@ const ProductDetails = () => {
                     font-size: 0.9rem;
                     color: #71717a;
                     text-decoration: line-through;
-                    font-family: "Inter", sans-serif;
+                    font-family: var(--font-body);
                 }
 
                 .actions-block {
@@ -577,8 +577,8 @@ const ProductDetails = () => {
 
                 .qty-value {
                     font-size: 1.1rem;
-                    font-weight: 600;
-                    font-family: "Inter", sans-serif;
+                    font-weight: var(--fw-semibold);
+                    font-family: var(--font-body);
                 }
 
                 .add-to-cart-btn {
@@ -589,9 +589,9 @@ const ProductDetails = () => {
                     border: none;
                     border-radius: 12px;
                     font-size: 1.1rem;
-                    font-weight: 800;
-                    font-family: "Rajdhani", sans-serif;
-                    letter-spacing: 0.05em;
+                    font-weight: var(--fw-bold);
+                    font-family: var(--font-display);
+                    letter-spacing: var(--ls-nav);
                     text-transform: uppercase;
                     display: flex;
                     align-items: center;
@@ -628,7 +628,7 @@ const ProductDetails = () => {
                 }
 
                 .reviews-title {
-                    font-family: "Rajdhani", sans-serif;
+                    font-family: var(--font-display);
                     font-size: clamp(24px, 5vw, 28px);
                     color: #fff;
                     margin-bottom: 8px;
@@ -666,10 +666,10 @@ const ProductDetails = () => {
                 }
 
                 .empty-title {
-                    color: #fff;
+                    color: var(--color-text-primary);
                     fontSize: 18px;
                     marginBottom: 8px;
-                    font-family: "Rajdhani", sans-serif;
+                    font-family: var(--font-display);
                 }
 
                 .empty-subtitle {

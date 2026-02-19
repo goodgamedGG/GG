@@ -4,7 +4,7 @@ import { useLanguage } from '../context/LanguageContext';
 
 const Footer = () => {
     const { t, isRTL } = useLanguage();
-    
+
     return (
         <footer className="footer">
             <div className="container">
@@ -32,7 +32,7 @@ const Footer = () => {
                     <div className="footer-links">
                         <Link to="/privacy-policy" className="footer-text">{t('privacyPolicy')}</Link>
                         <Link to="/about" className="footer-text">{t('about')}</Link>
-                        <a href="#" className="footer-text">{t('newsletter')}</a>
+                        <Link to="/newsletter" className="footer-text">{t('newsletter')}</Link>
                     </div>
 
                     {/* Copyright */}

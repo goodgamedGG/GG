@@ -96,9 +96,9 @@ const GameCard = ({ product }) => {
                     padding: 4px clamp(6px, 1.5vw, 10px);
                     border-radius: 4px;
                     font-size: clamp(9px, 1.1vw, 11px);
-                    font-weight: 800;
+                    font-weight: var(--fw-bold);
                     text-transform: uppercase;
-                    letter-spacing: 0.5px;
+                    letter-spacing: var(--ls-heading);
                 }
 
                 .badge-sale {
@@ -172,16 +172,16 @@ const GameCard = ({ product }) => {
                 }
 
                 .card-title {
-                    font-family: 'Orbitron', sans-serif;
+                    font-family: var(--font-display);
                     font-size: clamp(13px, 1.5vw, 15px);
-                    color: white;
+                    color: var(--color-text-primary);
                     margin: 0 0 6px 0;
                     overflow: hidden;
                     text-overflow: ellipsis;
                     white-space: nowrap;
                     line-height: 1.4;
-                    font-weight: 700;
-                    letter-spacing: 0.5px;
+                    font-weight: var(--fw-medium);
+                    letter-spacing: var(--ls-heading);
                 }
 
                 .card-category {
@@ -189,8 +189,8 @@ const GameCard = ({ product }) => {
                     color: var(--color-text-muted);
                     margin-bottom: 12px;
                     text-transform: uppercase;
-                    letter-spacing: 1.2px;
-                    font-weight: 500;
+                    letter-spacing: var(--ls-nav);
+                    font-weight: var(--fw-medium);
                 }
 
                 .card-footer {
@@ -215,8 +215,9 @@ const GameCard = ({ product }) => {
 
                 .current-price {
                     font-size: clamp(15px, 2vw, 18px);
-                    font-weight: 800;
+                    font-weight: var(--fw-semibold);
                     color: var(--color-cyan-primary);
+                    font-family: var(--font-body);
                 }
 
                 .flash-timer {
@@ -228,7 +229,7 @@ const GameCard = ({ product }) => {
                     color: black;
                     padding: 8px;
                     font-size: 10px;
-                    font-weight: 800;
+                    font-weight: var(--fw-bold);
                     text-align: center;
                     opacity: 0;
                     transition: opacity 0.3s;
@@ -304,7 +305,7 @@ const GameCard = ({ product }) => {
 
                     <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                         <Star size={12} fill="var(--color-cyan-primary)" color="var(--color-cyan-primary)" />
-                        <span style={{ fontSize: '11px', fontWeight: 'bold' }}>{product.averageRating || '5.0'}</span>
+                        <span style={{ fontSize: '11px', fontWeight: 'var(--fw-bold)' }}>{product.averageRating || '5.0'}</span>
                     </div>
                 </div>
             </div>

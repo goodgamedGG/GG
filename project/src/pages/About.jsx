@@ -1,121 +1,251 @@
 import React from 'react';
 import { useLanguage } from '../context/LanguageContext';
+import { Shield, Zap, Star, Globe, Headset, Award, Mail, Phone, MapPin } from 'lucide-react';
 
 const About = () => {
     const { t, isRTL } = useLanguage();
 
+    const offers = [
+        { icon: Star, title: 'offer1Title', desc: 'offer1Desc' },
+        { icon: Globe, title: 'offer2Title', desc: 'offer2Desc' },
+        { icon: Shield, title: 'offer3Title', desc: 'offer3Desc' },
+        { icon: Zap, title: 'offer4Title', desc: 'offer4Desc' },
+        { icon: Headset, title: 'offer5Title', desc: 'offer5Desc' },
+    ];
+
+    const values = [
+        { title: 'value1Title', desc: 'value1Desc', icon: Award },
+        { title: 'value2Title', desc: 'value2Desc', icon: Shield },
+        { title: 'value3Title', desc: 'value3Desc', icon: Star },
+    ];
+
     return (
-        <div className="container" style={{ minHeight: '60vh', padding: 'var(--spacing-xl) 0', maxWidth: '800px', direction: isRTL ? 'rtl' : 'ltr' }}>
-            <h1 style={{
-                fontFamily: 'Orbitron, sans-serif',
-                fontSize: '32px',
-                color: 'var(--color-cyan-primary)',
-                marginBottom: 'var(--spacing-xl)'
-            }}>
-                {t('aboutTitle')}
-            </h1>
+        <div className="about-page" style={{
+            minHeight: '80vh',
+            padding: '80px 0',
+            direction: isRTL ? 'rtl' : 'ltr',
+            background: 'var(--color-bg-primary)',
+            color: 'var(--color-text-primary)'
+        }}>
+            <style>{`
+                .about-container {
+                    max-width: 1000px;
+                    margin: 0 auto;
+                    padding: 0 24px;
+                }
 
-            <div style={{
-                background: 'var(--color-bg-card)',
-                borderRadius: 'var(--radius-lg)',
-                border: '1px solid var(--color-border)',
-                padding: 'var(--spacing-xl)',
-                color: 'var(--color-text-secondary)',
-                lineHeight: '1.8'
-            }}>
-                <section style={{ marginBottom: 'var(--spacing-xl)' }}>
-                    <h2 style={{
-                        color: 'var(--color-cyan-primary)',
-                        fontFamily: 'Orbitron, sans-serif',
-                        marginBottom: 'var(--spacing-md)'
-                    }}>
-                        {t('whoWeAre')}
-                    </h2>
-                    <p style={{ marginBottom: 'var(--spacing-md)' }}>
-                        {isRTL
-                            ? 'SUB HUB هو وجهتك المميزة للحصول على أفضل تجربة ألعاب. نحن متخصصون في توفير أحدث وأروع الألعاب وبطاقات الهدايا وخدمات الألعاب للاعبين المتحمسين في مصر وما بعدها.'
-                            : 'SUB HUB is your premier destination for premium gaming access. We specialize in providing the latest and greatest games, gift cards, and gaming services to passionate gamers across Egypt and beyond.'
-                        }
-                    </p>
-                    <p style={{ marginBottom: 'var(--spacing-md)' }}>
-                        {isRTL
-                            ? 'مهمتنا هي جعل الألعاب في متناول الجميع وبأسعار معقولة وممتعة. سواء كنت لاعبًا عاديًا أو محترفًا، SUB HUB لديه شيء لك.'
-                            : 'Our mission is to make gaming accessible, affordable, and enjoyable for everyone. Whether you\'re a casual player or a hardcore enthusiast, SUB HUB has something for you.'
-                        }
-                    </p>
-                </section>
+                .about-hero {
+                    text-align: center;
+                    margin-bottom: 80px;
+                }
 
-                <section style={{ marginBottom: 'var(--spacing-xl)' }}>
-                    <h2 style={{
-                        color: 'var(--color-cyan-primary)',
-                        fontFamily: 'Orbitron, sans-serif',
-                        marginBottom: 'var(--spacing-md)'
-                    }}>
-                        {t('whatWeOffer')}
-                    </h2>
-                    <ul style={{ marginLeft: isRTL ? '0' : 'var(--spacing-lg)', marginRight: isRTL ? 'var(--spacing-lg)' : '0', marginBottom: 'var(--spacing-md)' }}>
-                        <li><strong>{isRTL ? 'ألعاب مميزة:' : 'Premium Games:'}</strong> {isRTL ? 'الوصول إلى أحدث العناوين AAA والألعاب المستقلة' : 'Access to the latest AAA titles and indie gems'}</li>
-                        <li><strong>{isRTL ? 'بطاقات الهدايا:' : 'Gift Cards:'}</strong> {isRTL ? 'بطاقات الهدايا الرقمية لجميع منصات الألعاب الرئيسية' : 'Digital gift cards for all major gaming platforms'}</li>
-                        <li><strong>{isRTL ? 'معاملات آمنة:' : 'Secure Transactions:'}</strong> {isRTL ? 'معالجة دفع آمنة وموثوقة' : 'Safe and reliable payment processing'}</li>
-                        <li><strong>{isRTL ? 'تسليم سريع:' : 'Fast Delivery:'}</strong> {isRTL ? 'تسليم رقمي فوري لمعظم المنتجات' : 'Instant digital delivery for most products'}</li>
-                        <li><strong>{isRTL ? 'دعم العملاء:' : 'Customer Support:'}</strong> {isRTL ? 'فريق دعم مخصص جاهز للمساعدة' : 'Dedicated support team ready to help'}</li>
-                    </ul>
-                </section>
+                .about-title {
+                    font-family: var(--font-display);
+                    font-size: clamp(32px, 6vw, 56px);
+                    font-weight: var(--fw-bold);
+                    color: var(--color-cyan-primary);
+                    margin-bottom: 24px;
+                    letter-spacing: var(--ls-heading);
+                    text-transform: uppercase;
+                    text-shadow: 0 0 30px var(--color-primary-glow);
+                }
 
-                <section style={{ marginBottom: 'var(--spacing-xl)' }}>
-                    <h2 style={{
-                        color: 'var(--color-cyan-primary)',
-                        fontFamily: 'Orbitron, sans-serif',
-                        marginBottom: 'var(--spacing-md)'
-                    }}>
-                        {t('ourValues')}
+                .about-subtitle {
+                    font-family: var(--font-display);
+                    font-size: 14px;
+                    font-weight: var(--fw-medium);
+                    color: var(--color-text-secondary);
+                    letter-spacing: 0.3em;
+                    text-transform: uppercase;
+                    margin-bottom: 16px;
+                }
+
+                .glass-card {
+                    background: rgba(255, 255, 255, 0.03);
+                    backdrop-filter: blur(10px);
+                    border: 1px solid rgba(255, 255, 255, 0.08);
+                    border-radius: 24px;
+                    padding: 40px;
+                    margin-bottom: 40px;
+                    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+                }
+
+                .section-header {
+                    font-family: var(--font-display);
+                    font-size: 24px;
+                    font-weight: var(--fw-semibold);
+                    color: var(--color-cyan-primary);
+                    margin-bottom: 32px;
+                    letter-spacing: var(--ls-heading);
+                    text-transform: uppercase;
+                    display: flex;
+                    align-items: center;
+                    gap: 12px;
+                }
+
+                .who-we-are p {
+                    font-family: var(--font-body);
+                    font-size: 17px;
+                    line-height: 1.8;
+                    color: var(--color-text-secondary);
+                    margin-bottom: 24px;
+                    font-weight: var(--fw-regular);
+                }
+
+                .offers-grid {
+                    display: grid;
+                    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+                    gap: 24px;
+                    margin-bottom: 60px;
+                }
+
+                .offer-card {
+                    background: rgba(255, 255, 255, 0.02);
+                    border: 1px solid rgba(255, 255, 255, 0.05);
+                    border-radius: 20px;
+                    padding: 24px;
+                    transition: all 0.3s ease;
+                }
+
+                .offer-card:hover {
+                    background: rgba(0, 217, 255, 0.05);
+                    border-color: rgba(0, 217, 255, 0.2);
+                    transform: translateY(-5px);
+                }
+
+                .offer-icon {
+                    color: var(--color-cyan-primary);
+                    margin-bottom: 16px;
+                }
+
+                .offer-title {
+                    font-family: var(--font-display);
+                    font-size: 16px;
+                    font-weight: var(--fw-semibold);
+                    margin-bottom: 8px;
+                    color: var(--color-text-primary);
+                }
+
+                .offer-desc {
+                    font-family: var(--font-body);
+                    font-size: 14px;
+                    line-height: 1.6;
+                    color: var(--color-text-muted);
+                }
+
+                .values-grid {
+                    display: grid;
+                    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+                    gap: 32px;
+                }
+
+                .value-item {
+                    text-align: center;
+                }
+
+                .value-title {
+                    font-family: var(--font-display);
+                    font-size: 18px;
+                    font-weight: var(--fw-semibold);
+                    color: var(--color-text-primary);
+                    margin-bottom: 12px;
+                    letter-spacing: var(--ls-heading);
+                }
+
+                .value-desc {
+                    font-family: var(--font-body);
+                    font-size: 15px;
+                    line-height: 1.6;
+                    color: var(--color-text-secondary);
+                }
+
+                .contact-grid {
+                    display: grid;
+                    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                    gap: 32px;
+                    margin-top: 24px;
+                }
+
+                .contact-item {
+                    display: flex;
+                    align-items: center;
+                    gap: 16px;
+                    color: var(--color-text-secondary);
+                    font-family: var(--font-body);
+                }
+
+                .contact-icon {
+                    color: var(--color-cyan-primary);
+                    flex-shrink: 0;
+                }
+            `}</style>
+
+            <div className="about-container">
+                <div className="about-hero">
+                    <div className="about-subtitle">{isRTL ? 'إرث التميز' : 'A LEGACY OF EXCELLENCE'}</div>
+                    <h1 className="about-title">{t('aboutTitle')}</h1>
+                </div>
+
+                <div className="glass-card who-we-are">
+                    <h2 className="section-header">
+                        <Award size={24} />
+                        {t('whoWeAreTitle')}
                     </h2>
-                    <div style={{ marginBottom: 'var(--spacing-md)' }}>
-                        <h3 style={{ color: 'var(--color-text-primary)', marginBottom: '8px' }}>{isRTL ? 'الجودة' : 'Quality'}</h3>
-                        <p style={{ marginBottom: 'var(--spacing-md)' }}>
-                            {isRTL
-                                ? 'نحن نقدم فقط منتجات أصلية عالية الجودة من الناشرين والمطورين الموثوقين.'
-                                : 'We only offer authentic, high-quality products from trusted publishers and developers.'
-                            }
-                        </p>
+                    <p>{t('whoWeAreDesc1')}</p>
+                    <p style={{ margin: 0 }}>{t('whoWeAreDesc2')}</p>
+                </div>
+
+                <h2 className="section-header" style={{ justifyContent: 'center', marginBottom: '40px' }}>
+                    {t('whatWeOfferTitle')}
+                </h2>
+                <div className="offers-grid">
+                    {offers.map((offer, index) => (
+                        <div key={index} className="offer-card">
+                            <offer.icon className="offer-icon" size={32} />
+                            <h3 className="offer-title">{t(offer.title)}</h3>
+                            <p className="offer-desc">{t(offer.desc)}</p>
+                        </div>
+                    ))}
+                </div>
+
+                <div className="glass-card">
+                    <h2 className="section-header" style={{ justifyContent: 'center' }}>
+                        {t('ourValuesTitle')}
+                    </h2>
+                    <div className="values-grid">
+                        {values.map((v, index) => (
+                            <div key={index} className="value-item">
+                                <v.icon className="offer-icon" size={40} style={{ margin: '0 auto 16px' }} />
+                                <h3 className="value-title">{t(v.title)}</h3>
+                                <p className="value-desc">{t(v.desc)}</p>
+                            </div>
+                        ))}
                     </div>
-                    <div style={{ marginBottom: 'var(--spacing-md)' }}>
-                        <h3 style={{ color: 'var(--color-text-primary)', marginBottom: '8px' }}>{isRTL ? 'الأمان' : 'Security'}</h3>
-                        <p style={{ marginBottom: 'var(--spacing-md)' }}>
-                            {isRTL
-                                ? 'الأمان والخصوصية لديكم هي أولوياتنا القصوى. نستخدم تشفيرًا ومعايير أمان على مستوى الصناعة.'
-                                : 'Your security and privacy are our top priorities. We use industry-standard encryption and security measures.'
-                            }
-                        </p>
-                    </div>
-                    <div style={{ marginBottom: 'var(--spacing-md)' }}>
-                        <h3 style={{ color: 'var(--color-text-primary)', marginBottom: '8px' }}>{isRTL ? 'العميل أولاً' : 'Customer First'}</h3>
-                        <p style={{ marginBottom: 'var(--spacing-md)' }}>
-                            {isRTL
-                                ? 'نحن ملتزمون بتقديم خدمة عملاء ودعم استثنائي.'
-                                : 'We\'re committed to providing exceptional customer service and support.'
-                            }
-                        </p>
-                    </div>
-                </section>
+                </div>
 
-                <section>
-                    <h2 style={{
-                        color: 'var(--color-cyan-primary)',
-                        fontFamily: 'Orbitron, sans-serif',
-                        marginBottom: 'var(--spacing-md)'
-                    }}>
-                        {t('contactUs')}
+                <div className="glass-card" style={{ marginBottom: 0 }}>
+                    <h2 className="section-header">
+                        <Mail size={24} />
+                        {t('contactUsTitle')}
                     </h2>
-                    <p style={{ marginBottom: 'var(--spacing-md)' }}>
-                        {isRTL ? 'لديك أسئلة أو تحتاج إلى مساعدة؟ نحن هنا للمساعدة!' : 'Have questions or need assistance? We\'re here to help!'}
+                    <p style={{ fontFamily: 'var(--font-body)', color: 'var(--color-text-secondary)', marginBottom: '32px' }}>
+                        {t('contactDesc')}
                     </p>
-                    <p style={{ marginBottom: 'var(--spacing-md)' }}>
-                        <strong>{isRTL ? 'البريد الإلكتروني:' : 'Email:'}</strong> support@subhub.com<br />
-                        <strong>{isRTL ? 'الهاتف:' : 'Phone:'}</strong> +20 XXX XXX XXXX<br />
-                        <strong>{isRTL ? 'العنوان:' : 'Address:'}</strong> SUB HUB Gaming, Egypt
-                    </p>
-                </section>
+                    <div className="contact-grid">
+                        <div className="contact-item">
+                            <Mail className="contact-icon" size={20} />
+                            <span>support@subhub.com</span>
+                        </div>
+                        <div className="contact-item">
+                            <Phone className="contact-icon" size={20} />
+                            <span>+20 XXX XXX XXXX</span>
+                        </div>
+                        <div className="contact-item">
+                            <MapPin className="contact-icon" size={20} />
+                            <span>{isRTL ? 'مصر' : 'Cairo, Egypt'}</span>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     );

@@ -67,9 +67,11 @@ const Header = () => {
                 }
 
                 .logo {
-                    font-family: 'Orbitron', sans-serif;
+                    font-family: var(--font-display);
                     font-size: 24px;
-                    font-weight: 700;
+                    font-weight: var(--fw-bold);
+                    text-transform: uppercase;
+                    letter-spacing: var(--ls-heading);
                     color: var(--color-cyan-primary);
                     text-decoration: none;
                     display: flex;
@@ -87,9 +89,12 @@ const Header = () => {
                 .nav-link {
                     color: var(--color-text-secondary);
                     text-decoration: none;
-                    font-weight: 500;
+                    font-family: var(--font-display);
+                    font-weight: var(--fw-medium);
+                    text-transform: uppercase;
+                    letter-spacing: var(--ls-nav);
                     transition: color 0.2s;
-                    font-size: 15px;
+                    font-size: 14px;
                     position: relative;
                 }
 
@@ -140,7 +145,7 @@ const Header = () => {
                     align-items: center;
                     gap: 8px;
                     color: var(--color-text-primary);
-                    font-weight: 500;
+                    font-weight: var(--fw-medium);
                     font-size: 14px;
                 }
 
@@ -159,7 +164,8 @@ const Header = () => {
                 .btn-login {
                     color: var(--color-text-primary);
                     text-decoration: none;
-                    font-weight: 500;
+                    font-family: var(--font-display);
+                    font-weight: var(--fw-medium);
                     padding: 8px 16px;
                     font-size: 14px;
                 }
@@ -168,7 +174,8 @@ const Header = () => {
                     background: var(--color-cyan-primary);
                     color: var(--color-bg-primary);
                     text-decoration: none;
-                    font-weight: 600;
+                    font-family: var(--font-display);
+                    font-weight: var(--fw-semibold);
                     padding: 8px 20px;
                     border-radius: 6px;
                     transition: all 0.2s;
@@ -192,7 +199,7 @@ const Header = () => {
                     background: #ff4444;
                     color: white;
                     font-size: 10px;
-                    font-weight: 700;
+                    font-weight: var(--fw-bold);
                     min-width: 18px;
                     height: 18px;
                     border-radius: 50%;
@@ -267,7 +274,7 @@ const Header = () => {
                     color: white;
                     text-decoration: none;
                     font-size: 18px;
-                    font-weight: 600;
+                    font-weight: var(--fw-semibold);
                     padding: 16px;
                     border-radius: 12px;
                     transition: background 0.2s;

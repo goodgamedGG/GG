@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Inter:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
 
 /* ============================================
    FROSTBYTE GAMES THEME - CSS VARIABLES
@@ -36,11 +36,28 @@
   --color-cyan-dark: #008fa6;
 
   /* Typography Colors */
-  --color-text-primary: #ffffff;
+  --color-text-primary: #E6E6E6;
+  /* Soft white for luxury feel */
   --color-text-secondary: #94a3b8;
   /* Slate 400 - Readable but muted */
   --color-text-muted: #64748b;
   /* Slate 500 - Deemphasized */
+
+  /* Typography System */
+  --font-display: 'Sora', sans-serif;
+  --font-body: 'Inter', sans-serif;
+
+  /* Font Weights */
+  --fw-light: 300;
+  --fw-regular: 400;
+  --fw-medium: 500;
+  --fw-semibold: 600;
+  --fw-bold: 700;
+
+  /* Letter Spacing */
+  --ls-nav: 0.08em;
+  --ls-heading: 0.02em;
+  --ls-normal: normal;
 
   /* Borders & Effects */
   --color-border: #252b36;
@@ -107,7 +124,8 @@ body {
     radial-gradient(circle at 0% 0%, rgba(0, 217, 255, 0.03) 0%, transparent 50%),
     radial-gradient(circle at 100% 100%, rgba(0, 184, 217, 0.02) 0%, transparent 50%);
   color: var(--color-text-primary);
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family: var(--font-body);
+  font-weight: var(--fw-regular);
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -143,10 +161,10 @@ h3,
 h4,
 h5,
 h6 {
-  font-family: 'Orbitron', sans-serif;
-  font-weight: 700;
+  font-family: var(--font-display);
+  font-weight: var(--fw-bold);
   line-height: 1.2;
-  letter-spacing: 0.5px;
+  letter-spacing: var(--ls-heading);
 }
 
 h1 {
@@ -200,12 +218,12 @@ h3 {
 }
 
 .logo {
-  font-family: 'Orbitron', sans-serif;
-  font-size: 24px;
-  font-weight: 900;
+  font-family: var(--font-display);
+  font-size: 26px;
+  font-weight: var(--fw-semibold);
   color: var(--color-cyan-primary);
   text-transform: uppercase;
-  letter-spacing: 2px;
+  letter-spacing: var(--ls-heading);
   text-shadow: 0 0 20px rgba(0, 217, 255, 0.5);
   transition: all 0.3s ease;
   position: relative;
@@ -219,8 +237,8 @@ h3 {
 .logo-subtitle {
   display: block;
   font-size: 10px;
-  font-weight: 400;
-  letter-spacing: 3px;
+  font-weight: var(--fw-regular);
+  letter-spacing: var(--ls-nav);
   margin-top: -4px;
 }
 
@@ -232,10 +250,10 @@ h3 {
 
 .nav-link {
   color: var(--color-text-secondary);
-  font-size: 14px;
-  font-weight: 500;
+  font-size: 13px;
+  font-weight: var(--fw-medium);
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: var(--ls-nav);
   transition: color 0.3s ease;
   position: relative;
   padding: 4px 0;
@@ -292,6 +310,8 @@ h3 {
   border: none;
   outline: none;
   color: var(--color-text-primary);
+  font-family: var(--font-body);
+  font-weight: var(--fw-regular);
   font-size: 14px;
   width: 200px;
   transition: width 0.3s ease;
@@ -480,12 +500,12 @@ h3 {
   display: flex;
   align-items: center;
   gap: var(--spacing-md);
-  font-family: 'Orbitron', sans-serif;
-  font-size: 18px;
-  font-weight: 700;
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: var(--fw-bold);
   color: var(--color-cyan-primary);
   text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: var(--ls-nav);
   position: relative;
   overflow: hidden;
   transition: all var(--transition-medium);
@@ -525,11 +545,11 @@ h3 {
 .section-title {
   margin-bottom: var(--spacing-xl);
   color: var(--color-text-primary);
-  font-family: 'Orbitron', sans-serif;
+  font-family: var(--font-display);
   font-size: clamp(28px, 4vw, 42px);
-  font-weight: 700;
+  font-weight: var(--fw-bold);
   text-transform: uppercase;
-  letter-spacing: 2px;
+  letter-spacing: var(--ls-heading);
   position: relative;
   display: inline-block;
   padding-bottom: var(--spacing-sm);
@@ -627,9 +647,9 @@ h3 {
 }
 
 .game-card-title {
-  font-family: 'Orbitron', sans-serif;
-  font-size: 16px;
-  font-weight: 700;
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: var(--fw-semibold);
   color: var(--color-text-primary);
   margin-bottom: 4px;
   text-transform: uppercase;
@@ -644,8 +664,11 @@ h3 {
 }
 
 .game-card-publisher {
-  font-size: 12px;
+  font-size: 11px;
+  font-weight: var(--fw-light);
   color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
   margin-bottom: var(--spacing-sm);
   white-space: nowrap;
   overflow: hidden;
@@ -660,10 +683,10 @@ h3 {
 }
 
 .game-card-price {
-  font-family: 'Orbitron', sans-serif;
+  font-family: var(--font-display);
   color: var(--color-cyan-primary);
-  font-weight: 700;
-  font-size: 16px;
+  font-weight: var(--fw-bold);
+  font-size: 18px;
 }
 
 .game-card-add {

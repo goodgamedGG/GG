@@ -27,6 +27,7 @@ import Profile from './pages/Profile'; // Import Profile page
 import Categories from './pages/Categories';
 import About from './pages/About';
 import PrivacyPolicy from './pages/PrivacyPolicy';
+import Newsletter from './pages/Newsletter';
 
 // Pages - Auth
 import Login from './pages/auth/Login';
@@ -164,6 +165,11 @@ const App = () => {
                                         <Route path="/privacy-policy" element={
                                             <PublicLayout>
                                                 <PrivacyPolicy />
+                                            </PublicLayout>
+                                        } />
+                                        <Route path="/newsletter" element={
+                                            <PublicLayout>
+                                                <Newsletter />
                                             </PublicLayout>
                                         } />
 
