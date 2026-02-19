@@ -40,7 +40,7 @@ const Home = () => {
                 }
                 
                 .search-section {
-                    padding: 40px 20px 20px;
+                    padding: clamp(20px, 5vw, 40px) 20px 20px;
                     position: relative;
                     z-index: 10;
                 }
@@ -48,7 +48,7 @@ const Home = () => {
                 .content-container {
                     max-width: 1600px;
                     margin: 0 auto;
-                    padding: 0 40px 60px;
+                    padding: 0 clamp(16px, 4vw, 40px) 60px;
                 }
 
                 .filters-bar {
@@ -58,15 +58,17 @@ const Home = () => {
                     margin: 40px 0 30px;
                     padding-bottom: 20px;
                     border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+                    gap: 20px;
                 }
 
                 .section-title {
                     font-family: 'Orbitron', sans-serif;
-                    font-size: 24px;
+                    font-size: clamp(18px, 3vw, 24px);
                     color: white;
                     display: flex;
                     align-items: center;
                     gap: 12px;
+                    white-space: nowrap;
                 }
                 
                 .section-title::before {
@@ -80,7 +82,9 @@ const Home = () => {
 
                 .filters-group {
                     display: flex;
-                    gap: 16px;
+                    gap: 12px;
+                    flex-wrap: wrap;
+                    justify-content: flex-end;
                 }
 
                 .filter-select {
@@ -93,6 +97,7 @@ const Home = () => {
                     cursor: pointer;
                     outline: none;
                     transition: all 0.3s;
+                    font-size: 14px;
                 }
                 
                 .filter-select:hover {
@@ -101,9 +106,27 @@ const Home = () => {
                 }
 
                 @media (max-width: 768px) {
-                     .content-container { padding: 0 20px 40px; }
-                     .filters-bar { flex-direction: column; align-items: flex-start; gap: 20px; }
-                     .filters-group { width: 100%; overflow-x: auto; padding-bottom: 5px; }
+                     .filters-bar { 
+                        flex-direction: column; 
+                        align-items: flex-start; 
+                        margin: 30px 0 20px;
+                     }
+                     .filters-group { 
+                        width: 100%; 
+                        justify-content: flex-start;
+                        gap: 10px;
+                     }
+                     .filter-select {
+                        flex: 1;
+                        min-width: 140px;
+                     }
+                }
+
+                @media (max-width: 480px) {
+                    .filter-select {
+                        width: 100%;
+                        flex: none;
+                    }
                 }
             `}</style>
 

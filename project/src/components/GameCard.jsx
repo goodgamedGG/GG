@@ -48,7 +48,7 @@ const GameCard = ({ product }) => {
                     border-radius: var(--radius-md);
                     overflow: hidden;
                     text-decoration: none;
-                    transition: transform 0.2s, box-shadow 0.2s;
+                    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
                     display: flex;
                     flex-direction: column;
                     height: 100%;
@@ -56,15 +56,16 @@ const GameCard = ({ product }) => {
                 }
 
                 .game-card:hover {
-                    transform: translateY(-4px);
-                    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-                    border-color: var(--color-cyan-primary);
+                    transform: translateY(-6px);
+                    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4), 
+                                0 0 0 1px var(--color-cyan-primary);
                 }
 
                 .card-image-container {
                     position: relative;
                     padding-top: 133%; /* 3:4 Aspect Ratio */
                     overflow: hidden;
+                    background: #05050a;
                 }
 
                 .card-image {
@@ -74,17 +75,17 @@ const GameCard = ({ product }) => {
                     width: 100%;
                     height: 100%;
                     object-fit: cover;
-                    transition: transform 0.3s;
+                    transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
                 }
 
                 .game-card:hover .card-image {
-                    transform: scale(1.05);
+                    transform: scale(1.1);
                 }
 
                 .card-badges {
                     position: absolute;
-                    top: 10px;
-                    left: 10px;
+                    top: clamp(8px, 2vw, 12px);
+                    left: clamp(8px, 2vw, 12px);
                     display: flex;
                     flex-direction: column;
                     gap: 6px;
@@ -92,9 +93,9 @@ const GameCard = ({ product }) => {
                 }
 
                 .badge {
-                    padding: 4px 8px;
+                    padding: 4px clamp(6px, 1.5vw, 10px);
                     border-radius: 4px;
-                    font-size: 11px;
+                    font-size: clamp(9px, 1.1vw, 11px);
                     font-weight: 800;
                     text-transform: uppercase;
                     letter-spacing: 0.5px;
@@ -103,7 +104,7 @@ const GameCard = ({ product }) => {
                 .badge-sale {
                     background: #ff4444;
                     color: white;
-                    box-shadow: 0 0 10px rgba(255, 68, 68, 0.3);
+                    box-shadow: 0 0 10px rgba(255, 68, 68, 0.4);
                 }
 
                 .badge-flash {
@@ -112,37 +113,41 @@ const GameCard = ({ product }) => {
                     display: flex;
                     align-items: center;
                     gap: 4px;
-                    box-shadow: 0 0 15px rgba(255, 200, 0, 0.4);
+                    box-shadow: 0 0 15px rgba(255, 200, 0, 0.5);
                 }
 
                 .badge-new {
                     background: var(--color-cyan-primary);
                     color: black;
+                    box-shadow: 0 0 10px rgba(0, 217, 255, 0.4);
                 }
 
                 .card-actions {
                     position: absolute;
-                    top: 10px;
-                    right: 10px;
+                    top: clamp(8px, 2vw, 12px);
+                    right: clamp(8px, 2vw, 12px);
                     display: flex;
                     flex-direction: column;
                     gap: 8px;
                     opacity: 0;
-                    transition: opacity 0.2s;
+                    transition: all 0.3s ease;
                     z-index: 2;
+                    transform: translateX(10px);
                 }
 
                 .game-card:hover .card-actions {
                     opacity: 1;
+                    transform: translateX(0);
                 }
 
                 .action-btn {
-                    width: 32px;
-                    height: 32px;
+                    width: clamp(28px, 4vw, 36px);
+                    height: clamp(28px, 4vw, 36px);
                     border-radius: 50%;
-                    background: rgba(0, 0, 0, 0.7);
-                    backdrop-filter: blur(4px);
-                    border: 1px solid rgba(255, 255, 255, 0.2);
+                    background: rgba(0, 0, 0, 0.75);
+                    backdrop-filter: blur(8px);
+                    -webkit-backdrop-filter: blur(8px);
+                    border: 1px solid rgba(255, 255, 255, 0.1);
                     color: white;
                     display: flex;
                     align-items: center;
@@ -154,32 +159,38 @@ const GameCard = ({ product }) => {
                 .action-btn:hover {
                     background: var(--color-cyan-primary);
                     color: black;
+                    border-color: var(--color-cyan-primary);
+                    transform: scale(1.1);
                 }
 
                 .card-content {
-                    padding: 16px;
+                    padding: clamp(12px, 3vw, 16px);
                     flex: 1;
                     display: flex;
                     flex-direction: column;
+                    background: linear-gradient(to bottom, transparent, rgba(0, 217, 255, 0.02));
                 }
 
                 .card-title {
                     font-family: 'Orbitron', sans-serif;
-                    font-size: 15px;
-                    color: var(--color-text-primary);
+                    font-size: clamp(13px, 1.5vw, 15px);
+                    color: white;
                     margin: 0 0 6px 0;
                     overflow: hidden;
                     text-overflow: ellipsis;
                     white-space: nowrap;
                     line-height: 1.4;
+                    font-weight: 700;
+                    letter-spacing: 0.5px;
                 }
 
                 .card-category {
-                    font-size: 11px;
+                    font-size: clamp(10px, 1.1vw, 11px);
                     color: var(--color-text-muted);
                     margin-bottom: 12px;
                     text-transform: uppercase;
-                    letter-spacing: 1px;
+                    letter-spacing: 1.2px;
+                    font-weight: 500;
                 }
 
                 .card-footer {
@@ -187,6 +198,7 @@ const GameCard = ({ product }) => {
                     display: flex;
                     align-items: center;
                     justify-content: space-between;
+                    gap: 10px;
                 }
 
                 .price-container {
@@ -195,17 +207,16 @@ const GameCard = ({ product }) => {
                 }
 
                 .original-price {
-                    font-size: 11px;
+                    font-size: clamp(9px, 1.1vw, 11px);
                     color: var(--color-text-muted);
                     text-decoration: line-through;
                     margin-bottom: -2px;
                 }
 
                 .current-price {
-                    font-size: 18px;
+                    font-size: clamp(15px, 2vw, 18px);
                     font-weight: 800;
                     color: var(--color-cyan-primary);
-                    font-family: 'Rajdhani', sans-serif;
                 }
 
                 .flash-timer {
@@ -213,18 +224,30 @@ const GameCard = ({ product }) => {
                     bottom: 0;
                     left: 0;
                     right: 0;
-                    background: linear-gradient(transparent, rgba(255, 200, 0, 0.2), #ffc800);
+                    background: linear-gradient(transparent, rgba(255, 200, 0, 0.4), #ffc800);
                     color: black;
                     padding: 8px;
-                    font-size: 11px;
+                    font-size: 10px;
                     font-weight: 800;
                     text-align: center;
                     opacity: 0;
                     transition: opacity 0.3s;
+                    z-index: 3;
                 }
 
                 .game-card:hover .flash-timer {
                     opacity: 1;
+                }
+
+                @media (max-width: 640px) {
+                    .card-actions {
+                        opacity: 1;
+                        transform: none;
+                    }
+                    
+                    .badge {
+                        padding: 3px 6px;
+                    }
                 }
             `}</style>
 

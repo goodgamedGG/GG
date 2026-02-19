@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { User, Menu, LogOut, LayoutDashboard, ShoppingCart } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { User, Menu, X, LogOut, LayoutDashboard, ShoppingCart, Home, Gamepad2, Layers, Info } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 
@@ -8,7 +8,22 @@ const Header = () => {
     const { user, logout, isAuthenticated, isAdmin } = useAuth();
     const { itemCount } = useCart();
     const navigate = useNavigate();
+    const location = useLocation();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+    // Close menu on route change
+    useEffect(() => {
+        setIsMenuOpen(false);
+    }, [location.pathname]);
+
+    // Prevent scroll when menu is open
+    useEffect(() => {
+        if (isMenuOpen) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = 'unset';
+        }
+    }, [isMenuOpen]);
 
     const handleLogout = async () => {
         await logout();
@@ -24,7 +39,7 @@ const Header = () => {
                     border-bottom: 1px solid var(--color-border);
                     position: sticky;
                     top: 0;
-                    z-index: 100;
+                    z-index: 1000;
                     height: 70px;
                 }
                 
@@ -43,6 +58,7 @@ const Header = () => {
                     display: flex;
                     align-items: center;
                     justify-content: flex-start;
+                    gap: 16px;
                 }
 
                 .header-center {
@@ -59,7 +75,7 @@ const Header = () => {
                     display: flex;
                     align-items: center;
                     gap: 8px;
-                    text-shadow: 0 0 10px rgba(0, 217, 255, 0.5);
+                    text-shadow: 0 0-10px rgba(0, 217, 255, 0.5);
                 }
 
                 .nav-links {
@@ -74,6 +90,7 @@ const Header = () => {
                     font-weight: 500;
                     transition: color 0.2s;
                     font-size: 15px;
+                    position: relative;
                 }
 
                 .nav-link:hover, .nav-link.active {
@@ -97,10 +114,17 @@ const Header = () => {
                     display: flex;
                     align-items: center;
                     justify-content: center;
+                    padding: 8px;
+                    border-radius: 50%;
                 }
 
                 .icon-btn:hover {
                     color: var(--color-cyan-primary);
+                    background: rgba(255, 255, 255, 0.05);
+                }
+
+                .mobile-toggle {
+                    display: none;
                 }
 
                 .user-profile {
@@ -121,25 +145,15 @@ const Header = () => {
                 }
 
                 .user-name {
-                    max-width: 150px;
+                    max-width: 120px;
                     white-space: nowrap;
                     overflow: hidden;
                     text-overflow: ellipsis;
                 }
 
-                .admin-badge {
-                    background: var(--color-cyan-primary);
-                    color: var(--color-bg-primary);
-                    font-size: 10px;
-                    padding: 2px 6px;
-                    border-radius: 4px;
-                    font-weight: 700;
-                    text-transform: uppercase;
-                }
-
                 .auth-buttons {
                     display: flex;
-                    gap: 12px;
+                    gap: 8px;
                 }
 
                 .btn-login {
@@ -147,6 +161,7 @@ const Header = () => {
                     text-decoration: none;
                     font-weight: 500;
                     padding: 8px 16px;
+                    font-size: 14px;
                 }
 
                 .btn-signup {
@@ -154,13 +169,16 @@ const Header = () => {
                     color: var(--color-bg-primary);
                     text-decoration: none;
                     font-weight: 600;
-                    padding: 8px 16px;
-                    border-radius: 4px;
-                    transition: opacity 0.2s;
+                    padding: 8px 20px;
+                    border-radius: 6px;
+                    transition: all 0.2s;
+                    font-size: 14px;
+                    box-shadow: 0 0 15px rgba(0, 217, 255, 0.2);
                 }
                 
                 .btn-signup:hover {
-                    opacity: 0.9;
+                    transform: translateY(-1px);
+                    box-shadow: 0 0 20px rgba(0, 217, 255, 0.4);
                 }
 
                 .cart-btn-wrapper {
@@ -169,10 +187,10 @@ const Header = () => {
 
                 .cart-badge {
                     position: absolute;
-                    top: -8px;
-                    right: -8px;
-                    background: var(--color-cyan-primary);
-                    color: var(--color-bg-primary);
+                    top: 0;
+                    right: 0;
+                    background: #ff4444;
+                    color: white;
                     font-size: 10px;
                     font-weight: 700;
                     min-width: 18px;
@@ -181,35 +199,149 @@ const Header = () => {
                     display: flex;
                     align-items: center;
                     justify-content: center;
-                    padding: 2px;
                     border: 2px solid var(--color-bg-primary);
                 }
 
-                @media (max-width: 768px) {
+                /* Mobile Menu Styles */
+                .mobile-menu-overlay {
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    bottom: 0;
+                    background: rgba(0, 0, 0, 0.8);
+                    backdrop-filter: blur(8px);
+                    z-index: 2000;
+                    opacity: 0;
+                    visibility: hidden;
+                    transition: all 0.3s ease;
+                }
+
+                .mobile-menu-overlay.active {
+                    opacity: 1;
+                    visibility: visible;
+                }
+
+                .mobile-menu-content {
+                    position: fixed;
+                    top: 0;
+                    left: -300px;
+                    width: 300px;
+                    height: 100vh;
+                    background: #0a0a14;
+                    z-index: 2001;
+                    padding: 30px 24px;
+                    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+                    display: flex;
+                    flex-direction: column;
+                    border-right: 1px solid rgba(255, 255, 255, 0.05);
+                }
+
+                .mobile-menu-overlay.active + .mobile-menu-content {
+                    left: 0;
+                }
+
+                .mobile-close-btn {
+                    align-self: flex-end;
+                    background: none;
+                    border: none;
+                    color: white;
+                    cursor: pointer;
+                    padding: 8px;
+                    margin-bottom: 20px;
+                }
+
+                .mobile-nav-links {
+                    list-style: none;
+                    padding: 0;
+                    margin: 0;
+                    display: flex;
+                    flex-direction: column;
+                    gap: 12px;
+                }
+
+                .mobile-nav-link {
+                    display: flex;
+                    align-items: center;
+                    gap: 16px;
+                    color: white;
+                    text-decoration: none;
+                    font-size: 18px;
+                    font-weight: 600;
+                    padding: 16px;
+                    border-radius: 12px;
+                    transition: background 0.2s;
+                    background: rgba(255, 255, 255, 0.03);
+                }
+
+                .mobile-nav-link:hover, .mobile-nav-link.active {
+                    background: rgba(0, 217, 255, 0.1);
+                    color: var(--color-cyan-primary);
+                }
+
+                @media (max-width: 1024px) {
                     .header-container {
                         grid-template-columns: auto 1fr auto;
+                        padding: 0 16px;
+                        gap: 12px;
                     }
+                    
                     .nav-links {
                         display: none;
+                    }
+
+                    .mobile-toggle {
+                        display: flex;
+                    }
+
+                    .user-name {
+                        display: none;
+                    }
+
+                    .user-profile {
+                        padding-left: 0;
+                        border-left: none;
+                        gap: 12px;
+                    }
+                }
+
+                @media (max-width: 640px) {
+                    .logo {
+                        font-size: 20px;
+                    }
+                    
+                    .auth-buttons .btn-login {
+                        display: none;
+                    }
+                    
+                    .header-actions {
+                        gap: 10px;
                     }
                 }
             `}</style>
 
             <div className="header-container">
-                {/* Left: Brand */}
+                {/* Left: Brand & Mobile Toggle */}
                 <div className="header-left">
+                    <button
+                        className="icon-btn mobile-toggle"
+                        onClick={() => setIsMenuOpen(true)}
+                        aria-label="Open menu"
+                    >
+                        <Menu size={24} />
+                    </button>
                     <Link to="/" className="logo">
                         SUB HUB
                     </Link>
                 </div>
 
-                {/* Center: Navigation */}
+                {/* Center: Navigation (Desktop) */}
                 <div className="header-center">
                     <nav className="nav-links">
-                        <Link to="/" className="nav-link">Home</Link>
-                        <Link to="/games" className="nav-link">Games</Link>
-                        <Link to="/categories" className="nav-link">Categories</Link>
-                        <Link to="/about" className="nav-link">About</Link>
+                        <Link to="/" className={`nav-link ${location.pathname === '/' ? 'active' : ''}`}>Home</Link>
+                        <Link to="/games" className={`nav-link ${location.pathname === '/games' ? 'active' : ''}`}>Games</Link>
+                        <Link to="/categories" className={`nav-link ${location.pathname === '/categories' ? 'active' : ''}`}>Categories</Link>
+                        <Link to="/about" className={`nav-link ${location.pathname === '/about' ? 'active' : ''}`}>About</Link>
                     </nav>
                 </div>
 
@@ -243,6 +375,54 @@ const Header = () => {
                         <div className="auth-buttons">
                             <Link to="/login" className="btn-login">Login</Link>
                             <Link to="/signup" className="btn-signup">Sign Up</Link>
+                        </div>
+                    )}
+                </div>
+            </div>
+
+            {/* Mobile Menu Overlay & Drawer */}
+            <div
+                className={`mobile-menu-overlay ${isMenuOpen ? 'active' : ''}`}
+                onClick={() => setIsMenuOpen(false)}
+            ></div>
+            <div className={`mobile-menu-content ${isMenuOpen ? 'active' : ''}`}>
+                <button className="mobile-close-btn" onClick={() => setIsMenuOpen(false)}>
+                    <X size={28} />
+                </button>
+
+                <div className="mobile-nav-links">
+                    <Link to="/" className={`mobile-nav-link ${location.pathname === '/' ? 'active' : ''}`}>
+                        <Home size={20} /> Home
+                    </Link>
+                    <Link to="/games" className={`mobile-nav-link ${location.pathname === '/games' ? 'active' : ''}`}>
+                        <Gamepad2 size={20} /> Games
+                    </Link>
+                    <Link to="/categories" className={`mobile-nav-link ${location.pathname === '/categories' ? 'active' : ''}`}>
+                        <Layers size={20} /> Categories
+                    </Link>
+                    <Link to="/about" className={`mobile-nav-link ${location.pathname === '/about' ? 'active' : ''}`}>
+                        <Info size={20} /> About
+                    </Link>
+                </div>
+
+                <div style={{ marginTop: 'auto', paddingTop: '20px', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+                    {isAuthenticated ? (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                            <Link to="/profile" className="mobile-nav-link">
+                                <User size={20} /> {user?.name || 'Profile'}
+                            </Link>
+                            <button
+                                onClick={handleLogout}
+                                className="mobile-nav-link"
+                                style={{ width: '100%', border: 'none', textAlign: 'left', cursor: 'pointer' }}
+                            >
+                                <LogOut size={20} /> Logout
+                            </button>
+                        </div>
+                    ) : (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                            <Link to="/login" className="mobile-nav-link">Login</Link>
+                            <Link to="/signup" className="mobile-nav-link" style={{ background: 'var(--color-cyan-primary)', color: 'black' }}>Sign Up</Link>
                         </div>
                     )}
                 </div>

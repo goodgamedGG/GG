@@ -91,84 +91,57 @@ const Cart = () => {
                 {/* Cart Items List */}
                 <div className="cart-items" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                     {cart.items.map((item) => (
-                        <div key={item._id} style={{
-                            display: 'grid',
-                            gridTemplateColumns: '120px 1fr auto',
-                            gap: '40px',
-                            background: 'linear-gradient(145deg, rgba(22, 22, 26, 0.8) 0%, rgba(18, 18, 20, 0.9) 100%)',
-                            padding: '30px',
-                            borderRadius: '20px',
-                            border: '1px solid rgba(255, 255, 255, 0.05)',
-                            position: 'relative',
-                            overflow: 'hidden',
-                            backdropFilter: 'blur(10px)',
-                            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)'
-                        }}>
+                        <div key={item._id} className="cart-item-card">
                             {/* Product Image */}
-                            <div style={{ width: '120px', height: '120px', borderRadius: '12px', overflow: 'hidden', border: '1px solid rgba(255, 255, 255, 0.1)' }}>
+                            <div className="cart-item-image">
                                 <img
                                     src={getImageUrl(item.product?.images?.[0])}
                                     alt={item.name}
-                                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                                 />
                             </div>
 
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', justifyContent: 'center' }}>
+                            <div className="cart-item-details">
                                 <div>
-                                    <h3 style={{ margin: '0 0 16px 0', color: 'var(--color-text-primary)', fontSize: '22px', fontFamily: 'Orbitron, sans-serif' }}>
-                                        <Link to={`/product/${item.product?._id}`} style={{ color: 'inherit', textDecoration: 'none', transition: 'color 0.2s' }} className="product-title-link">
+                                    <h3 className="cart-item-title">
+                                        <Link to={`/product/${item.product?._id}`} className="product-title-link">
                                             {item.name}
                                         </Link>
                                     </h3>
 
-                                    <div className="product-details-grid" style={{
-                                        display: 'grid',
-                                        gridTemplateColumns: 'repeat(2, 1fr)',
-                                        gap: '12px 40px',
-                                        maxWidth: '750px',
-                                        fontSize: '12px',
-                                        fontFamily: '"JetBrains Mono", monospace'
-                                    }}>
-                                        <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid rgba(255, 255, 255, 0.05)', paddingBottom: '4px' }}>
-                                            <span style={{ color: 'rgba(148, 163, 184, 0.7)' }}>Platform:</span>
-                                            <span style={{ color: '#ffffff' }}>{item.product?.platform || 'PC'}</span>
+                                    <div className="product-details-grid">
+                                        <div className="detail-row">
+                                            <span className="detail-label">Platform:</span>
+                                            <span className="detail-value">{item.product?.platform || 'PC'}</span>
                                         </div>
 
-                                        <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid rgba(255, 255, 255, 0.05)', paddingBottom: '4px' }}>
-                                            <span style={{ color: 'rgba(148, 163, 184, 0.7)' }}>Edition:</span>
-                                            <span style={{ color: '#ffffff' }}>{item.variant?.type || 'Standard Edition'}</span>
+                                        <div className="detail-row">
+                                            <span className="detail-label">Edition:</span>
+                                            <span className="detail-value">{item.variant?.type || 'Standard Edition'}</span>
                                         </div>
 
-                                        <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid rgba(255, 255, 255, 0.05)', paddingBottom: '4px' }}>
-                                            <span style={{ color: 'rgba(148, 163, 184, 0.7)' }}>Developer:</span>
-                                            <span style={{ color: '#ffffff' }}>{item.product?.developer || 'Official Game'}</span>
+                                        <div className="detail-row">
+                                            <span className="detail-label">Developer:</span>
+                                            <span className="detail-value">{item.product?.developer || 'Official Game'}</span>
                                         </div>
 
-                                        <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid rgba(255, 255, 255, 0.05)', paddingBottom: '4px' }}>
-                                            <span style={{ color: 'rgba(148, 163, 184, 0.7)' }}>Release:</span>
-                                            <span style={{ color: '#ffffff' }}>{item.product?.releaseDate ? new Date(item.product.releaseDate).toLocaleDateString() : 'Now Available'}</span>
+                                        <div className="detail-row">
+                                            <span className="detail-label">Release:</span>
+                                            <span className="detail-value">{item.product?.releaseDate ? new Date(item.product.releaseDate).toLocaleDateString() : 'Now Available'}</span>
                                         </div>
 
-                                        <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid rgba(255, 255, 255, 0.05)', paddingBottom: '4px', gridColumn: 'span 2' }}>
-                                            <span style={{ color: 'rgba(148, 163, 184, 0.7)' }}>Format:</span>
-                                            <span style={{ color: '#ffffff', textTransform: 'capitalize' }}>{item.product?.type || 'Digital'}</span>
+                                        <div className="detail-row full-width">
+                                            <span className="detail-label">Format:</span>
+                                            <span className="detail-value" style={{ textTransform: 'capitalize' }}>{item.product?.type || 'Digital'}</span>
                                         </div>
                                     </div>
                                 </div>
-                                <div style={{
-                                    color: 'var(--color-cyan-primary)',
-                                    fontWeight: '800',
-                                    fontSize: '28px',
-                                    fontFamily: 'Orbitron, sans-serif',
-                                    textShadow: '0 0 15px rgba(0, 217, 255, 0.5)',
-                                    marginTop: '8px'
-                                }}>
+                                <div className="cart-item-price">
                                     {formatPrice(item.price * item.quantity)}
                                 </div>
                             </div>
 
                             {/* Actions (Quantity & Delete) */}
-                            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', justifyContent: 'space-between' }}>
+                            <div className="cart-item-actions">
                                 <button
                                     onClick={() => removeFromCart(item._id)}
                                     style={{
@@ -359,6 +332,98 @@ const Cart = () => {
             </div>
 
             <style>{`
+                .cart-item-card {
+                    display: grid;
+                    grid-template-columns: 120px 1fr auto;
+                    gap: 40px;
+                    background: linear-gradient(145deg, rgba(22, 22, 26, 0.8) 0%, rgba(18, 18, 20, 0.9) 100%);
+                    padding: 30px;
+                    borderRadius: 20px;
+                    border: 1px solid rgba(255, 255, 255, 0.05);
+                    position: relative;
+                    overflow: hidden;
+                    backdrop-filter: blur(10px);
+                    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+                }
+
+                .cart-item-image {
+                    width: 120px;
+                    height: 120px;
+                    border-radius: 12px;
+                    overflow: hidden;
+                    border: 1px solid rgba(255, 255, 255, 0.1);
+                }
+
+                .cart-item-image img {
+                    width: 100%;
+                    height: 100%;
+                    object-fit: cover;
+                }
+
+                .cart-item-details {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 20px;
+                    justify-content: center;
+                }
+
+                .cart-item-title {
+                    margin: 0 0 16px 0;
+                    color: var(--color-text-primary);
+                    fontSize: 22px;
+                    font-family: Orbitron, sans-serif;
+                }
+
+                .cart-item-title a {
+                    color: inherit;
+                    text-decoration: none;
+                    transition: color 0.2s;
+                }
+
+                .product-details-grid {
+                    display: grid;
+                    grid-template-columns: repeat(2, 1fr);
+                    gap: 12px 40px;
+                    maxWidth: 750px;
+                    fontSize: 12px;
+                    fontFamily: "JetBrains Mono", monospace;
+                }
+
+                .detail-row {
+                    display: flex;
+                    justify-content: space-between;
+                    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+                    padding-bottom: 4px;
+                }
+
+                .detail-row.full-width {
+                    grid-column: span 2;
+                }
+
+                .detail-label {
+                    color: rgba(148, 163, 184, 0.7);
+                }
+
+                .detail-value {
+                    color: #ffffff;
+                }
+
+                .cart-item-price {
+                    color: var(--color-cyan-primary);
+                    font-weight: 800;
+                    font-size: 28px;
+                    font-family: Orbitron, sans-serif;
+                    text-shadow: 0 0 15px rgba(0, 217, 255, 0.5);
+                    margin-top: 8px;
+                }
+
+                .cart-item-actions {
+                    display: flex;
+                    flex-direction: column;
+                    align-items: flex-end;
+                    justify-content: space-between;
+                }
+
                 @media (max-width: 1024px) {
                     .cart-grid {
                         grid-template-columns: 1fr !important;
@@ -366,9 +431,52 @@ const Cart = () => {
                 }
 
                 @media (max-width: 768px) {
+                    .cart-item-card {
+                        grid-template-columns: 100px 1fr;
+                        gap: 20px;
+                        padding: 20px;
+                    }
+
+                    .cart-item-actions {
+                        grid-column: span 2;
+                        flex-direction: row;
+                        align-items: center;
+                        justify-content: space-between;
+                        margin-top: 15px;
+                        padding-top: 15px;
+                        border-top: 1px solid rgba(255, 255, 255, 0.05);
+                    }
+
                     .product-details-grid {
                         grid-template-columns: 1fr !important;
-                        gap: 12px 0 !important;
+                        gap: 8px 0 !important;
+                    }
+                    
+                    .detail-row.full-width {
+                        grid-column: span 1;
+                    }
+
+                    .cart-item-title {
+                        font-size: 18px;
+                    }
+
+                    .cart-item-price {
+                        font-size: 22px;
+                    }
+                }
+
+                @media (max-width: 480px) {
+                    .cart-item-card {
+                        grid-template-columns: 1fr;
+                    }
+                    
+                    .cart-item-image {
+                        width: 100%;
+                        height: 200px;
+                    }
+                    
+                    .cart-item-actions {
+                        grid-column: span 1;
                     }
                 }
 
