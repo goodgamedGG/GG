@@ -111,6 +111,7 @@ const addToCart = async (req, res, next) => {
         cart.calculateTotals();
         await cart.save();
         await cart.populate('items.product');
+        await cart.populate('promoCode');
 
         res.status(HTTP_STATUS.OK).json({
             success: true,
@@ -152,6 +153,7 @@ const updateCartItem = async (req, res, next) => {
         cart.calculateTotals();
         await cart.save();
         await cart.populate('items.product');
+        await cart.populate('promoCode');
 
         res.status(HTTP_STATUS.OK).json({
             success: true,
@@ -181,6 +183,7 @@ const removeFromCart = async (req, res, next) => {
         cart.calculateTotals();
         await cart.save();
         await cart.populate('items.product');
+        await cart.populate('promoCode');
 
         res.status(HTTP_STATUS.OK).json({
             success: true,
@@ -210,6 +213,7 @@ const clearCart = async (req, res, next) => {
         cart.total = 0;
         cart.promoCode = null;
         await cart.save();
+        await cart.populate('promoCode');
 
         res.status(HTTP_STATUS.OK).json({
             success: true,
@@ -264,7 +268,7 @@ const applyPromoCode = async (req, res, next) => {
         // Apply promo code
         cart.promoCode = promoCode._id;
         cart.discount = promoCode.calculateDiscount(cart.subtotal);
-        cart.total = cart.subtotal - cart.discount;
+        cart.calculateTotals();
         await cart.save();
         await cart.populate('promoCode');
 

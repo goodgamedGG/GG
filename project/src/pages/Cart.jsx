@@ -277,9 +277,9 @@ const Cart = () => {
                                 </button>
                             </div>
                             {promoError && <div style={{ color: '#ef4444', fontSize: '12px', marginTop: '6px', fontFamily: 'Inter, sans-serif' }}>{promoError}</div>}
-                            {cart.discount > 0 && (
+                            {cart.discount > 0 && cart.promoCode && (
                                 <div style={{ color: '#10b981', fontSize: '12px', marginTop: '4px' }}>
-                                    Applied: {cart.promoCode} (-{formatPrice(cart.discount)})
+                                    Applied: {cart.promoCode.code} (-{formatPrice(cart.discount)})
                                 </div>
                             )}
                         </div>

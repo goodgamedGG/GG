@@ -94,10 +94,21 @@ const generateOrderNumber = () => {
     return `ORD-${year}${month}${day}-${random}`;
 };
 
+/**
+ * Check if a date is expired
+ * @param {Date} date - Date to check
+ * @returns {boolean} - True if expired
+ */
+const isExpired = (date) => {
+    if (!date) return false;
+    return new Date(date) < new Date();
+};
+
 module.exports = {
     formatImageUrl,
     getPagination,
     createPaginationMeta,
+    isExpired,
     generateUniqueFilename,
     generateVerificationCode,
     formatCurrency,
