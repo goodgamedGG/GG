@@ -36,7 +36,6 @@ const errorHandler = (err, req, res, next) => {
 
     // Log error with context
     logger.errorWithContext(err, req);
-    console.error('Global Error Handler:', err); // Force log to console
 
     // Mongoose bad ObjectId
     if (err.name === 'CastError') {
