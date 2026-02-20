@@ -1,20 +1,26 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ShoppingCart, Heart, Star } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { getImageUrl } from '../utils/imageUtils';
+import client from '../api/client';
 
 const GameCard = ({ product }) => {
     const { addToCart } = useCart();
     const { isAuthenticated } = useAuth();
     const { addToast } = useToast();
+    const [isFavorited, setIsFavorited] = useState(false);
+    const [favLoading, setFavLoading] = useState(false);
 
-    // Default image if missing
-    const image = product.images && product.images.length > 0
-        ? getImageUrl(product.images[0])
-        : 'https://placehold.co/300x400?text=No+Image';
+    // Check if already in wishlist on mount (only if logged in)
+    useEffect(() => {
+        if (!isAuthenticated || !product?._id) return;
+        client.get(`/wishlist/check/${product._id}`)
+            .then(res => { if (res.data?.data?.isInWishlist) setIsFavorited(true); })
+            .catch(() => { });
+    }, [product._id, isAuthenticated]);
 
     const handleAddToCart = async (e) => {
         e.preventDefault();
@@ -33,11 +39,44 @@ const GameCard = ({ product }) => {
         }
     };
 
+    const handleToggleFavorite = async (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        if (!isAuthenticated) {
+            addToast('Please login to save favorites', 'info');
+            return;
+        }
+
+        if (favLoading) return;
+        setFavLoading(true);
+        try {
+            if (isFavorited) {
+                await client.delete(`/wishlist/${product._id}`);
+                setIsFavorited(false);
+                addToast('Removed from favorites', 'success');
+            } else {
+                await client.post('/wishlist', { productId: product._id });
+                setIsFavorited(true);
+                addToast('Added to favorites ❤️', 'success');
+            }
+        } catch (error) {
+            addToast(error.message || 'Could not update favorites', 'error');
+        } finally {
+            setFavLoading(false);
+        }
+    };
+
     const discountPercentage = product.price && product.discountPrice
         ? Math.round(((product.price - product.discountPrice) / product.price) * 100)
         : 0;
 
     const isFlashSale = product.isFlashSale && product.flashSaleEndsAt && new Date(product.flashSaleEndsAt) > new Date();
+
+    // Default image if missing
+    const image = product.images && product.images.length > 0
+        ? getImageUrl(product.images[0])
+        : 'https://placehold.co/300x400?text=No+Image';
 
     return (
         <Link to={`/product/${product._id}`} className="game-card">
@@ -268,10 +307,17 @@ const GameCard = ({ product }) => {
                 </div>
 
                 <div className="card-actions">
-                    <button className="action-btn" onClick={(e) => {
-                        e.preventDefault();
-                    }}>
-                        <Heart size={16} />
+                    <button
+                        className="action-btn"
+                        onClick={handleToggleFavorite}
+                        title={isFavorited ? 'Remove from favorites' : 'Add to favorites'}
+                        style={{ opacity: favLoading ? 0.5 : 1 }}
+                    >
+                        <Heart
+                            size={16}
+                            fill={isFavorited ? '#ff4d6d' : 'none'}
+                            color={isFavorited ? '#ff4d6d' : 'white'}
+                        />
                     </button>
                     <button className="action-btn" onClick={handleAddToCart} title="Add to Cart">
                         <ShoppingCart size={16} />
