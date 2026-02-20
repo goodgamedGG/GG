@@ -155,7 +155,10 @@ client.interceptors.response.use(
         }
 
         // Handle 401 Unauthorized (Token expired)
-        if (error.response && error.response.status === 401 && !originalRequest._retry) {
+        // Guard: do NOT retry if the failing request is any auth endpoint
+        // (login/signup failures are real 401s, not expired tokens — refreshing would cause a redirect loop)
+        const isAuthRequest = originalRequest.url?.includes('/auth/');
+        if (error.response && error.response.status === 401 && !originalRequest._retry && !isAuthRequest) {
             originalRequest._retry = true;
 
             try {

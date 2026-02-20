@@ -92,7 +92,7 @@ const userApiLimiter = userRateLimiter(
  */
 const authLimiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 500, // Limit each IP to 500 requests per windowMs
+    max: 50, // Limit each IP to 50 requests per windowMs
     message: {
         success: false,
         message: 'Too many authentication attempts. Please wait 15 minutes and try again.',

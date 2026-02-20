@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
@@ -7,10 +7,33 @@ const Login = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
+    const [errorCountdown, setErrorCountdown] = useState(0);
     const [loading, setLoading] = useState(false);
     const { login } = useAuth();
     const { t, isRTL } = useLanguage();
     const navigate = useNavigate();
+    const countdownRef = useRef(null);
+
+    // Auto-clear error after 30 seconds with countdown
+    useEffect(() => {
+        if (!error) return;
+
+        setErrorCountdown(30);
+        clearInterval(countdownRef.current);
+
+        countdownRef.current = setInterval(() => {
+            setErrorCountdown((prev) => {
+                if (prev <= 1) {
+                    clearInterval(countdownRef.current);
+                    setError('');
+                    return 0;
+                }
+                return prev - 1;
+            });
+        }, 1000);
+
+        return () => clearInterval(countdownRef.current);
+    }, [error]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -24,7 +47,6 @@ const Login = () => {
                 navigate('/');
             }
         } catch (err) {
-            console.error('Login error:', err);
             setError(err.message || 'Invalid email or password');
         } finally {
             setLoading(false);
@@ -36,7 +58,22 @@ const Login = () => {
             <h2 style={{ textAlign: 'center', marginBottom: '20px', color: '#fff' }}>
                 {isRTL ? 'مرحباً بعودتك' : 'Welcome Back'}
             </h2>
-            {error && <div className="error-message">{error}</div>}
+            {error && (
+                <div className="error-message" style={{ position: 'relative' }}>
+                    <span>{error}</span>
+                    <span style={{
+                        position: 'absolute',
+                        right: '12px',
+                        top: '50%',
+                        transform: 'translateY(-50%)',
+                        fontSize: '11px',
+                        opacity: 0.6,
+                        fontVariantNumeric: 'tabular-nums'
+                    }}>
+                        {errorCountdown}s
+                    </span>
+                </div>
+            )}
 
             <form onSubmit={handleSubmit} className="auth-form">
                 <div className="form-group">
@@ -75,10 +112,7 @@ const Login = () => {
             </form>
 
             <div className="auth-footer">
-                {isRTL ? 'ليس لديك حساب؟' : 'Don\'t have an account?'} <Link to="/signup" className="auth-link">{t('createAccount')}</Link>
-                <div style={{ marginTop: '20px', fontSize: '12px', opacity: 0.6 }}>
-                    <p>Demo Admin: admin@subhub.com / admin123</p>
-                </div>
+                {isRTL ? 'ليس لديك حساب؟' : "Don't have an account?"} <Link to="/signup" className="auth-link">{t('createAccount')}</Link>
             </div>
         </div>
     );

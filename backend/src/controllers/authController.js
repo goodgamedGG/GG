@@ -4,6 +4,7 @@ const { AppError } = require('../middleware/errorMiddleware');
 const { HTTP_STATUS } = require('../utils/constants');
 const { generateAccessToken, generateRefreshToken, verifyRefreshToken } = require('../services/tokenService');
 const { sendVerificationEmail, sendPasswordResetCodeEmail } = require('../services/emailService');
+const { recordFailedAttempt, recordAccountLocked } = require('../utils/securityMonitor');
 
 /**
  * @desc    Register new user
@@ -81,6 +82,11 @@ const login = async (req, res, next) => {
         const isPasswordMatch = await user.comparePassword(password);
         if (!isPasswordMatch) {
             await user.incrementFailedAttempts();
+            // Monitor for brute-force: record global spike + per-account lock alerts
+            recordFailedAttempt(req.ip, email);
+            if (user.failedLoginAttempts >= 5) {
+                recordAccountLocked(email, req.ip);
+            }
             return next(new AppError('Incorrect password. Please try again.', HTTP_STATUS.UNAUTHORIZED));
         }
 
