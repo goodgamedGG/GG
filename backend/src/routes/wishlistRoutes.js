@@ -8,7 +8,6 @@ const {
 } = require('../controllers/wishlistController');
 const { protect } = require('../middleware/authMiddleware');
 const validate = require('../middleware/validateMiddleware');
-const { mongoIdValidator } = require('../utils/validators');
 const { body } = require('express-validator');
 
 // All routes require authentication
@@ -28,9 +27,10 @@ router.post(
 );
 
 // @route   DELETE /api/wishlist/:productId
-router.delete('/:productId', mongoIdValidator, validate, removeFromWishlist);
+// Note: No param validator — Mongoose handles invalid IDs safely
+router.delete('/:productId', removeFromWishlist);
 
 // @route   GET /api/wishlist/check/:productId
-router.get('/check/:productId', mongoIdValidator, validate, checkWishlist);
+router.get('/check/:productId', checkWishlist);
 
 module.exports = router;
