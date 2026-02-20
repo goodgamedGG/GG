@@ -54,7 +54,7 @@ const userRateLimiter = (windowMs, maxRequests, message) => {
             res.setHeader('Retry-After', retryAfter);
             return res.status(429).json({
                 success: false,
-                error: message || 'Too many requests, please try again later',
+                error: message || 'Too many requests. Please slow down and try again later.',
                 retryAfter
             });
         }
@@ -69,7 +69,11 @@ const userRateLimiter = (windowMs, maxRequests, message) => {
 const apiLimiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
     max: 100, // Limit each IP to 100 requests per windowMs
-    message: 'Too many requests from this IP, please try again later',
+    message: {
+        success: false,
+        message: 'Too many requests from this IP. Please wait 15 minutes before trying again.',
+        error: 'Too many requests from this IP. Please wait 15 minutes before trying again.'
+    },
     standardHeaders: true,
     legacyHeaders: false
 });
@@ -80,7 +84,7 @@ const apiLimiter = rateLimit({
 const userApiLimiter = userRateLimiter(
     15 * 60 * 1000, // 15 minutes
     200, // 200 requests per 15 minutes for authenticated users
-    'Too many requests, please try again later'
+    'Too many requests. Please slow down and try again later.'
 );
 
 /**
@@ -88,8 +92,12 @@ const userApiLimiter = userRateLimiter(
  */
 const authLimiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 50, // Limit each IP to 50 requests per windowMs
-    message: 'Too many authentication attempts, please try again later',
+    max: 500, // Limit each IP to 500 requests per windowMs
+    message: {
+        success: false,
+        message: 'Too many authentication attempts. Please wait 15 minutes and try again.',
+        error: 'Too many authentication attempts. Please wait 15 minutes and try again.'
+    },
     standardHeaders: true,
     legacyHeaders: false,
     skipSuccessfulRequests: true
@@ -101,7 +109,11 @@ const authLimiter = rateLimit({
 const uploadLimiter = rateLimit({
     windowMs: 60 * 60 * 1000, // 1 hour
     max: 20, // Limit each IP to 20 uploads per hour
-    message: 'Too many file uploads, please try again later',
+    message: {
+        success: false,
+        message: 'Too many file uploads. Please wait a while before trying again.',
+        error: 'Too many file uploads. Please wait a while before trying again.'
+    },
     standardHeaders: true,
     legacyHeaders: false
 });
@@ -112,7 +124,7 @@ const uploadLimiter = rateLimit({
 const userUploadLimiter = userRateLimiter(
     60 * 60 * 1000, // 1 hour
     50, // 50 uploads per hour for authenticated users
-    'Too many file uploads, please try again later'
+    'Too many file uploads. Please wait a while before trying again.'
 );
 
 /**
@@ -121,7 +133,7 @@ const userUploadLimiter = userRateLimiter(
 const adminLimiter = userRateLimiter(
     15 * 60 * 1000, // 15 minutes
     500, // 500 requests per 15 minutes for admins
-    'Too many requests, please try again later'
+    'Too many requests. Please slow down and try again later.'
 );
 
 module.exports = {

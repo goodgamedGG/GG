@@ -73,9 +73,12 @@ const errorHandler = (err, req, res, next) => {
     // Send error response
     res.status(error.statusCode).json({
         success: false,
-        message: error.message,
-        error: error.message,
-        ...(process.env.NODE_ENV === 'development' && { stack: err.stack })
+        message: error.isOperational ? error.message : 'Something went wrong. Please try again later.',
+        error: error.isOperational ? error.message : 'Something went wrong',
+        ...(process.env.NODE_ENV === 'development' && {
+            stack: err.stack,
+            originalError: err.message
+        })
     });
 };
 

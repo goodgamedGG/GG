@@ -69,7 +69,7 @@ const login = async (req, res, next) => {
         // Check if user exists
         const user = await User.findOne({ email }).select('+password');
         if (!user) {
-            return next(new AppError('Invalid credentials', HTTP_STATUS.UNAUTHORIZED));
+            return next(new AppError('No account found with this email address', HTTP_STATUS.UNAUTHORIZED));
         }
 
         // Check if account is locked
@@ -81,7 +81,7 @@ const login = async (req, res, next) => {
         const isPasswordMatch = await user.comparePassword(password);
         if (!isPasswordMatch) {
             await user.incrementFailedAttempts();
-            return next(new AppError('Invalid credentials', HTTP_STATUS.UNAUTHORIZED));
+            return next(new AppError('Incorrect password. Please try again.', HTTP_STATUS.UNAUTHORIZED));
         }
 
         // Reset failed attempts on successful login

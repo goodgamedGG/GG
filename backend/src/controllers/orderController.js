@@ -50,7 +50,7 @@ const createOrder = async (req, res, next) => {
         // Validate stock
         const stockValidation = validateStock(cart.items);
         if (!stockValidation.valid) {
-            return next(new AppError(stockValidation.errors.join(', '), HTTP_STATUS.BAD_REQUEST));
+            return next(new AppError(`Some items in your cart are out of stock: ${stockValidation.errors.join(', ')}`, HTTP_STATUS.BAD_REQUEST));
         }
 
         // Create order items snapshot

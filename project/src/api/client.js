@@ -179,6 +179,11 @@ client.interceptors.response.use(
             }
         }
 
+        if (error.response && error.response.data) {
+            const data = error.response.data;
+            error.message = data.message || data.error || error.message;
+        }
+
         return Promise.reject(error);
     }
 );
