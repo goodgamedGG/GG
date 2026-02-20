@@ -14,41 +14,6 @@ const { USER_ROLES } = require('./src/utils/constants');
 const PORT = process.env.PORT || 5000;
 
 /**
- * Create default admin account if it doesn't exist
- */
-const createDefaultAdmin = async () => {
-    try {
-        const adminEmail = process.env.ADMIN_EMAIL;
-
-        if (!adminEmail) {
-            console.warn('⚠️  ADMIN_EMAIL not set in environment variables');
-            return;
-        }
-
-        const existingAdmin = await User.findOne({ email: adminEmail });
-
-        if (existingAdmin) {
-            console.log('✅ Admin account already exists');
-            return;
-        }
-
-        const admin = await User.create({
-            name: process.env.ADMIN_NAME || 'Admin',
-            email: adminEmail,
-            password: process.env.ADMIN_PASSWORD || 'Admin@123456',
-            phone: process.env.ADMIN_PHONE || '+1234567890',
-            role: USER_ROLES.ADMIN,
-            isEmailVerified: true
-        });
-
-        console.log('✅ Default admin account created');
-        console.log(`   Email: ${admin.email}`);
-    } catch (error) {
-        console.error('❌ Error creating admin account:', error.message);
-    }
-};
-
-/**
  * Start server
  */
 const startServer = async () => {
@@ -63,9 +28,6 @@ const startServer = async () => {
         // Start email queue processor
         processEmailQueue();
         console.log('✅ Email queue processor started');
-
-        // Create default admin
-        await createDefaultAdmin();
 
         // Start server
         const server = app.listen(PORT, () => {
