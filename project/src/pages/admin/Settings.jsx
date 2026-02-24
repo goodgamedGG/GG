@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import {
     Save, Settings as SettingsIcon, X, Search, Copy, Check,
     Monitor, Mail, ShoppingBag, Terminal, Shield, Bell,
-    AlertCircle, ChevronRight, Globe, Database, HelpCircle, BookOpen
+    AlertCircle, ChevronRight, Globe, Database, HelpCircle, BookOpen, Upload
 } from 'lucide-react';
 import adminAPI from '../../api/admin';
 import { useToast } from '../../context/ToastContext';
@@ -37,7 +37,13 @@ const Settings = () => {
         { key: 'shop.currency', value: '$', category: 'Sales', description: 'Currency symbol used site-wide' },
         { key: 'shop.free_shipping', value: 50, category: 'Sales', description: 'Cart total required for free shipping' },
         { key: 'marketing.banner_text', value: 'Welcome to our store!', category: 'General', description: 'Text for the top promo banner' },
-        { key: 'marketing.promo_code', value: 'WELCOME10', category: 'Sales', description: 'Active sitewide promo code' }
+        { key: 'marketing.promo_code', value: 'WELCOME10', category: 'Sales', description: 'Active sitewide promo code' },
+        { key: 'marketing.hero_title', value: 'Grand Theft Auto VI', category: 'Marketing', description: 'Title of the hero featured game' },
+        { key: 'marketing.hero_subtitle', value: 'Coming 2025', category: 'Marketing', description: 'Subtitle of the hero featured game' },
+        { key: 'marketing.hero_image', value: '/images/banner.png', category: 'Marketing', description: 'Background image URL for the hero section' },
+        { key: 'marketing.hero_link', value: '#', category: 'Marketing', description: 'Link URL for the hero section View Details button' },
+        { key: 'marketing.hero_label', value: 'Featured Game', category: 'Marketing', description: 'Small label text above the hero title' },
+        { key: 'marketing.hero_button_text', value: 'Coming Soon', category: 'Marketing', description: 'Text for the hero CTA button' }
     ];
 
     useEffect(() => {
@@ -102,6 +108,44 @@ const Settings = () => {
         navigator.clipboard.writeText(text);
         setCopySuccess(text);
         setTimeout(() => setCopySuccess(''), 2000);
+    };
+
+    const handleImageUpload = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        try {
+            setSaving(true);
+            const result = await adminAPI.uploadFile(file);
+            if (result.success && result.data.url) {
+                setEditFormData({ ...editFormData, value: result.data.url });
+                addToast('Image uploaded successfully. Click save to apply.', 'success');
+            }
+        } catch (error) {
+            addToast('Failed to upload image', 'error');
+            console.error('Upload error:', error);
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    const handleImageUploadNewSetting = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        try {
+            setSaving(true);
+            const result = await adminAPI.uploadFile(file);
+            if (result.success && result.data.url) {
+                setNewSetting({ ...newSetting, value: result.data.url });
+                addToast('Image uploaded successfully. Click save to apply.', 'success');
+            }
+        } catch (error) {
+            addToast('Failed to upload image', 'error');
+            console.error('Upload error:', error);
+        } finally {
+            setSaving(false);
+        }
     };
 
     const getCategoryIcon = (category) => {
@@ -277,7 +321,11 @@ const Settings = () => {
                                                                     onChange={e => setEditFormData({ ...editFormData, value: e.target.value })}
                                                                     style={{ width: '120px', height: '32px', fontSize: '12px' }}
                                                                 />
-                                                                <button onClick={() => handleSave()} className="icon-btn" style={{ padding: '4px' }}><Check size={14} /></button>
+                                                                <button onClick={() => handleSave()} className="icon-btn" style={{ padding: '4px' }} disabled={saving}><Check size={14} /></button>
+                                                                <label className="icon-btn" style={{ padding: '4px', cursor: 'pointer', margin: 0, display: 'flex' }} title="Upload Image">
+                                                                    <Upload size={14} />
+                                                                    <input type="file" accept="image/*" style={{ display: 'none' }} onChange={handleImageUpload} />
+                                                                </label>
                                                                 <button onClick={() => setEditingKey(null)} className="icon-btn" style={{ padding: '4px' }}><X size={14} /></button>
                                                             </div>
                                                         ) : (
@@ -343,13 +391,19 @@ const Settings = () => {
                                 </div>
                                 <div className="form-group">
                                     <label className="form-label">Default Value</label>
-                                    <input
-                                        className="form-input"
-                                        value={newSetting.value}
-                                        onChange={e => setNewSetting({ ...newSetting, value: e.target.value })}
-                                        required
-                                        placeholder="Value or JSON"
-                                    />
+                                    <div style={{ display: 'flex', gap: '8px' }}>
+                                        <input
+                                            className="form-input"
+                                            value={newSetting.value}
+                                            onChange={e => setNewSetting({ ...newSetting, value: e.target.value })}
+                                            required
+                                            placeholder="Value or JSON"
+                                        />
+                                        <label className="btn-secondary" style={{ padding: '0 12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }} title="Upload Image">
+                                            <Upload size={16} />
+                                            <input type="file" accept="image/*" style={{ display: 'none' }} onChange={handleImageUploadNewSetting} />
+                                        </label>
+                                    </div>
                                 </div>
                                 <div className="form-group">
                                     <label className="form-label">Description</label>

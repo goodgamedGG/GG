@@ -1,29 +1,25 @@
 import React from 'react';
+import { useSettings } from '../context/SettingsContext';
 
 const Hero = () => {
-    const [banner, setBanner] = React.useState(null);
-    const [loading, setLoading] = React.useState(true);
+    const { getSetting, loadingSettings } = useSettings();
 
-    React.useEffect(() => {
-        const fetchBanner = async () => {
-            try {
-                // Dynamic import to avoid circular dependency if any, though likely safe to import at top
-                const contentAPI = (await import('../api/content')).default;
-                const banners = await contentAPI.getBanners('homepage');
-                if (banners && banners.length > 0) {
-                    setBanner(banners[0]);
-                }
-            } catch (error) {
-                console.error('Failed to load hero banner:', error);
-            } finally {
-                setLoading(false);
-            }
-        };
+    if (loadingSettings) return null; // Or a skeleton
 
-        fetchBanner();
-    }, []);
+    // Fetch values from settings context, defaulting to GTA V fallback
+    const heroImage = getSetting('marketing.hero_image');
+    const heroTitle = getSetting('marketing.hero_title');
+    const heroSubtitle = getSetting('marketing.hero_subtitle');
+    const heroLink = getSetting('marketing.hero_link');
+    const heroLabel = getSetting('marketing.hero_label');
+    const heroButtonText = getSetting('marketing.hero_button_text');
 
-    if (loading) return null; // Or a skeleton
+    const displayImage = heroImage || "/images/banner.png";
+    const displayTitle = heroTitle || "Grand Theft Auto VI";
+    const displaySubtitle = heroSubtitle || "Coming 2025";
+    const displayLink = heroLink || "#";
+    const displayLabel = heroLabel || "Featured Game";
+    const displayButtonText = heroButtonText || (heroLink ? "View Details" : "Coming Soon");
 
     return (
         <section className="hero">
@@ -213,26 +209,26 @@ const Hero = () => {
             <div className="hero-container">
                 <div className="hero-banner-wrapper">
                     <img
-                        src={banner ? banner.image : "/images/banner.png"}
-                        alt={banner ? banner.title : "Featured Game"}
+                        src={displayImage}
+                        alt={displayTitle}
                         className="hero-banner-image"
                     />
                     <div className="hero-overlay"></div>
                     <div className="hero-content">
                         <div className="hero-text">
-                            <div className="hero-label">Featured Game</div>
+                            <div className="hero-label">{displayLabel}</div>
                             <h1 className="hero-title">
-                                {banner?.title || "Grand Theft Auto VI"}
+                                {displayTitle}
                             </h1>
                             <p className="hero-subtitle">
-                                {banner?.description || "Coming 2025"}
+                                {displaySubtitle}
                             </p>
                         </div>
                         <a
-                            href={banner?.link || "#"}
+                            href={displayLink}
                             className="hero-cta"
                         >
-                            {banner?.link ? "View Details" : "Coming Soon"}
+                            {displayButtonText}
                         </a>
                     </div>
                 </div>
