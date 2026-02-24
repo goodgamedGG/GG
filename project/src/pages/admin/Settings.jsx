@@ -5,8 +5,10 @@ import {
     AlertCircle, ChevronRight, Globe, Database, HelpCircle, BookOpen
 } from 'lucide-react';
 import adminAPI from '../../api/admin';
+import { useToast } from '../../context/ToastContext';
 
 const Settings = () => {
+    const { addToast } = useToast();
     const [settings, setSettings] = useState({});
     const [loading, setLoading] = useState(true);
     const [editingKey, setEditingKey] = useState(null);
@@ -46,7 +48,7 @@ const Settings = () => {
         try {
             setLoading(true);
             const result = await adminAPI.getSettings();
-            setSettings(result?.data?.settings || {});
+            setSettings(result?.settings || {});
         } catch (error) {
             console.error('Failed to load settings:', error);
         } finally {
@@ -63,7 +65,7 @@ const Settings = () => {
         });
     };
 
-    const handleSave = async (keyOverride, valueOverride, descOverride, publicOverride) => {
+    const handleSave = async (keyOverride, valueOverride, descOverride, publicOverride, categoryOverride) => {
         const key = keyOverride || editingKey;
         if (!key) return;
 
@@ -72,6 +74,7 @@ const Settings = () => {
             let value = valueOverride !== undefined ? valueOverride : editFormData.value;
             const description = descOverride !== undefined ? descOverride : editFormData.description;
             const isPublic = publicOverride !== undefined ? publicOverride : editFormData.isPublic;
+            const category = categoryOverride !== undefined ? categoryOverride : 'general';
 
             // Type parsing for string values coming from manual text inputs
             if (typeof value === 'string' && keyOverride === undefined) {
@@ -84,9 +87,10 @@ const Settings = () => {
                 }
             }
 
-            await adminAPI.updateSetting(key, value, description, isPublic);
+            await adminAPI.updateSetting(key, value, description, isPublic, category);
             setEditingKey(null);
             loadSettings();
+            addToast('Setting saved. Refresh the page to see changes.', 'success');
         } catch (error) {
             alert('Failed to save setting: ' + error.message);
         } finally {
@@ -326,7 +330,7 @@ const Settings = () => {
                                     <X size={24} />
                                 </button>
                             </div>
-                            <form onSubmit={(e) => { e.preventDefault(); handleSave(newSetting.key, newSetting.value, newSetting.description, newSetting.isPublic); setIsNewModalOpen(false); }}>
+                            <form onSubmit={(e) => { e.preventDefault(); handleSave(newSetting.key, newSetting.value, newSetting.description, newSetting.isPublic, newSetting.category); setIsNewModalOpen(false); }}>
                                 <div className="form-group">
                                     <label className="form-label">Setting Key</label>
                                     <input

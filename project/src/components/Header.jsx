@@ -3,13 +3,19 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { User, Menu, X, LogOut, LayoutDashboard, ShoppingCart, Home, Gamepad2, Layers, Info } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
+import { useSettings } from '../context/SettingsContext';
 
 const Header = () => {
     const { user, logout, isAuthenticated, isAdmin } = useAuth();
     const { itemCount } = useCart();
+    const { getSetting } = useSettings();
     const navigate = useNavigate();
     const location = useLocation();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+    const siteName = getSetting('site.name', 'SUB HUB');
+    const bannerText = getSetting('marketing.banner_text', '');
+    const isMaintenance = getSetting('site.maintenance', false);
 
     // Close menu on route change
     useEffect(() => {
@@ -42,7 +48,40 @@ const Header = () => {
                     z-index: 1000;
                     height: 70px;
                 }
-                
+
+                .header-wrapper {
+                    position: sticky;
+                    top: 0;
+                    z-index: 1000;
+                }
+
+                .promo-banner {
+                    color: white;
+                    text-align: center;
+                    padding: 8px 16px;
+                    font-size: 14px;
+                    font-weight: 600;
+                    font-family: var(--font-display);
+                    letter-spacing: 0.5px;
+                    background-size: cover;
+                    background-position: center;
+                    min-height: 40px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                }
+
+                .maintenance-banner {
+                    background: #ff4444;
+                    color: white;
+                    text-align: center;
+                    padding: 8px 16px;
+                    font-size: 14px;
+                    font-weight: 600;
+                    font-family: var(--font-display);
+                    letter-spacing: 0.5px;
+                }
+
                 .header-container {
                     max-width: 1400px;
                     margin: 0 auto;
@@ -327,111 +366,133 @@ const Header = () => {
                 }
             `}</style>
 
-            <div className="header-container">
-                {/* Left: Brand & Mobile Toggle */}
-                <div className="header-left">
-                    <button
-                        className="icon-btn mobile-toggle"
-                        onClick={() => setIsMenuOpen(true)}
-                        aria-label="Open menu"
+            <div className="header-wrapper">
+                {isMaintenance && (
+                    <div className="maintenance-banner">
+                        🚧 Site is currently in maintenance mode. Only admins have full access. 🚧
+                    </div>
+                )}
+                {!isMaintenance && bannerText && (
+                    <div
+                        className="promo-banner"
+                        style={{
+                            backgroundImage: bannerText.startsWith('http') || bannerText.startsWith('/') ? `url(${bannerText})` : 'none',
+                            background: !(bannerText.startsWith('http') || bannerText.startsWith('/')) ? 'var(--color-cyan-primary, #00d9ff)' : undefined,
+                            color: !(bannerText.startsWith('http') || bannerText.startsWith('/')) ? '#000' : 'white'
+                        }}
                     >
-                        <Menu size={24} />
-                    </button>
-                    <Link to="/" className="logo">
-                        SUB HUB
-                    </Link>
-                </div>
+                        {!(bannerText.startsWith('http') || bannerText.startsWith('/')) && bannerText}
+                    </div>
+                )}
 
-                {/* Center: Navigation (Desktop) */}
-                <div className="header-center">
-                    <nav className="nav-links">
-                        <Link to="/" className={`nav-link ${location.pathname === '/' ? 'active' : ''}`}>Home</Link>
-                        <Link to="/games" className={`nav-link ${location.pathname === '/games' ? 'active' : ''}`}>Games</Link>
-                        <Link to="/categories" className={`nav-link ${location.pathname === '/categories' ? 'active' : ''}`}>Categories</Link>
-                        <Link to="/about" className={`nav-link ${location.pathname === '/about' ? 'active' : ''}`}>About</Link>
-                    </nav>
-                </div>
-
-                {/* Right: User Actions */}
-                <div className="header-actions">
-                    {isAuthenticated ? (
-                        <>
-                            <Link to="/cart" className="icon-btn cart-btn-wrapper" title="Cart">
-                                <ShoppingCart size={22} />
-                                {itemCount > 0 && <span className="cart-badge">{itemCount}</span>}
+                <div className="header" style={{ position: 'relative' }}>
+                    <div className="header-container">
+                        {/* Left: Brand & Mobile Toggle */}
+                        <div className="header-left">
+                            <button
+                                className="icon-btn mobile-toggle"
+                                onClick={() => setIsMenuOpen(true)}
+                                aria-label="Open menu"
+                            >
+                                <Menu size={24} />
+                            </button>
+                            <Link to="/" className="logo">
+                                {siteName}
                             </Link>
+                        </div>
 
-                            <div className="user-profile">
-                                {isAdmin && (
-                                    <Link to="/admin" className="icon-btn" title="Admin Dashboard">
-                                        <LayoutDashboard size={20} />
+                        {/* Center: Navigation (Desktop) */}
+                        <div className="header-center">
+                            <nav className="nav-links">
+                                <Link to="/" className={`nav-link ${location.pathname === '/' ? 'active' : ''}`}>Home</Link>
+                                <Link to="/games" className={`nav-link ${location.pathname === '/games' ? 'active' : ''}`}>Games</Link>
+                                <Link to="/categories" className={`nav-link ${location.pathname === '/categories' ? 'active' : ''}`}>Categories</Link>
+                                <Link to="/about" className={`nav-link ${location.pathname === '/about' ? 'active' : ''}`}>About</Link>
+                            </nav>
+                        </div>
+
+                        {/* Right: User Actions */}
+                        <div className="header-actions">
+                            {isAuthenticated ? (
+                                <>
+                                    <Link to="/cart" className="icon-btn cart-btn-wrapper" title="Cart">
+                                        <ShoppingCart size={22} />
+                                        {itemCount > 0 && <span className="cart-badge">{itemCount}</span>}
                                     </Link>
-                                )}
 
-                                <Link to="/profile" className="user-info" style={{ textDecoration: 'none' }}>
-                                    <User size={20} className="text-cyan-primary" />
-                                    <span className="user-name">{user?.name || 'User'}</span>
+                                    <div className="user-profile">
+                                        {isAdmin && (
+                                            <Link to="/admin" className="icon-btn" title="Admin Dashboard">
+                                                <LayoutDashboard size={20} />
+                                            </Link>
+                                        )}
+
+                                        <Link to="/profile" className="user-info" style={{ textDecoration: 'none' }}>
+                                            <User size={20} className="text-cyan-primary" />
+                                            <span className="user-name">{user?.name || 'User'}</span>
+                                        </Link>
+
+                                        <button className="icon-btn" onClick={handleLogout} title="Logout">
+                                            <LogOut size={20} />
+                                        </button>
+                                    </div>
+                                </>
+                            ) : (
+                                <div className="auth-buttons">
+                                    <Link to="/login" className="btn-login">Login</Link>
+                                    <Link to="/signup" className="btn-signup">Sign Up</Link>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+
+                {/* Mobile Menu Overlay & Drawer */}
+                <div
+                    className={`mobile-menu-overlay ${isMenuOpen ? 'active' : ''}`}
+                    onClick={() => setIsMenuOpen(false)}
+                ></div>
+                <div className={`mobile-menu-content ${isMenuOpen ? 'active' : ''}`}>
+                    <button className="mobile-close-btn" onClick={() => setIsMenuOpen(false)}>
+                        <X size={28} />
+                    </button>
+
+                    <div className="mobile-nav-links">
+                        <Link to="/" className={`mobile-nav-link ${location.pathname === '/' ? 'active' : ''}`}>
+                            <Home size={20} /> Home
+                        </Link>
+                        <Link to="/games" className={`mobile-nav-link ${location.pathname === '/games' ? 'active' : ''}`}>
+                            <Gamepad2 size={20} /> Games
+                        </Link>
+                        <Link to="/categories" className={`mobile-nav-link ${location.pathname === '/categories' ? 'active' : ''}`}>
+                            <Layers size={20} /> Categories
+                        </Link>
+                        <Link to="/about" className={`mobile-nav-link ${location.pathname === '/about' ? 'active' : ''}`}>
+                            <Info size={20} /> About
+                        </Link>
+                    </div>
+
+                    <div style={{ marginTop: 'auto', paddingTop: '20px', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+                        {isAuthenticated ? (
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                                <Link to="/profile" className="mobile-nav-link">
+                                    <User size={20} /> {user?.name || 'Profile'}
                                 </Link>
-
-                                <button className="icon-btn" onClick={handleLogout} title="Logout">
-                                    <LogOut size={20} />
+                                <button
+                                    onClick={handleLogout}
+                                    className="mobile-nav-link"
+                                    style={{ width: '100%', border: 'none', textAlign: 'left', cursor: 'pointer' }}
+                                >
+                                    <LogOut size={20} /> Logout
                                 </button>
                             </div>
-                        </>
-                    ) : (
-                        <div className="auth-buttons">
-                            <Link to="/login" className="btn-login">Login</Link>
-                            <Link to="/signup" className="btn-signup">Sign Up</Link>
-                        </div>
-                    )}
-                </div>
-            </div>
-
-            {/* Mobile Menu Overlay & Drawer */}
-            <div
-                className={`mobile-menu-overlay ${isMenuOpen ? 'active' : ''}`}
-                onClick={() => setIsMenuOpen(false)}
-            ></div>
-            <div className={`mobile-menu-content ${isMenuOpen ? 'active' : ''}`}>
-                <button className="mobile-close-btn" onClick={() => setIsMenuOpen(false)}>
-                    <X size={28} />
-                </button>
-
-                <div className="mobile-nav-links">
-                    <Link to="/" className={`mobile-nav-link ${location.pathname === '/' ? 'active' : ''}`}>
-                        <Home size={20} /> Home
-                    </Link>
-                    <Link to="/games" className={`mobile-nav-link ${location.pathname === '/games' ? 'active' : ''}`}>
-                        <Gamepad2 size={20} /> Games
-                    </Link>
-                    <Link to="/categories" className={`mobile-nav-link ${location.pathname === '/categories' ? 'active' : ''}`}>
-                        <Layers size={20} /> Categories
-                    </Link>
-                    <Link to="/about" className={`mobile-nav-link ${location.pathname === '/about' ? 'active' : ''}`}>
-                        <Info size={20} /> About
-                    </Link>
-                </div>
-
-                <div style={{ marginTop: 'auto', paddingTop: '20px', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
-                    {isAuthenticated ? (
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                            <Link to="/profile" className="mobile-nav-link">
-                                <User size={20} /> {user?.name || 'Profile'}
-                            </Link>
-                            <button
-                                onClick={handleLogout}
-                                className="mobile-nav-link"
-                                style={{ width: '100%', border: 'none', textAlign: 'left', cursor: 'pointer' }}
-                            >
-                                <LogOut size={20} /> Logout
-                            </button>
-                        </div>
-                    ) : (
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                            <Link to="/login" className="mobile-nav-link">Login</Link>
-                            <Link to="/signup" className="mobile-nav-link" style={{ background: 'var(--color-cyan-primary)', color: 'black' }}>Sign Up</Link>
-                        </div>
-                    )}
+                        ) : (
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                                <Link to="/login" className="mobile-nav-link">Login</Link>
+                                <Link to="/signup" className="mobile-nav-link" style={{ background: 'var(--color-cyan-primary)', color: 'black' }}>Sign Up</Link>
+                            </div>
+                        )}
+                    </div>
                 </div>
             </div>
         </header>

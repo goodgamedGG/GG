@@ -8,6 +8,7 @@ import { ToastProvider } from './context/ToastContext';
 import { GameProvider } from './context/GameContext';
 import { ProductProvider } from './context/ProductContext';
 import { LanguageProvider } from './context/LanguageContext'; // Added this
+import { SettingsProvider } from './context/SettingsContext';
 
 // Layouts
 import AuthLayout from './layouts/AuthLayout';
@@ -95,110 +96,112 @@ const App = () => {
         <Router>
             <ToastProvider>
                 <LanguageProvider>  {/* Added Provider */}
-                    <AuthProvider>
-                        <CartProvider>
-                            <ProductProvider>
-                                <GameProvider>
-                                    <Routes>
-                                        {/* Auth Routes */}
-                                        <Route element={<AuthLayout />}>
-                                            <Route path="/login" element={<Login />} />
-                                            <Route path="/signup" element={<SignUp />} />
-                                            <Route path="/verify-email" element={<VerifyEmail />} />
-                                            <Route path="/forgot-password" element={<ForgotPassword />} />
-                                        </Route>
+                    <SettingsProvider>
+                        <AuthProvider>
+                            <CartProvider>
+                                <ProductProvider>
+                                    <GameProvider>
+                                        <Routes>
+                                            {/* Auth Routes */}
+                                            <Route element={<AuthLayout />}>
+                                                <Route path="/login" element={<Login />} />
+                                                <Route path="/signup" element={<SignUp />} />
+                                                <Route path="/verify-email" element={<VerifyEmail />} />
+                                                <Route path="/forgot-password" element={<ForgotPassword />} />
+                                            </Route>
 
-                                        {/* Admin Routes */}
-                                        <Route path="/admin" element={
-                                            <ProtectedRoute requireAdmin>
-                                                <AdminLayout />
-                                            </ProtectedRoute>
-                                        }>
-                                            <Route index element={<Dashboard />} />
-                                            <Route path="products" element={<Products />} />
-                                            <Route path="categories" element={<AdminCategories />} />
-                                            <Route path="orders" element={<Orders />} />
-                                            <Route path="users" element={<Users />} />
-                                            <Route path="analytics" element={<Analytics />} />
-                                            <Route path="payments" element={<Payments />} />
-                                            <Route path="promo-codes" element={<PromoCodes />} />
-                                            <Route path="flash-sales" element={<FlashSales />} />
-                                            <Route path="loyalty" element={<Loyalty />} />
-                                            <Route path="reviews" element={<Reviews />} />
-                                            <Route path="content" element={<Content />} />
-                                            <Route path="newsletter" element={<AdminNewsletter />} />
-                                            <Route path="email-queue" element={<EmailQueue />} />
-                                            <Route path="email-templates" element={<EmailTemplates />} />
-                                            <Route path="audit-logs" element={<AuditLogs />} />
-                                            <Route path="settings" element={<Settings />} />
-                                            <Route path="payment-methods" element={<PaymentMethods />} />
-                                            <Route path="chatbot" element={<AdminChatBot />} />
-                                        </Route>
-
-
-                                        {/* Public Routes */}
-                                        <Route path="/" element={
-                                            <PublicLayout>
-                                                <Home />
-                                            </PublicLayout>
-                                        } />
-                                        <Route path="/games" element={
-                                            <PublicLayout>
-                                                <Games />
-                                            </PublicLayout>
-                                        } />
-                                        <Route path="/categories" element={
-                                            <PublicLayout>
-                                                <Categories />
-                                            </PublicLayout>
-                                        } />
-                                        <Route path="/product/:id" element={
-                                            <PublicLayout>
-                                                <ProductDetails />
-                                            </PublicLayout>
-                                        } />
-                                        <Route path="/cart" element={
-                                            <PublicLayout>
-                                                <Cart />
-                                            </PublicLayout>
-                                        } />
-                                        <Route path="/checkout" element={
-                                            <PublicLayout>
-                                                <ProtectedRoute>
-                                                    <Checkout />
+                                            {/* Admin Routes */}
+                                            <Route path="/admin" element={
+                                                <ProtectedRoute requireAdmin>
+                                                    <AdminLayout />
                                                 </ProtectedRoute>
-                                            </PublicLayout>
-                                        } />
-                                        <Route path="/about" element={
-                                            <PublicLayout>
-                                                <About />
-                                            </PublicLayout>
-                                        } />
-                                        <Route path="/privacy-policy" element={
-                                            <PublicLayout>
-                                                <PrivacyPolicy />
-                                            </PublicLayout>
-                                        } />
-                                        <Route path="/newsletter" element={
-                                            <PublicLayout>
-                                                <Newsletter />
-                                            </PublicLayout>
-                                        } />
+                                            }>
+                                                <Route index element={<Dashboard />} />
+                                                <Route path="products" element={<Products />} />
+                                                <Route path="categories" element={<AdminCategories />} />
+                                                <Route path="orders" element={<Orders />} />
+                                                <Route path="users" element={<Users />} />
+                                                <Route path="analytics" element={<Analytics />} />
+                                                <Route path="payments" element={<Payments />} />
+                                                <Route path="promo-codes" element={<PromoCodes />} />
+                                                <Route path="flash-sales" element={<FlashSales />} />
+                                                <Route path="loyalty" element={<Loyalty />} />
+                                                <Route path="reviews" element={<Reviews />} />
+                                                <Route path="content" element={<Content />} />
+                                                <Route path="newsletter" element={<AdminNewsletter />} />
+                                                <Route path="email-queue" element={<EmailQueue />} />
+                                                <Route path="email-templates" element={<EmailTemplates />} />
+                                                <Route path="audit-logs" element={<AuditLogs />} />
+                                                <Route path="settings" element={<Settings />} />
+                                                <Route path="payment-methods" element={<PaymentMethods />} />
+                                                <Route path="chatbot" element={<AdminChatBot />} />
+                                            </Route>
 
-                                        {/* Fallback */}
-                                        <Route path="*" element={<Navigate to="/" replace />} />
-                                        <Route path="/profile" element={
-                                            <PublicLayout>
-                                                <ProtectedRoute>
-                                                    <Profile />
-                                                </ProtectedRoute>
-                                            </PublicLayout>
-                                        } />
-                                    </Routes>
-                                </GameProvider>
-                            </ProductProvider>
-                        </CartProvider>
-                    </AuthProvider>
+
+                                            {/* Public Routes */}
+                                            <Route path="/" element={
+                                                <PublicLayout>
+                                                    <Home />
+                                                </PublicLayout>
+                                            } />
+                                            <Route path="/games" element={
+                                                <PublicLayout>
+                                                    <Games />
+                                                </PublicLayout>
+                                            } />
+                                            <Route path="/categories" element={
+                                                <PublicLayout>
+                                                    <Categories />
+                                                </PublicLayout>
+                                            } />
+                                            <Route path="/product/:id" element={
+                                                <PublicLayout>
+                                                    <ProductDetails />
+                                                </PublicLayout>
+                                            } />
+                                            <Route path="/cart" element={
+                                                <PublicLayout>
+                                                    <Cart />
+                                                </PublicLayout>
+                                            } />
+                                            <Route path="/checkout" element={
+                                                <PublicLayout>
+                                                    <ProtectedRoute>
+                                                        <Checkout />
+                                                    </ProtectedRoute>
+                                                </PublicLayout>
+                                            } />
+                                            <Route path="/about" element={
+                                                <PublicLayout>
+                                                    <About />
+                                                </PublicLayout>
+                                            } />
+                                            <Route path="/privacy-policy" element={
+                                                <PublicLayout>
+                                                    <PrivacyPolicy />
+                                                </PublicLayout>
+                                            } />
+                                            <Route path="/newsletter" element={
+                                                <PublicLayout>
+                                                    <Newsletter />
+                                                </PublicLayout>
+                                            } />
+
+                                            {/* Fallback */}
+                                            <Route path="*" element={<Navigate to="/" replace />} />
+                                            <Route path="/profile" element={
+                                                <PublicLayout>
+                                                    <ProtectedRoute>
+                                                        <Profile />
+                                                    </ProtectedRoute>
+                                                </PublicLayout>
+                                            } />
+                                        </Routes>
+                                    </GameProvider>
+                                </ProductProvider>
+                            </CartProvider>
+                        </AuthProvider>
+                    </SettingsProvider>
                 </LanguageProvider>
             </ToastProvider>
         </Router>

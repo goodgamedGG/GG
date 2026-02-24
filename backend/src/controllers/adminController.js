@@ -441,7 +441,7 @@ const getSettings = async (req, res, next) => {
 const updateSetting = async (req, res, next) => {
     try {
         const { key } = req.params;
-        const { value, description, isPublic } = req.body;
+        const { value, description, isPublic, category } = req.body;
 
         let setting = await Settings.findOne({ key });
 
@@ -451,12 +451,14 @@ const updateSetting = async (req, res, next) => {
                 value,
                 type: typeof value === 'string' ? 'string' : typeof value === 'number' ? 'number' : typeof value === 'boolean' ? 'boolean' : 'object',
                 description,
+                category: category || 'General',
                 isPublic: isPublic || false
             });
         } else {
             if (value !== undefined) setting.value = value;
             if (description !== undefined) setting.description = description;
             if (isPublic !== undefined) setting.isPublic = isPublic;
+            if (category !== undefined) setting.category = category;
             await setting.save();
         }
 
@@ -726,6 +728,8 @@ const getAllRecentlyViewed = async (req, res, next) => {
         next(error);
     }
 };
+
+
 
 module.exports = {
     getAdminStats,

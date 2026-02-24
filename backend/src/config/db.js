@@ -13,6 +13,7 @@ const connectDB = async () => {
         const options = {
             serverSelectionTimeoutMS: 10000,
             socketTimeoutMS: 45000,
+            useUnifiedTopology: true
         };
 
         logger.info('Attempting MongoDB connection...');

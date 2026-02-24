@@ -152,8 +152,8 @@ const adminAPI = {
         return response.data.data;
     },
 
-    updateSetting: async (key, value, description, isPublic) => {
-        const response = await client.put(`/admin/settings/${key}`, { value, description, isPublic });
+    updateSetting: async (key, value, description, isPublic, category) => {
+        const response = await client.put(`/admin/settings/${key}`, { value, description, isPublic, category });
         return response.data;
     },
 

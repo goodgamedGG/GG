@@ -37,6 +37,7 @@ const imageRoutes = require('./routes/imageRoutes');
 const newsletterRoutes = require('./routes/newsletterRoutes');
 const paymentMethodRoutes = require('./routes/paymentMethodRoutes');
 const chatbotRoutes = require('./routes/chatbotRoutes');
+const settingsRoutes = require('./routes/settingsRoutes');
 
 
 // Initialize Express app
@@ -203,6 +204,7 @@ app.use('/api/images', imageRoutes); // Mount image routes
 app.use('/api/newsletter', newsletterRoutes);
 app.use('/api/payment-methods', paymentMethodRoutes);
 app.use('/api/chatbot', chatbotRoutes);
+app.use('/api/settings', settingsRoutes);
 
 app.use('/api/upload', require('./routes/uploadRoutes'));
 
